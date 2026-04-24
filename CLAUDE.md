@@ -147,8 +147,10 @@ Recurring cross-repo conversation partners — every peer auto-scans this list o
 - rtj
 - kdot
 - soul
+- crate
 - fresh
 - link
+- rfp
 - fish_passage_template_reporting
 
 ## Commit Prefix
