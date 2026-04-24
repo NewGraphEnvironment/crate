@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# R (if/when scripts land)
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Env
+.env
+.env.local
+
+# Claude local settings (keep shared version)
+.claude/settings.local.json
