@@ -78,7 +78,7 @@
 <span></span>
 <span><span class="co"># Ingest a bundled wide-format example fixture (today's upstream shape)</span></span>
 <span><span class="va">wide_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata/examples/bcfp/wide_user_habitat_classification.csv"</span>,</span>
+<span>  <span class="st">"extdata/examples/bcfp/user_habitat_classification_wide.csv"</span>,</span>
 <span>  package <span class="op">=</span> <span class="st">"crate"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/crt_ingest.html">crt_ingest</a></span><span class="op">(</span><span class="st">"bcfp"</span>, <span class="st">"user_habitat_classification"</span>, <span class="va">wide_path</span><span class="op">)</span></span>
@@ -86,7 +86,7 @@
 <span><span class="co"># Ingest the bundled long-format historical fixture — same call,</span></span>
 <span><span class="co"># crate pivots it to canonical wide automatically</span></span>
 <span><span class="va">long_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata/examples/bcfp/long_user_habitat_classification.csv"</span>,</span>
+<span>  <span class="st">"extdata/examples/bcfp/user_habitat_classification_long.csv"</span>,</span>
 <span>  package <span class="op">=</span> <span class="st">"crate"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">long</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/crt_ingest.html">crt_ingest</a></span><span class="op">(</span><span class="st">"bcfp"</span>, <span class="st">"user_habitat_classification"</span>, <span class="va">long_path</span><span class="op">)</span></span>

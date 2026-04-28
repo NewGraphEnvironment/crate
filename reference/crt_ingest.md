@@ -59,7 +59,7 @@ to list registered entries.
 ``` r
 # Read the bundled wide-format fixture (today's upstream shape)
 wide_path <- system.file(
-  "extdata/examples/bcfp/wide_user_habitat_classification.csv",
+  "extdata/examples/bcfp/user_habitat_classification_wide.csv",
   package = "crate"
 )
 wide <- crt_ingest("bcfp", "user_habitat_classification", wide_path)
@@ -81,7 +81,7 @@ wide
 # crt_ingest pivots it to canonical wide automatically - same call,
 # same output shape, regardless of which upstream variant arrived.
 long_path <- system.file(
-  "extdata/examples/bcfp/long_user_habitat_classification.csv",
+  "extdata/examples/bcfp/user_habitat_classification_long.csv",
   package = "crate"
 )
 long <- crt_ingest("bcfp", "user_habitat_classification", long_path)
