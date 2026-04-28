@@ -19,10 +19,12 @@ pak::pak("NewGraphEnvironment/crate")
 
 ## Example
 
-The bundled example shows the value. smnorris (who maintains
-[bcfishpass](https://github.com/smnorris/bcfishpass)) reshaped
-`user_habitat_classification.csv` from “long” to “wide” format on
-2026-04-26. crate handles both:
+[bcfishpass](https://github.com/smnorris/bcfishpass) changed
+`user_habitat_classification.csv` between commit `9cc30fc` (long format
+with text `habitat_ind` indicators) and commit `40c4a0a` (wide format
+with integer `spawning` + `rearing` columns) on 2026-04-26. The reshape
+included both a structural change (one column → two) and a type change
+(text → integer). crate handles both shapes:
 
 ``` r
 library(crate)
@@ -65,6 +67,68 @@ reference](https://newgraphenvironment.github.io/crate/reference/) and
 [browse the
 schemas](https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas).
 
+## How it works
+
+Three pieces wire together at runtime when you call
+`crt_ingest("bcfp", "user_habitat_classification", path)`:
+
+1.  **Registry**
+    ([`inst/extdata/crate_registry.csv`](https://newgraphenvironment.github.io/crate/inst/extdata/crate_registry.csv))
+    — a CSV mapping each `(source, file_name)` pair to a handler
+    function name and a schema YAML path. crate looks up “what do I know
+    about this file?” here.
+
+2.  **Schema YAML**
+    ([`inst/extdata/schemas/bcfp/user_habitat_classification.yaml`](https://newgraphenvironment.github.io/crate/inst/extdata/schemas/bcfp/user_habitat_classification.yaml))
+    — declares the canonical column shape AND each known upstream
+    variant (a column-name set + a normalize-function id). When crate
+    reads the file at `path`, it matches the actual columns against each
+    variant’s declared columns; the first set-equal match wins.
+
+3.  **Handler**
+    ([`R/internal_bcfp_user_habitat_classification.R`](https://newgraphenvironment.github.io/crate/R/internal_bcfp_user_habitat_classification.R))
+    — one function per `(source, file_name)`. Dispatches on the matched
+    variant id and runs the right normalizer:
+
+    - `2026-04-26-wide` → identity passthrough (already canonical)
+    - `pre-2026-04-26-long` → pivot long rows to wide canonical, mapping
+      `habitat_ind` text values to integer indicators
+
+The handler is what made the type change transparent in our example. The
+wide canonical declares `spawning` and `rearing` as integer columns; the
+long upstream had `habitat_ind` as text (`"t"`/`"f"`). The pivot
+function does the text→integer conversion in the same step as the
+long→wide reshape — callers never see either intermediate form.
+
+### Caveat: variant matching is column-names only
+
+[`crt_ingest()`](https://newgraphenvironment.github.io/crate/reference/crt_ingest.md)
+matches input to upstream variants by exact column-name set equality. It
+does not validate column types. If upstream later ships the same column
+names with different types, the handler would receive misshapen data
+without erroring at the variant-match step. Type-aware variant matching
+(declaring `cols: [{name, type}]` and validating both) is a planned
+v0.1.x improvement.
+
+### Adding a new (source, file_name) pair
+
+1.  Author the schema YAML at
+    `inst/extdata/schemas/<source>/<file_name>.yaml`
+2.  Write a normalize handler at `R/internal_<source>_<file_name>.R`
+3.  Add a row to
+    [`inst/extdata/crate_registry.csv`](https://newgraphenvironment.github.io/crate/inst/extdata/crate_registry.csv)
+4.  Write a decision-log entry at
+    `decisions/<source>/<YYYYMMDD>_<topic>.md` if the canonical-shape
+    choice isn’t self-evident
+5.  Add tests + small synthetic fixtures at
+    `inst/extdata/examples/<source>/<file_name>_<variant>.csv`
+
+See
+[`inst/extdata/schemas/README.md`](https://newgraphenvironment.github.io/crate/inst/extdata/schemas/README.md)
+and
+[`decisions/README.md`](https://newgraphenvironment.github.io/crate/decisions/README.md)
+for the conventions on each.
+
 ## What crate handles today
 
 One source family, one file:
@@ -87,11 +151,3 @@ for the format.
 [gq](https://github.com/NewGraphEnvironment/gq),
 [fpr](https://github.com/NewGraphEnvironment/fpr),
 [ngr](https://github.com/NewGraphEnvironment/ngr).
-
-## Adding a new schema or source
-
-See
-[`inst/extdata/schemas/README.md`](https://newgraphenvironment.github.io/crate/inst/extdata/schemas/README.md)
-for the schema YAML format and
-[`decisions/README.md`](https://newgraphenvironment.github.io/crate/decisions/README.md)
-for when (and why) to write a decision log entry.

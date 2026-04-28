@@ -65,7 +65,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>The bundled example shows the value. smnorris (who maintains <a href="https://github.com/smnorris/bcfishpass" class="external-link">bcfishpass</a>) reshaped <code>user_habitat_classification.csv</code> from “long” to “wide” format on 2026-04-26. crate handles both:</p>
+<p><a href="https://github.com/smnorris/bcfishpass" class="external-link">bcfishpass</a> changed <code>user_habitat_classification.csv</code> between commit <code>9cc30fc</code> (long format with text <code>habitat_ind</code> indicators) and commit <code>40c4a0a</code> (wide format with integer <code>spawning</code> + <code>rearing</code> columns) on 2026-04-26. The reshape included both a structural change (one column → two) and a type change (text → integer). crate handles both shapes:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/NewGraphEnvironment/crate" class="external-link">crate</a></span><span class="op">)</span></span>
 <span></span>
@@ -98,6 +98,46 @@
 <p>See the <a href="https://newgraphenvironment.github.io/crate/reference/">function reference</a> and <a href="https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas" class="external-link">browse the schemas</a>.</p>
 </div>
 <div class="section level2">
+<h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+</h2>
+<p>Three pieces wire together at runtime when you call <code>crt_ingest("bcfp", "user_habitat_classification", path)</code>:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Registry</strong> (<a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>) — a CSV mapping each <code>(source, file_name)</code> pair to a handler function name and a schema YAML path. crate looks up “what do I know about this file?” here.</p></li>
+<li><p><strong>Schema YAML</strong> (<a href="inst/extdata/schemas/bcfp/user_habitat_classification.yaml"><code>inst/extdata/schemas/bcfp/user_habitat_classification.yaml</code></a>) — declares the canonical column shape AND each known upstream variant (a column-name set + a normalize-function id). When crate reads the file at <code>path</code>, it matches the actual columns against each variant’s declared columns; the first set-equal match wins.</p></li>
+<li>
+<p><strong>Handler</strong> (<a href="R/internal_bcfp_user_habitat_classification.R"><code>R/internal_bcfp_user_habitat_classification.R</code></a>) — one function per <code>(source, file_name)</code>. Dispatches on the matched variant id and runs the right normalizer:</p>
+<ul>
+<li>
+<code>2026-04-26-wide</code> → identity passthrough (already canonical)</li>
+<li>
+<code>pre-2026-04-26-long</code> → pivot long rows to wide canonical, mapping <code>habitat_ind</code> text values to integer indicators</li>
+</ul>
+</li>
+</ol>
+<p>The handler is what made the type change transparent in our example. The wide canonical declares <code>spawning</code> and <code>rearing</code> as integer columns; the long upstream had <code>habitat_ind</code> as text (<code>"t"</code>/<code>"f"</code>). The pivot function does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form.</p>
+<div class="section level3">
+<h3 id="caveat-variant-matching-is-column-names-only">Caveat: variant matching is column-names only<a class="anchor" aria-label="anchor" href="#caveat-variant-matching-is-column-names-only"></a>
+</h3>
+<p><code><a href="reference/crt_ingest.html">crt_ingest()</a></code> matches input to upstream variants by exact column-name set equality. It does not validate column types. If upstream later ships the same column names with different types, the handler would receive misshapen data without erroring at the variant-match step. Type-aware variant matching (declaring <code>cols: [{name, type}]</code> and validating both) is a planned v0.1.x improvement.</p>
+</div>
+<div class="section level3">
+<h3 id="adding-a-new-source-file_name-pair">Adding a new (source, file_name) pair<a class="anchor" aria-label="anchor" href="#adding-a-new-source-file_name-pair"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Author the schema YAML at <code>inst/extdata/schemas/&lt;source&gt;/&lt;file_name&gt;.yaml</code>
+</li>
+<li>Write a normalize handler at <code>R/internal_&lt;source&gt;_&lt;file_name&gt;.R</code>
+</li>
+<li>Add a row to <a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>
+</li>
+<li>Write a decision-log entry at <code>decisions/&lt;source&gt;/&lt;YYYYMMDD&gt;_&lt;topic&gt;.md</code> if the canonical-shape choice isn’t self-evident</li>
+<li>Add tests + small synthetic fixtures at <code>inst/extdata/examples/&lt;source&gt;/&lt;file_name&gt;_&lt;variant&gt;.csv</code>
+</li>
+</ol>
+<p>See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> and <a href="decisions/README.html"><code>decisions/README.md</code></a> for the conventions on each.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="what-crate-handles-today">What crate handles today<a class="anchor" aria-label="anchor" href="#what-crate-handles-today"></a>
 </h2>
 <p>One source family, one file:</p>
@@ -116,11 +156,6 @@
 <h2 id="sibling-public-packages">Sibling public packages<a class="anchor" aria-label="anchor" href="#sibling-public-packages"></a>
 </h2>
 <p><a href="https://github.com/NewGraphEnvironment/fresh" class="external-link">fresh</a>, <a href="https://github.com/NewGraphEnvironment/link" class="external-link">link</a>, <a href="https://github.com/NewGraphEnvironment/flooded" class="external-link">flooded</a>, <a href="https://github.com/NewGraphEnvironment/gq" class="external-link">gq</a>, <a href="https://github.com/NewGraphEnvironment/fpr" class="external-link">fpr</a>, <a href="https://github.com/NewGraphEnvironment/ngr" class="external-link">ngr</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="adding-a-new-schema-or-source">Adding a new schema or source<a class="anchor" aria-label="anchor" href="#adding-a-new-schema-or-source"></a>
-</h2>
-<p>See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the schema YAML format and <a href="decisions/README.html"><code>decisions/README.md</code></a> for when (and why) to write a decision log entry.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
