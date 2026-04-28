@@ -1,8 +1,10 @@
 # crate <img src="man/figures/logo.png" align="right" height="139" alt="crate hex sticker" />
 
-> Canonical schemas and source-explicit ingest dispatcher for New Graph Environment data.
+> Stable file readers for shape-shifting data sources.
 
-Insulates downstream consumers (link, fresh, reporting repos) from upstream-shape variability. Schemas, decision logs, and adapter functions live together so a schema change becomes one declarative artifact + one normalize handler — not a multi-repo cascade.
+When external data we depend on changes shape — columns renamed, types swapped, layouts flipped — code that reads those files breaks. crate is the one place that knows about all the shape variations.
+
+Call `crt_ingest("source", "file_name", path)` from anywhere. Same call, same output, regardless of which version of the upstream file landed. When upstream changes shape again, fix it once in crate; everywhere downstream keeps working.
 
 ## Installation
 
@@ -11,6 +13,8 @@ pak::pak("NewGraphEnvironment/crate")
 ```
 
 ## Example
+
+The bundled example shows the value. smnorris (who maintains [bcfishpass](https://github.com/smnorris/bcfishpass)) reshaped `user_habitat_classification.csv` from "long" to "wide" format on 2026-04-26. crate handles both:
 
 ```r
 library(crate)
@@ -42,22 +46,22 @@ identical(names(wide), names(long))
 #> [1] TRUE
 ```
 
-When upstream reshapes a CSV (e.g. long → wide), the same `crt_ingest()` call keeps returning canonical output — register the new shape as an `upstream_variant` in the schema YAML, add a normalize handler, and downstream consumers don't need to know.
+When the next upstream reshape happens, the fix is one PR in crate — register the new shape as an `upstream_variant` in the schema YAML and add a small pivot function. Code calling `crt_ingest()` doesn't change.
 
-See the [function reference](https://newgraphenvironment.github.io/crate/reference/) for the public API and [browse the schemas](https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas) to see what canonical shapes look like.
+See the [function reference](https://newgraphenvironment.github.io/crate/reference/) and [browse the schemas](https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas).
 
-## How it fits in the NGE ecosystem
+## What crate handles today
 
-| Repo | Role | Analogy |
-|------|------|---------|
-| [compass](https://github.com/NewGraphEnvironment/compass) | Ethics, values | The "why" |
-| [soul](https://github.com/NewGraphEnvironment/soul) | LLM conventions | The "how" |
-| [compost](https://github.com/NewGraphEnvironment/compost) | Communications | The "who" |
-| [rtj](https://github.com/NewGraphEnvironment/rtj) | Infrastructure / IaC | The "where" |
-| [gq](https://github.com/NewGraphEnvironment/gq) | Cartographic style | The "look" |
-| **crate** | **Canonical schemas + ingest dispatcher** | **The "what"** |
+One source family, one file:
 
-crate is the data-governance layer — declarative schemas as the source of truth, `crt_ingest()` as the executable adapter that downstream packages (`link`, `fresh`, reporting) consume. See `crate/CLAUDE.md` for the boundary with `rfp` (the field-project lifecycle package — different role, different scope).
+- `bcfp` (files from [smnorris/bcfishpass](https://github.com/smnorris/bcfishpass))
+  - `user_habitat_classification` — handles both pre-2026-04-26 long and current 2026-04-26 wide upstream variants
+
+More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a small R function + a registry row. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
+
+## Sibling public packages
+
+[fresh](https://github.com/NewGraphEnvironment/fresh), [link](https://github.com/NewGraphEnvironment/link), [flooded](https://github.com/NewGraphEnvironment/flooded), [gq](https://github.com/NewGraphEnvironment/gq), [fpr](https://github.com/NewGraphEnvironment/fpr), [ngr](https://github.com/NewGraphEnvironment/ngr).
 
 ## Adding a new schema or source
 
