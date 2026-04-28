@@ -52,9 +52,10 @@
 </h1>
 </div>
 <blockquote>
-<p>Canonical schemas and source-explicit ingest dispatcher for New Graph Environment data.</p>
+<p>Stable file readers for shape-shifting data sources.</p>
 </blockquote>
-<p>Insulates downstream consumers (link, fresh, reporting repos) from upstream-shape variability. Schemas, decision logs, and adapter functions live together so a schema change becomes one declarative artifact + one normalize handler — not a multi-repo cascade.</p>
+<p>When external data we depend on changes shape — columns renamed, types swapped, layouts flipped — code that reads those files breaks. crate is the one place that knows about all the shape variations.</p>
+<p>Call <code>crt_ingest("source", "file_name", path)</code> from anywhere. Same call, same output, regardless of which version of the upstream file landed. When upstream changes shape again, fix it once in crate; everywhere downstream keeps working.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -64,6 +65,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
+<p>The bundled example shows the value. smnorris (who maintains <a href="https://github.com/smnorris/bcfishpass" class="external-link">bcfishpass</a>) reshaped <code>user_habitat_classification.csv</code> from “long” to “wide” format on 2026-04-26. crate handles both:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/NewGraphEnvironment/crate" class="external-link">crate</a></span><span class="op">)</span></span>
 <span></span>
@@ -92,57 +94,28 @@
 <span><span class="co"># Both calls return the same canonical column set</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wide</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">long</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>When upstream reshapes a CSV (e.g. long → wide), the same <code><a href="reference/crt_ingest.html">crt_ingest()</a></code> call keeps returning canonical output — register the new shape as an <code>upstream_variant</code> in the schema YAML, add a normalize handler, and downstream consumers don’t need to know.</p>
-<p>See the <a href="https://newgraphenvironment.github.io/crate/reference/">function reference</a> for the public API and <a href="https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas" class="external-link">browse the schemas</a> to see what canonical shapes look like.</p>
+<p>When the next upstream reshape happens, the fix is one PR in crate — register the new shape as an <code>upstream_variant</code> in the schema YAML and add a small pivot function. Code calling <code><a href="reference/crt_ingest.html">crt_ingest()</a></code> doesn’t change.</p>
+<p>See the <a href="https://newgraphenvironment.github.io/crate/reference/">function reference</a> and <a href="https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas" class="external-link">browse the schemas</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="how-it-fits-in-the-nge-ecosystem">How it fits in the NGE ecosystem<a class="anchor" aria-label="anchor" href="#how-it-fits-in-the-nge-ecosystem"></a>
+<h2 id="what-crate-handles-today">What crate handles today<a class="anchor" aria-label="anchor" href="#what-crate-handles-today"></a>
 </h2>
-<table class="table">
-<colgroup>
-<col width="28%">
-<col width="28%">
-<col width="42%">
-</colgroup>
-<thead><tr class="header">
-<th>Repo</th>
-<th>Role</th>
-<th>Analogy</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><a href="https://github.com/NewGraphEnvironment/compass" class="external-link">compass</a></td>
-<td>Ethics, values</td>
-<td>The “why”</td>
-</tr>
-<tr class="even">
-<td><a href="https://github.com/NewGraphEnvironment/soul" class="external-link">soul</a></td>
-<td>LLM conventions</td>
-<td>The “how”</td>
-</tr>
-<tr class="odd">
-<td><a href="https://github.com/NewGraphEnvironment/compost" class="external-link">compost</a></td>
-<td>Communications</td>
-<td>The “who”</td>
-</tr>
-<tr class="even">
-<td><a href="https://github.com/NewGraphEnvironment/rtj" class="external-link">rtj</a></td>
-<td>Infrastructure / IaC</td>
-<td>The “where”</td>
-</tr>
-<tr class="odd">
-<td><a href="https://github.com/NewGraphEnvironment/gq" class="external-link">gq</a></td>
-<td>Cartographic style</td>
-<td>The “look”</td>
-</tr>
-<tr class="even">
-<td><strong>crate</strong></td>
-<td><strong>Canonical schemas + ingest dispatcher</strong></td>
-<td><strong>The “what”</strong></td>
-</tr>
-</tbody>
-</table>
-<p>crate is the data-governance layer — declarative schemas as the source of truth, <code><a href="reference/crt_ingest.html">crt_ingest()</a></code> as the executable adapter that downstream packages (<code>link</code>, <code>fresh</code>, reporting) consume. See <code>crate/CLAUDE.md</code> for the boundary with <code>rfp</code> (the field-project lifecycle package — different role, different scope).</p>
+<p>One source family, one file:</p>
+<ul>
+<li>
+<code>bcfp</code> (files from <a href="https://github.com/smnorris/bcfishpass" class="external-link">smnorris/bcfishpass</a>)
+<ul>
+<li>
+<code>user_habitat_classification</code> — handles both pre-2026-04-26 long and current 2026-04-26 wide upstream variants</li>
+</ul>
+</li>
+</ul>
+<p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a small R function + a registry row. See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
+</div>
+<div class="section level2">
+<h2 id="sibling-public-packages">Sibling public packages<a class="anchor" aria-label="anchor" href="#sibling-public-packages"></a>
+</h2>
+<p><a href="https://github.com/NewGraphEnvironment/fresh" class="external-link">fresh</a>, <a href="https://github.com/NewGraphEnvironment/link" class="external-link">link</a>, <a href="https://github.com/NewGraphEnvironment/flooded" class="external-link">flooded</a>, <a href="https://github.com/NewGraphEnvironment/gq" class="external-link">gq</a>, <a href="https://github.com/NewGraphEnvironment/fpr" class="external-link">fpr</a>, <a href="https://github.com/NewGraphEnvironment/ngr" class="external-link">ngr</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="adding-a-new-schema-or-source">Adding a new schema or source<a class="anchor" aria-label="anchor" href="#adding-a-new-schema-or-source"></a>
