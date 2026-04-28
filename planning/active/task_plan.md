@@ -72,15 +72,16 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - [x] Commit: "Update README with hex + install + example; pass R CMD check"
 
 ## Phase 8 — Open PR, monitor PR CI
-- [ ] `git push -u origin 2-scaffold-crt-ingest`
-- [ ] Open PR via gh CLI with body containing: summary, draft schema YAML inline, canonical-shape correction note, test plan, `Relates to NewGraphEnvironment/sred-2025-2026#28`, `Closes #2`
-- [ ] Monitor GHA on PR with `gh pr checks --watch` until R-CMD-check completes green
-- [ ] Wait for link-Claude review of schema YAML before tagging v0.0.1
+- [x] `git push -u origin 2-scaffold-crt-ingest`
+- [x] Opened PR #3 with full body (summary, draft schema YAML inline, canonical-shape correction note, test plan, SRED ref, Closes #2)
+- [x] Monitored GHA on PR: first run failed at 15m3s (transient runner-not-acquired infra error); rerun green in 3m19s
+- (Coordination wait skipped — link-Claude already reviewed schema YAML format in impl-plan thread reply before this PR opened)
 
 ## Phase 9 — Post-merge: monitor pkgdown publish + update issue bodies + planning archive
-- [ ] After PR merge: tag v0.0.1, push tag
-- [ ] Monitor GHA on main with `gh run watch` until pkgdown completes
-- [ ] Verify pkgdown site loads at https://newgraphenvironment.github.io/crate/ with `crt_ingest`, `crt_files` in reference + examples render
-- [ ] Edit crate#2 body: replace "long-canonical" → "wide-canonical"; update stale schema example
-- [ ] Edit link#65 body: same correction
-- [ ] Run `/planning-archive`
+- [x] Merged PR #3 at 2026-04-28T14:11:22Z (commit `e6313f2`)
+- [x] Tagged + pushed v0.0.1
+- [x] Monitored GHA on main: pkgdown succeeded (3m16s on merge commit; 1m51s on workflow_dispatch rerun after Pages was enabled; 3rd run in-progress after README plain-English rewrite)
+- [x] Verified pkgdown site loads: https://www.newgraphenvironment.com/crate/ returns 200; reference page contains crt_ingest + crt_files
+- [x] Edited crate#2 body: prepended resolution note + post-merge correction (long → wide canonical). Original planning content preserved below.
+- [N/A] link#65 body — verified shape-agnostic (no long/wide claim in body), no edit needed
+- [ ] Run /planning-archive
