@@ -67,8 +67,15 @@
 - Convention check: flooded/fresh/gq all have ONLY pkgdown.yaml (no R-CMD-check). Pkgdown runs R CMD check internally during `build_site_github_pages`. Match convention — single workflow.
 - .github/workflows/pkgdown.yaml: verbatim copy from flooded. Deploys to gh-pages branch on push to main, release, or workflow_dispatch. PRs build but don't deploy. Concurrency-grouped to prevent overlapping runs.
 
+**Phase 6 shipped** as commit `2001396`.
+
+**Phase 7 complete (pre-commit):**
+- Convention check: flooded's README.md is hand-edited (no Rmd source). Mirror — no Rmd build step.
+- README.md rewritten: hex sticker `<img>` at top, one-line tagline, install (pak), runnable example using bundled fixtures showing the wide/long invariance benefit, ecosystem placement table, links to pkgdown reference + schema browser + decisions/schemas READMEs.
+- Cleaned up old scoping content (pre-implementation status notes, comms-thread historical pointers — those belong in CLAUDE.md / git history, not README).
+- devtools::check(): 0 errors, 0 warnings, 1 NOTE ("unable to verify current time" — environmental, network-isolation; CI environment won't reproduce this).
+
 **Next:**
-- Commit Phase 6
-- Phase 7: README.Rmd (with hex from Phase 5) + rebuild README.md + final R CMD check
-- Phase 8: PR + monitor CI on PR
-- Phase 9: post-merge tag, monitor pkgdown publish, edit issue bodies, planning archive
+- Commit Phase 7
+- Phase 8: push branch, open PR with body containing draft schema YAML inline + canonical-shape correction note + SRED ref + Closes #2; monitor pkgdown CI on PR
+- Phase 9: after merge, tag v0.0.1, monitor pkgdown deploy on main, fix issue bodies, /planning-archive

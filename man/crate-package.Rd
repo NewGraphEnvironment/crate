@@ -6,6 +6,8 @@
 \alias{crate-package}
 \title{crate: Canonical Schema and Data Governance for New Graph Environment}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas, decision logs, and adapter functions that insulate downstream consumers (link, fresh, reporting repos) from upstream-shape variability. First instance: bcfishpass override CSVs.
 }
 \seealso{

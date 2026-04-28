@@ -65,10 +65,11 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - [x] Commit: "Add pkgdown.yaml GHA workflow (verbatim from flooded)"
 
 ## Phase 7 — README + final R CMD check
-- [ ] Update `README.Rmd` (rebuild README.md): hex, install snippet, example, pkgdown link
-- [ ] Run `R CMD check` locally — 0/0/0
-- [ ] /code-check the diff
-- [ ] Commit: "Update README with hex + install + example; pass R CMD check"
+- [x] Note: flooded skips README.Rmd (just edits README.md directly with `<img>` tag at top). Mirror that — no Rmd→md rebuild needed.
+- [x] Update `README.md`: hex sticker `<img>` at top right, one-line tagline, install snippet, example showing why crt_ingest is useful (same call works for wide AND long input), link to pkgdown reference + bundled schemas
+- [x] Run `devtools::check()` locally — 0 errors, 0 warnings, 1 NOTE (environmental: "unable to verify current time" from network-isolated R check; won't appear in GHA)
+- [x] /code-check the diff
+- [x] Commit: "Update README with hex + install + example; pass R CMD check"
 
 ## Phase 8 — Open PR, monitor PR CI
 - [ ] `git push -u origin 2-scaffold-crt-ingest`
