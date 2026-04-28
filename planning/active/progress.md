@@ -53,7 +53,16 @@
 - lintr::lint_package() — No lints found (after bumping object_length_linter cap to 50 + adding nolint comments for cross-file function refs and cli-string-interpolated variables)
 - All design decisions from comms thread baked in: source-explicit dispatcher, fail-loud on unknown source/file/shape, runtime YAML validation, tibble return contract
 
+**Phase 4 shipped** as commit `9b55916`. /code-check round 1 clean.
+
+**Phase 5 complete (pre-commit):**
+- data-raw/make_hexsticker.R — verbatim copy from flooded (matches flooded + fresh; script reads pkg name from DESCRIPTION)
+- Ran script: generated man/figures/logo.png (28 KB, 300 dpi) + man/figures/logo_small.png (13 KB, 150 dpi) + downloaded data-raw/nge-icon_white.png (9 KB source)
+- Hex visual: NGE icon (stylized white symbol) on black hexagon, "crate" label below — matches NGE family aesthetic
+- README.Rmd integration deferred to Phase 7 (README.Rmd doesn't exist yet)
+
 **Next:**
-- /code-check Phase 4 diff
-- Commit "Add crt_ingest dispatcher and crt_files registry accessor with runnable examples"
-- Phase 5: hex sticker
+- Commit Phase 5
+- Phase 6: GHA workflows (R-CMD-check + pkgdown.yaml — copy from flooded; deploys to gh-pages branch)
+- Phase 7: README.Rmd (with hex) + final R CMD check
+- Phase 8: PR + monitor CI

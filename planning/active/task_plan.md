@@ -48,15 +48,15 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - [x] Bump `.lintr` object_length_linter cap to 50 (allow `internal_<source>_<file_name>` pattern)
 - [x] devtools::document() + devtools::test() (29 PASS / 0 FAIL / 0 WARN) + lintr::lint_package() (No lints found) — all clean
 - [x] devtools::run_examples() — examples execute cleanly
-- [ ] /code-check the diff
-- [ ] Commit: "Add crt_ingest dispatcher and crt_files registry accessor with runnable examples"
+- [x] /code-check round 1 clean (verified: variant matching, registry lookup, system.file resolution, chk validation paths, fixture-schema col equivalence, -4 preservation)
+- [x] Commit: "Add crt_ingest dispatcher and crt_files registry accessor with runnable examples"
 
 ## Phase 5 — Hex sticker
-- [ ] Create `data-raw/make_hexsticker.R` (mirrors flooded)
-- [ ] Run script, generate `man/figures/logo.png`
-- [ ] Update README.Rmd to reference hex
-- [ ] /code-check the diff
-- [ ] Commit: "Add hex sticker via data-raw/make_hexsticker.R"
+- [x] Copy `data-raw/make_hexsticker.R` from flooded verbatim (script reads pkg name from DESCRIPTION; no per-repo edits)
+- [x] Run script: generates `man/figures/logo.png` (300 dpi pkgdown) + `man/figures/logo_small.png` (150 dpi README) + downloads `data-raw/nge-icon_white.png` source
+- [x] /code-check the diff (binary images + verbatim script)
+- [x] Commit: "Add hex sticker via data-raw/make_hexsticker.R (verbatim from flooded)"
+- README integration moves to Phase 7 (README.Rmd doesn't exist yet — Phase 7 creates it)
 
 ## Phase 6 — GHA workflows
 - [ ] Create `.github/workflows/R-CMD-check.yaml` (copy from flooded)
