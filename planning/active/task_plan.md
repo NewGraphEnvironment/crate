@@ -19,12 +19,12 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - [x] Commit: "Scaffold crate as R package — DESCRIPTION, NAMESPACE, lintr, pkgdown, dev/"
 
 ## Phase 2 — Schema YAML + decision log + dir READMEs
-- [ ] Create `schemas/README.md`
-- [ ] Create `schemas/bcfp/user_habitat_classification.yaml` (canonical wide + 2 known upstream variants)
-- [ ] Create `decisions/README.md`
-- [ ] Create `decisions/bcfp/20260427_user_habitat_classification_wide_canonical.md`
-- [ ] /code-check the diff
-- [ ] Commit: "Add bcfp/user_habitat_classification schema + wide-canonical decision log"
+- [x] Create `inst/extdata/schemas/README.md` (canonical authoring path: under inst/ for runtime access)
+- [x] Create `inst/extdata/schemas/bcfp/user_habitat_classification.yaml` (canonical wide + 2 known upstream variants — yaml::read_yaml validates)
+- [x] Create `decisions/README.md` (root, Rbuildignored — docs only)
+- [x] Create `decisions/bcfp/20260427_user_habitat_classification_wide_canonical.md`
+- [x] /code-check the diff (round 1 clean)
+- [x] Commit: "Add bcfp/user_habitat_classification schema + wide-canonical decision log"
 
 ## Phase 3 — Registry + first-instance handler + example fixtures
 - [ ] Create `inst/extdata/crate_registry.csv` (one row: source=bcfp, file_name=user_habitat_classification, normalize_fn, schema_yaml, canonical_cols)

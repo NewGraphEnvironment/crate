@@ -20,7 +20,15 @@
 - Path decision (vs original plan): schemas/ and decisions/ live at root for human visibility; schemas/ ALSO ships via inst/extdata/schemas/ for runtime access by crt_ingest. Decision finalized when Phase 2 schema authoring lands.
 - Next: /code-check + commit Phase 1
 
-**Phase 1 shipped.** /code-check round 1 clean (no issues). Commit pending.
+**Phase 1 shipped** as commit `838a236`. /code-check round 1 clean.
+
+**Phase 2 complete (pre-commit):**
+- inst/extdata/schemas/README.md, inst/extdata/schemas/bcfp/user_habitat_classification.yaml created
+- decisions/README.md, decisions/bcfp/20260427_user_habitat_classification_wide_canonical.md created
+- yaml::read_yaml validates: file=user_habitat_classification, canonical.shape=wide, 11 canonical cols, 2 upstream variants
+- Path decision finalized: schemas at inst/extdata/schemas/, decisions at root (Rbuildignored). Rationale documented in schemas/README.md and decisions/README.md.
+
+**Phase 2 shipped.** /code-check round 1 clean. Commit pending.
 
 **Next:**
-- Phase 2: schemas + decisions + READMEs (inst/extdata/schemas/bcfp/user_habitat_classification.yaml + decisions/bcfp/20260427_user_habitat_classification_wide_canonical.md)
+- Phase 3: registry CSV + first-instance handler + example fixtures (R/internal_bcfp_user_habitat_classification.R, inst/extdata/crate_registry.csv, inst/extdata/examples/bcfp/{wide,long}_user_habitat_classification.csv, data-raw/crate_registry.R)
