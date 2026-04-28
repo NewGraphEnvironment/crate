@@ -6,16 +6,17 @@ Comms thread: `link/comms/crate/20260427_fresh_bcfishpass_csv_consumers.md` + `2
 Path E architecture: source-explicit dispatcher in crate, source-agnostic API in link (link#65 consumer).
 
 ## Phase 1 — Repo scaffold
-- [ ] Create `DESCRIPTION` (Title, Description, Authors@R w/ ORCID, MIT license, URL = repo + pkgdown site, Imports: chk, cli, dplyr, fs, readr, tibble, tidyr, yaml; Suggests: testthat ≥ 3.0.0, knitr, rmarkdown, lintr, hexSticker; Config/testthat/edition: 3, Roxygen markdown: TRUE)
-- [ ] Create `R/crate-package.R` (package-level docs)
-- [ ] Create `.lintr` (clone from flooded)
-- [ ] Create `.Rbuildignore` (exclude data-raw/, dev/, planning/, comms/, schemas/, decisions/, README.Rmd)
-- [ ] Create `_pkgdown.yml` (bootstrap 5, url)
-- [ ] Create `dev/dev.R` (setup recipe, mirrors flooded)
-- [ ] Create `tests/testthat.R` (boilerplate)
-- [ ] Run `devtools::document()` — populate NAMESPACE
-- [ ] /code-check the diff
-- [ ] Commit: "Scaffold crate as R package — DESCRIPTION, NAMESPACE, lintr, pkgdown, dev/"
+- [x] Create `DESCRIPTION` (Title, Description, Authors@R w/ ORCID, MIT license, URL = repo + pkgdown site, Imports: chk, cli, dplyr, fs, readr, tibble, tidyr, yaml; Suggests: testthat ≥ 3.0.0, knitr, rmarkdown, lintr, hexSticker; Config/testthat/edition: 3, Roxygen markdown: TRUE)
+- [x] Create `R/crate-package.R` (package-level docs)
+- [x] Create `.lintr` (clone from flooded)
+- [x] Create `.Rbuildignore` (exclude data-raw/, dev/, planning/, comms/, decisions/, README.Rmd, .claude/)
+- [x] Create `_pkgdown.yml` (bootstrap 5, url)
+- [x] Create `dev/dev.R` (setup recipe, mirrors flooded)
+- [x] Create `tests/testthat.R` (boilerplate)
+- [x] Create `LICENSE` + `LICENSE.md` (MIT)
+- [x] Run `devtools::document()` — populate NAMESPACE
+- [x] /code-check the diff (round 1 clean)
+- [x] Commit: "Scaffold crate as R package — DESCRIPTION, NAMESPACE, lintr, pkgdown, dev/"
 
 ## Phase 2 — Schema YAML + decision log + dir READMEs
 - [ ] Create `schemas/README.md`

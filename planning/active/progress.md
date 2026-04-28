@@ -14,5 +14,13 @@
 
 **Plan approved.** Starting Phase 1.
 
+**Phase 1 complete (pre-commit):**
+- DESCRIPTION, R/crate-package.R, .lintr, .Rbuildignore, _pkgdown.yml, dev/dev.R, tests/testthat.R, LICENSE, LICENSE.md created
+- devtools::document() ran clean — NAMESPACE populated with @importFrom directives from R/crate-package.R; man/crate-package.Rd generated
+- Path decision (vs original plan): schemas/ and decisions/ live at root for human visibility; schemas/ ALSO ships via inst/extdata/schemas/ for runtime access by crt_ingest. Decision finalized when Phase 2 schema authoring lands.
+- Next: /code-check + commit Phase 1
+
+**Phase 1 shipped.** /code-check round 1 clean (no issues). Commit pending.
+
 **Next:**
-- Phase 1 atomic commit: scaffold (DESCRIPTION, NAMESPACE, R/crate-package.R, .lintr, .Rbuildignore, _pkgdown.yml, dev/dev.R, tests/testthat.R)
+- Phase 2: schemas + decisions + READMEs (inst/extdata/schemas/bcfp/user_habitat_classification.yaml + decisions/bcfp/20260427_user_habitat_classification_wide_canonical.md)

@@ -1,0 +1,37 @@
+Package: crate
+Title: Canonical Schema and Data Governance for New Graph Environment
+Version: 0.0.0.9000
+Authors@R:
+    person("Allan", "Irvine", , "al@newgraphenvironment.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-3495-2128"))
+Description: Source-explicit dispatcher and declarative schemas for
+    canonicalizing heterogeneous data inputs across the New Graph Environment
+    ecosystem. Ships canonical-shape schemas, decision logs, and adapter
+    functions that insulate downstream consumers (link, fresh, reporting
+    repos) from upstream-shape variability. First instance: bcfishpass
+    override CSVs.
+License: MIT + file LICENSE
+URL: https://github.com/NewGraphEnvironment/crate,
+    https://newgraphenvironment.github.io/crate/
+BugReports: https://github.com/NewGraphEnvironment/crate/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1)
+Imports:
+    chk,
+    cli,
+    dplyr,
+    fs,
+    readr,
+    tibble,
+    tidyr,
+    yaml
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    lintr,
+    hexSticker
+Config/testthat/edition: 3
