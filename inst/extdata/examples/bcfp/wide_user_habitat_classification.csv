@@ -1,0 +1,7 @@
+blue_line_key,downstream_route_measure,upstream_route_measure,watershed_group_code,species_code,spawning,rearing,reviewer_name,review_date,source,notes
+356385867,0,208,ELKR,WCT,1,1,KO,2021-01-01,test fixture,both spawning and rearing
+356385867,0,208,ELKR,BT,,1,KO,2021-01-01,test fixture,rearing only
+356400111,500,1500,HORS,SK,1,,SH,2021-02-01,test fixture,spawning only
+356400111,500,1500,HORS,CH,,1,SH,2021-02-01,test fixture,rearing only
+356500222,0,800,HORS,CH,1,1,SH,2021-02-01,test fixture,both spawning and rearing
+356600333,0,300,SKEE,CO,-4,-4,MC,2022-03-01,test fixture,excluded reach (-4)

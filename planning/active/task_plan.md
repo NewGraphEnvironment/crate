@@ -27,13 +27,15 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - [x] Commit: "Add bcfp/user_habitat_classification schema + wide-canonical decision log"
 
 ## Phase 3 — Registry + first-instance handler + example fixtures
-- [ ] Create `inst/extdata/crate_registry.csv` (one row: source=bcfp, file_name=user_habitat_classification, normalize_fn, schema_yaml, canonical_cols)
-- [ ] Create `data-raw/crate_registry.R` (documents how registry was authored)
-- [ ] Create `R/internal_bcfp_user_habitat_classification.R` — wide-input identity + long-input pivot_wider, both return wide-canonical
-- [ ] Create `inst/extdata/examples/bcfp/wide_user_habitat_classification.csv` (~10 rows, covers spawning-only / rearing-only / both / -4 excluded)
-- [ ] Create `inst/extdata/examples/bcfp/long_user_habitat_classification.csv` (~16 rows, semantically equivalent in old long shape)
-- [ ] /code-check the diff
-- [ ] Commit: "Add crate_registry + internal_bcfp_user_habitat_classification handler + example fixtures"
+- [x] Create `inst/extdata/crate_registry.csv` (cols: source, file_name, handler_fn, schema_yaml, canonical_cols — 1 row)
+- [x] Create `data-raw/crate_registry.R` (documents how registry was authored + sanity check)
+- [x] Create `R/internal_bcfp_user_habitat_classification.R` — dispatches on variant_id; identity + pivot_long_to_wide handlers
+- [x] Create `inst/extdata/examples/bcfp/wide_user_habitat_classification.csv` (6 rows: both / spawning-only / rearing-only / -4 excluded)
+- [x] Create `inst/extdata/examples/bcfp/long_user_habitat_classification.csv` (7 rows, equivalent to wide minus the -4 row)
+- [x] Create `data-raw/example_fixtures_bcfp_user_habitat_classification.R` (documents fixture authoring)
+- [x] Manual smoke test: handler runs both paths, invariance check (long pivoted == wide minus -4 row) passes
+- [x] /code-check round 1 clean (one doc/intent mismatch in pivot comment fixed: comment now accurately describes that metadata is part of id_cols and divergent metadata would split — known limitation, deferred until it bites real data)
+- [x] Commit: "Add crate_registry + internal_bcfp_user_habitat_classification handler + example fixtures"
 
 ## Phase 4 — Public API: crt_ingest + crt_files with runnable examples
 - [ ] Create `R/crt_ingest.R` (dispatcher)
