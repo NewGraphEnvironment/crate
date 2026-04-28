@@ -1,0 +1,110 @@
+file: user_habitat_classification
+description: >
+  Per-watershed-group, per-species habitat classification overrides curated upstream
+  by smnorris/bcfishpass. Used by link to override modelled habitat assignments for
+  known field-verified reaches. Downstream consumers (link's processing, fresh's
+  overlay) read this in canonical wide shape regardless of upstream-variant changes.
+
+canonical:
+  shape: wide
+  cols:
+    - name: blue_line_key
+      type: integer
+      required: true
+      notes: Stream segment identifier (key)
+    - name: downstream_route_measure
+      type: double
+      required: true
+      notes: Start of segment range (key)
+    - name: upstream_route_measure
+      type: double
+      required: true
+      notes: End of segment range (key)
+    - name: watershed_group_code
+      type: string
+      required: true
+      notes: Watershed group abbreviation (e.g., ELKR, HORS)
+    - name: species_code
+      type: string
+      required: true
+      notes: Species code (key with above)
+    - name: spawning
+      type: integer
+      required: true
+      notes: "blank/NA = false; 1 = true; -4 = excluded (semantic value preserved by adapter)"
+    - name: rearing
+      type: integer
+      required: true
+      notes: Same encoding as spawning
+    - name: reviewer_name
+      type: string
+      required: false
+      notes: Reviewer initials (metadata)
+    - name: review_date
+      type: string
+      required: false
+      notes: ISO date YYYY-MM-DD (metadata)
+    - name: source
+      type: string
+      required: false
+      notes: Data source citation (metadata)
+    - name: notes
+      type: string
+      required: false
+      notes: Free-text notes (metadata)
+
+upstream_variants:
+  - id: pre-2026-04-26-long
+    description: >
+      Long format with one row per (segment × species × habitat_type) tuple.
+      habitat_type = "spawning" or "rearing"; habitat_ind = "t" or "f" text.
+      Adapter pivots wider to canonical wide.
+    cols:
+      - blue_line_key
+      - downstream_route_measure
+      - upstream_route_measure
+      - watershed_group_code
+      - species_code
+      - habitat_type
+      - habitat_ind
+      - reviewer_name
+      - review_date
+      - source
+      - notes
+    normalize_fn: pivot_long_to_wide
+    last_seen_sha: 9cc30fc
+
+  - id: 2026-04-26-wide
+    description: >
+      Wide format with one row per (segment × species); separate spawning + rearing
+      integer columns. Adapter passes through after schema validation (identity).
+    cols:
+      - blue_line_key
+      - downstream_route_measure
+      - upstream_route_measure
+      - watershed_group_code
+      - species_code
+      - spawning
+      - rearing
+      - reviewer_name
+      - review_date
+      - source
+      - notes
+    normalize_fn: identity
+    first_seen_sha: 40c4a0a
+
+forward_compat:
+  - cols:
+      - lake_rearing
+      - wetland_rearing
+    note: >
+      fresh >= 0.16.0 honors these integer columns. Current upstream doesn't
+      ship them. When upstream adds them, declare in canonical (required: false
+      → required: true once stable) and add a new upstream_variant entry.
+
+decisions:
+  - decisions/bcfp/20260427_user_habitat_classification_wide_canonical.md
+
+upstream_source:
+  repo: smnorris/bcfishpass
+  path: data/user_habitat_classification.csv
