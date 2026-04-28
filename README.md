@@ -28,7 +28,7 @@ crt_files()
 
 # Ingest a bundled wide-format example fixture (today's upstream shape)
 wide_path <- system.file(
-  "extdata/examples/bcfp/wide_user_habitat_classification.csv",
+  "extdata/examples/bcfp/user_habitat_classification_wide.csv",
   package = "crate"
 )
 wide <- crt_ingest("bcfp", "user_habitat_classification", wide_path)
@@ -36,7 +36,7 @@ wide <- crt_ingest("bcfp", "user_habitat_classification", wide_path)
 # Ingest the bundled long-format historical fixture — same call,
 # crate pivots it to canonical wide automatically
 long_path <- system.file(
-  "extdata/examples/bcfp/long_user_habitat_classification.csv",
+  "extdata/examples/bcfp/user_habitat_classification_long.csv",
   package = "crate"
 )
 long <- crt_ingest("bcfp", "user_habitat_classification", long_path)

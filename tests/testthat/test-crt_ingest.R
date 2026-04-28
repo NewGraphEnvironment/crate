@@ -1,13 +1,13 @@
 wide_fixture <- function() {
   system.file(
-    "extdata/examples/bcfp/wide_user_habitat_classification.csv",
+    "extdata/examples/bcfp/user_habitat_classification_wide.csv",
     package = "crate"
   )
 }
 
 long_fixture <- function() {
   system.file(
-    "extdata/examples/bcfp/long_user_habitat_classification.csv",
+    "extdata/examples/bcfp/user_habitat_classification_long.csv",
     package = "crate"
   )
 }

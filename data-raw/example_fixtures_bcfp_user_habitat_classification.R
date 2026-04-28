@@ -1,8 +1,8 @@
 # data-raw/example_fixtures_bcfp_user_habitat_classification.R
 #
 # Documents the example fixture CSVs at:
-#   inst/extdata/examples/bcfp/wide_user_habitat_classification.csv
-#   inst/extdata/examples/bcfp/long_user_habitat_classification.csv
+#   inst/extdata/examples/bcfp/user_habitat_classification_wide.csv
+#   inst/extdata/examples/bcfp/user_habitat_classification_long.csv
 #
 # These are hand-authored synthetic fixtures designed to:
 #   - Be small enough to inspect in one screen (~6 rows wide, ~7 rows long)
@@ -25,12 +25,12 @@
 #      (long historical format predates the -4 encoding)
 #
 # Usage in tests + examples:
-#   system.file("extdata/examples/bcfp/wide_user_habitat_classification.csv", package = "crate")
-#   system.file("extdata/examples/bcfp/long_user_habitat_classification.csv", package = "crate")
+#   system.file("extdata/examples/bcfp/user_habitat_classification_wide.csv", package = "crate")
+#   system.file("extdata/examples/bcfp/user_habitat_classification_long.csv", package = "crate")
 
 # Sanity-check fixtures parse and have expected shape
-wide_path <- "inst/extdata/examples/bcfp/wide_user_habitat_classification.csv"
-long_path <- "inst/extdata/examples/bcfp/long_user_habitat_classification.csv"
+wide_path <- "inst/extdata/examples/bcfp/user_habitat_classification_wide.csv"
+long_path <- "inst/extdata/examples/bcfp/user_habitat_classification_long.csv"
 
 stopifnot(file.exists(wide_path), file.exists(long_path))
 
