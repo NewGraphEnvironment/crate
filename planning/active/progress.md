@@ -40,6 +40,20 @@
 
 **Phase 3 reviewed:** /code-check round 1 returned Clean. Reviewer flagged one minor non-blocking observation (pivot handler comment said "take first per group" but implementation includes metadata in id_cols — divergent metadata across paired long rows would split into 2 wide rows). Fixed the comment to accurately describe the implementation + flagged the limitation for future fix-if-it-bites. Real-world long data has constant metadata per group; YAGNI on the proper aggregate-metadata fix.
 
+**Phase 3 shipped** as commit `e7a1811`.
+
+**Phase 4 complete (pre-commit):**
+- R/crt_ingest.R + R/crt_files.R (exported public API)
+- R/registry_load.R (private helper — single source of truth for registry CSV reading; DRY across crt_files + crt_ingest; refactored mid-Phase from initial dotted-prefix `.crate_registry()`)
+- Both public funcs have runnable @examples using bundled fixtures via system.file()
+- tests/testthat/{test-crt_ingest.R,test-crt_files.R} — 13 tests total, all passing
+- devtools::document() — clean (after second pass; first pass had expected unresolved-link warning that resolves once crt_ingest is documented)
+- devtools::test() — 29 PASS / 0 FAIL / 0 WARN / 0 SKIP
+- devtools::run_examples() — both examples execute clean, output sensible
+- lintr::lint_package() — No lints found (after bumping object_length_linter cap to 50 + adding nolint comments for cross-file function refs and cli-string-interpolated variables)
+- All design decisions from comms thread baked in: source-explicit dispatcher, fail-loud on unknown source/file/shape, runtime YAML validation, tibble return contract
+
 **Next:**
-- Commit Phase 3
-- Phase 4: crt_ingest dispatcher + crt_files registry accessor + tests + runnable examples
+- /code-check Phase 4 diff
+- Commit "Add crt_ingest dispatcher and crt_files registry accessor with runnable examples"
+- Phase 5: hex sticker

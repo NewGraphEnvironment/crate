@@ -38,13 +38,16 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - [x] Commit: "Add crate_registry + internal_bcfp_user_habitat_classification handler + example fixtures"
 
 ## Phase 4 — Public API: crt_ingest + crt_files with runnable examples
-- [ ] Create `R/crt_ingest.R` (dispatcher)
-- [ ] Add runnable @examples to crt_ingest using bundled fixtures via system.file()
-- [ ] Create `R/crt_files.R` (registry accessor)
-- [ ] Add runnable @examples to crt_files
-- [ ] Create `tests/testthat/test-crt_ingest.R` (5+ test cases)
-- [ ] Create `tests/testthat/test-crt_files.R` (registry shape + filter)
-- [ ] Run `devtools::document()` + `devtools::test()` + `lintr::lint_package()` — all clean
+- [x] Create `R/crt_ingest.R` (dispatcher)
+- [x] Add runnable @examples to crt_ingest using bundled fixtures via system.file()
+- [x] Create `R/crt_files.R` (registry accessor)
+- [x] Add runnable @examples to crt_files
+- [x] Refactor: extract `R/registry_load.R` private helper called by both (DRY + cleaner separation)
+- [x] Create `tests/testthat/test-crt_ingest.R` (8 test cases: identity, pivot, invariance, -4 preservation, unknown source/file, missing path, garbage shape, type validation)
+- [x] Create `tests/testthat/test-crt_files.R` (5 test cases: shape, contains-bcfp-uhc, source filter, bogus filter, type validation)
+- [x] Bump `.lintr` object_length_linter cap to 50 (allow `internal_<source>_<file_name>` pattern)
+- [x] devtools::document() + devtools::test() (29 PASS / 0 FAIL / 0 WARN) + lintr::lint_package() (No lints found) — all clean
+- [x] devtools::run_examples() — examples execute cleanly
 - [ ] /code-check the diff
 - [ ] Commit: "Add crt_ingest dispatcher and crt_files registry accessor with runnable examples"
 
