@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2026-04-28T17:02Z
+last_built: 2026-04-28T17:03Z
 urls:
   reference: https://newgraphenvironment.github.io/crate/reference
   article: https://newgraphenvironment.github.io/crate/articles
