@@ -59,10 +59,10 @@ Path E architecture: source-explicit dispatcher in crate, source-agnostic API in
 - README integration moves to Phase 7 (README.Rmd doesn't exist yet — Phase 7 creates it)
 
 ## Phase 6 — GHA workflows
-- [ ] Create `.github/workflows/R-CMD-check.yaml` (copy from flooded)
-- [ ] Create `.github/workflows/pkgdown.yaml` (copy from flooded — conditional deploy on main)
-- [ ] /code-check the diff
-- [ ] Commit: "Add R-CMD-check + pkgdown GHA workflows"
+- [x] Note: flooded/fresh/gq all have ONLY pkgdown.yaml (no separate R-CMD-check workflow). Pkgdown's `build_site_github_pages` implicitly runs R CMD check. Match convention.
+- [x] Copy `.github/workflows/pkgdown.yaml` from flooded verbatim (deploys to gh-pages branch on push to main / release / workflow_dispatch; PRs build only)
+- [x] /code-check the diff
+- [x] Commit: "Add pkgdown.yaml GHA workflow (verbatim from flooded)"
 
 ## Phase 7 — README + final R CMD check
 - [ ] Update `README.Rmd` (rebuild README.md): hex, install snippet, example, pkgdown link

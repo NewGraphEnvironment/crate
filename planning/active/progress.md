@@ -61,8 +61,14 @@
 - Hex visual: NGE icon (stylized white symbol) on black hexagon, "crate" label below — matches NGE family aesthetic
 - README.Rmd integration deferred to Phase 7 (README.Rmd doesn't exist yet)
 
+**Phase 5 shipped** as commit `6c2cc78`.
+
+**Phase 6 complete (pre-commit):**
+- Convention check: flooded/fresh/gq all have ONLY pkgdown.yaml (no R-CMD-check). Pkgdown runs R CMD check internally during `build_site_github_pages`. Match convention — single workflow.
+- .github/workflows/pkgdown.yaml: verbatim copy from flooded. Deploys to gh-pages branch on push to main, release, or workflow_dispatch. PRs build but don't deploy. Concurrency-grouped to prevent overlapping runs.
+
 **Next:**
-- Commit Phase 5
-- Phase 6: GHA workflows (R-CMD-check + pkgdown.yaml — copy from flooded; deploys to gh-pages branch)
-- Phase 7: README.Rmd (with hex) + final R CMD check
-- Phase 8: PR + monitor CI
+- Commit Phase 6
+- Phase 7: README.Rmd (with hex from Phase 5) + rebuild README.md + final R CMD check
+- Phase 8: PR + monitor CI on PR
+- Phase 9: post-merge tag, monitor pkgdown publish, edit issue bodies, planning archive
