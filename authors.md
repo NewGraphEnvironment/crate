@@ -1,0 +1,23 @@
+# Authors and Citation
+
+## Authors
+
+- **Allan Irvine**. Author, maintainer.
+  [](https://orcid.org/0000-0002-3495-2128)
+
+## Citation
+
+Source:
+[`DESCRIPTION`](https://github.com/NewGraphEnvironment/crate/blob/main/DESCRIPTION)
+
+Irvine A (2026). *crate: Canonical Schema and Data Governance for New
+Graph Environment*. R package version 0.0.0.9000,
+<https://github.com/NewGraphEnvironment/crate>.
+
+    @Manual{,
+      title = {crate: Canonical Schema and Data Governance for New Graph Environment},
+      author = {Allan Irvine},
+      year = {2026},
+      note = {R package version 0.0.0.9000},
+      url = {https://github.com/NewGraphEnvironment/crate},
+    }
