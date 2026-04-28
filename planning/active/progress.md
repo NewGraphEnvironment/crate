@@ -75,7 +75,25 @@
 - Cleaned up old scoping content (pre-implementation status notes, comms-thread historical pointers — those belong in CLAUDE.md / git history, not README).
 - devtools::check(): 0 errors, 0 warnings, 1 NOTE ("unable to verify current time" — environmental, network-isolation; CI environment won't reproduce this).
 
-**Next:**
-- Commit Phase 7
-- Phase 8: push branch, open PR with body containing draft schema YAML inline + canonical-shape correction note + SRED ref + Closes #2; monitor pkgdown CI on PR
-- Phase 9: after merge, tag v0.0.1, monitor pkgdown deploy on main, fix issue bodies, /planning-archive
+**Phase 7 shipped** as commit `07fe3f4`.
+
+**Phase 8 in progress:**
+- Branch pushed: `2-scaffold-crt-ingest`
+- PR opened: https://github.com/NewGraphEnvironment/crate/pull/3 with full body (draft schema YAML inline, canonical-shape correction note, test plan, SRED ref, Closes #2)
+- First CI run failed at 15m3s with infrastructure error "The job was not acquired by Runner of type hosted" — GitHub Actions runner capacity issue, NOT code failure. Re-ran workflow.
+- Second CI run pending; monitoring in background
+
+**Phase 8 shipped.** PR #3 merged at 2026-04-28T14:11:22Z (commit `e6313f2`). CI rerun green (3m19s) after first attempt hit a transient runner-capacity error.
+
+**Phase 9 complete:**
+- Tagged `v0.0.1`, pushed tag (commit `e6313f2`)
+- Pkgdown CI on main: succeeded (3m16s) — Deploy step ran, gh-pages branch updated
+- Pages enabled mid-Phase-9 by user (was 404 redirect before); workflow_dispatch rerun (1m51s) deployed cleanly afterward
+- README rewritten in plain English + dropped private-repo references (commit `cdc316b`); triggered another pkgdown build that's in-progress at archive time
+- Site verified live: https://www.newgraphenvironment.com/crate/ returns 200; reference page contains `crt_ingest` + `crt_files`
+- crate#2 body: prepended resolution note + post-merge correction (long-canonical assumption was wrong; actual shipped is wide). Original planning content preserved below the note.
+- link#65 body: NOT edited — verified shape-agnostic (references schema YAML by name without claiming long or wide; future readers follow the link to the actual wide-canonical schema)
+- Convention surfaced for soul propagation (deferred): "public READMEs reference only public repos; CLAUDE.md (visible internally; for crate, deliberately public) carries the full ecosystem map"
+- /planning-archive next
+
+**Done.** crate v0.0.1 shipped end-to-end. Branch `2-scaffold-crt-ingest` merged + deleted. Tag `v0.0.1` pushed. pkgdown site live. Issue resolved.
