@@ -53,12 +53,15 @@ Locks 3 design decisions: Convention C naming, schema-as-contract scope (types n
 - [x] Commit: "Add direct tests for crt_registry_load + crt_handler_bcfp_user_habitat_classification"
 
 ## Phase 6 — README + DESCRIPTION + R CMD check
-- [ ] Update README.md "How it works" (5 pieces) + caveat (variant-matching narrowed)
-- [ ] Add brief schema-family-naming note to README for future readers
-- [ ] Bump DESCRIPTION Version to 0.0.2
-- [ ] devtools::check() — 0/0/≤1
-- [ ] /code-check
-- [ ] Commit: "Update README + bump Version to 0.0.2"
+- [x] Updated README.md "How it works" — now 5 pieces (registry, schema YAML, handler, validation, type enforcement); each cites real R function
+- [x] Added "Naming convention" section to README documenting Convention C + reserved future families
+- [x] Updated caveat — narrower (variant-matching by names only is still v0.1.x; types AND required-cols ARE enforced now)
+- [x] Updated "Adding a new (source, file_name) pair" recipe to point at `R/crt_handler_<source>_<file_name>.R`
+- [x] Bumped DESCRIPTION Version 0.0.0.9000 → 0.0.2
+- [x] Fixed roxygen Rd link warning in R/crt_schema_read.R (broken `[crt_schema_*]` link → `crt_schema_*` markdown code)
+- [x] devtools::check() clean — 0 errors, 0 warnings, 0 notes
+- [x] /code-check round 1 clean
+- [x] Commit: "Update README + bump Version to 0.0.2 + fix roxygen Rd link"
 
 ## Phase 7 — Open PR, monitor CI
 - [ ] git push branch

@@ -3,7 +3,7 @@
 #' Resolves the YAML file path within crate's installed package via
 #' [system.file()], then reads + parses it via [yaml::read_yaml()]. Single
 #' source of truth for "load a schema YAML by registry-declared path" — used
-#' by [crt_ingest()] and available for any future [crt_schema_*] family
+#' by [crt_ingest()] and available for any future `crt_schema_*` family
 #' member that needs schema access.
 #'
 #' @param yaml_path Character. Path relative to `inst/extdata/` in crate.

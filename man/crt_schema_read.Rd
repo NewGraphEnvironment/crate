@@ -17,7 +17,7 @@ The parsed schema as a nested list (yaml::read_yaml output).
 Resolves the YAML file path within crate's installed package via
 \code{\link[=system.file]{system.file()}}, then reads + parses it via \code{\link[yaml:read_yaml]{yaml::read_yaml()}}. Single
 source of truth for "load a schema YAML by registry-declared path" — used
-by \code{\link[=crt_ingest]{crt_ingest()}} and available for any future \link{crt_schema_*} family
+by \code{\link[=crt_ingest]{crt_ingest()}} and available for any future \verb{crt_schema_*} family
 member that needs schema access.
 }
 \keyword{internal}

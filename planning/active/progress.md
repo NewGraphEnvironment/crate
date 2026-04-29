@@ -63,5 +63,14 @@
 - R/ lintr clean.
 - Code-check round 1 clean.
 
+**Phase 5 shipped** as commit `420950c`.
+
+**Phase 6 complete (pre-commit):**
+- README.md: "How it works" expanded from 3 to 5 pieces (registry, schema YAML, handler, validation, type enforcement). Each cites the real R function. Added new "Naming convention" section documenting Convention C + reserved future families. Updated caveat (variant matching by names only still v0.1.x; types + required-cols enforced now). Updated "Adding a new" recipe to point at correct `R/crt_handler_<source>_<file_name>.R` path.
+- DESCRIPTION: Version bumped from 0.0.0.9000 (dev sentinel) to 0.0.2 (skipping 0.0.1 which was prior tagged release).
+- R/crt_schema_read.R: fixed broken roxygen Rd link `[crt_schema_*]` → `\`crt_schema_*\`` (markdown code, not a link).
+- devtools::check(): **0 errors, 0 warnings, 0 notes** — fully clean.
+- Code-check round 1 clean.
+
 **Next:**
-- Commit Phase 5 → Phase 6 (README + DESCRIPTION + R CMD check)
+- Commit Phase 6 → Phase 7 (push branch, open PR, monitor CI)
