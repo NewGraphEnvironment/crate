@@ -67,17 +67,7 @@ crt_ingest <- function(source, file_name, path) {
     ))
   }
 
-  schema_yaml_rel <- matched$schema_yaml[[1L]]
-  schema_path <- system.file(
-    file.path("extdata", schema_yaml_rel),
-    package = "crate"
-  )
-  if (!nzchar(schema_path)) {
-    cli::cli_abort(
-      "Schema YAML not bundled at inst/extdata/{schema_yaml_rel}"
-    )
-  }
-  schema <- yaml::read_yaml(schema_path)
+  schema <- crt_schema_read(matched$schema_yaml[[1L]]) # nolint: object_usage_linter.
 
   raw <- readr::read_csv(path, show_col_types = FALSE)
   raw_cols <- names(raw)

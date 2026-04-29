@@ -22,12 +22,12 @@ Locks 3 design decisions: Convention C naming, schema-as-contract scope (types n
 - [x] Commit: "Rename internals to Convention C (crt_* prefix, family-namespaced)"
 
 ## Phase 2 — Add crt_schema_read
-- [ ] Create `R/crt_schema_read.R` (path resolution + read_yaml)
-- [ ] Update `R/crt_ingest.R` to use it
-- [ ] Create `tests/testthat/test-crt_schema_read.R`
-- [ ] document + test + lint
-- [ ] /code-check
-- [ ] Commit: "Extract crt_schema_read() — single source of truth for schema YAML loading"
+- [x] Created `R/crt_schema_read.R` (path resolution + read_yaml)
+- [x] Updated `R/crt_ingest.R` to use it (replaced 10 inline lines with 1 call)
+- [x] Created `tests/testthat/test-crt_schema_read.R` (3 test_that blocks: bundled-path success, missing-path throws, type validation)
+- [x] document + test (38 PASS) + lint clean
+- [x] /code-check round 1 clean
+- [x] Commit: "Extract crt_schema_read() — single source of truth for schema YAML loading"
 
 ## Phase 3 — Add crt_schema_apply
 - [ ] Create `R/crt_schema_apply.R` (re-implement from abandoned 65-schema-driven-types branch under Convention C name)

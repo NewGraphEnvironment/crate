@@ -24,5 +24,15 @@
 - 29/29 tests PASS, lintr clean (one pre-existing unrelated data-raw warning), document clean
 - Code-check round 1 clean (reviewer flagged that README + decisions/ have stale name references; planned for Phase 6 README update — out of scope for Phase 1 atomic)
 
+**Phase 1 shipped** as commit `da40dcc`.
+
+**Phase 2 complete (pre-commit):**
+- New `R/crt_schema_read.R` — extracts inline yaml::read_yaml + system.file path resolution from crt_ingest into a dedicated internal function. Single source of truth for schema YAML loading. chk-validates yaml_path arg.
+- `R/crt_ingest.R` shed ~10 inline lines; now calls `crt_schema_read(matched$schema_yaml[[1L]])`.
+- New `tests/testthat/test-crt_schema_read.R` — 3 test_that blocks cover bundled-path success, missing-path fail-loud, type validation.
+- 38/38 tests PASS (was 29; +9 from new test file's 3 blocks × multiple expectations).
+- lintr clean (one pre-existing data-raw warning still present).
+- Code-check round 1 clean.
+
 **Next:**
-- Commit Phase 1 → Phase 2 (crt_schema_read)
+- Commit Phase 2 → Phase 3 (crt_schema_apply)
