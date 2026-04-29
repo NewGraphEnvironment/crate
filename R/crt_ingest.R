@@ -100,6 +100,12 @@ crt_ingest <- function(source, file_name, path) {
   )
   result <- handler(raw, matched_variant$id)
 
+  # Validate canonical-shape contract: required cols must be present.
+  # Runs BEFORE crt_schema_apply because a missing required col would
+  # silently become NA after coercion; surface the failure at the
+  # right layer.
+  crt_schema_validate(result, schema) # nolint: object_usage_linter.
+
   # Schema-driven canonical typing. The schema YAML declares the type of
   # every canonical column; crt_schema_apply() enforces those declarations
   # on the handler's output. Handlers stay focused on shape transforms

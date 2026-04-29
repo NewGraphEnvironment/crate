@@ -38,12 +38,12 @@ Locks 3 design decisions: Convention C naming, schema-as-contract scope (types n
 - [x] Commit: "Add crt_schema_apply() — schema-driven canonical type enforcement"
 
 ## Phase 4 — Add crt_schema_validate
-- [ ] Create `R/crt_schema_validate.R` (required-cols check; future-proof for range/enum/predicate)
-- [ ] Update `R/crt_ingest.R` to call it BEFORE crt_schema_apply (validate shape, then coerce types)
-- [ ] Create `tests/testthat/test-crt_schema_validate.R`
-- [ ] document + test + lint
-- [ ] /code-check
-- [ ] Commit: "Add crt_schema_validate() — required-cols enforcement"
+- [x] Created `R/crt_schema_validate.R` (required-cols check; @details documents reserved family slots for range/enum/predicate)
+- [x] Updated `R/crt_ingest.R` to call BEFORE crt_schema_apply with explanatory comment + nolint
+- [x] Created `tests/testthat/test-crt_schema_validate.R` (6 test_that blocks: silent on success; throws listing missing; required:false skipped; absent-key skipped; no canonical.cols no-op; end-to-end via crt_ingest)
+- [x] document + test (60 PASS) + lint clean (R/ clean)
+- [x] /code-check round 1 clean
+- [x] Commit: "Add crt_schema_validate() — required-cols enforcement"
 
 ## Phase 5 — Direct tests for crt_registry_load + handler
 - [ ] Create `tests/testthat/test-crt_registry_load.R`

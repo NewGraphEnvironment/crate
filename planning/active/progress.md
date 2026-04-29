@@ -44,5 +44,15 @@
 - 54/54 tests PASS. R/ lintr clean.
 - Code-check round 1 clean.
 
+**Phase 3 shipped** as commit `152b1ef`.
+
+**Phase 4 complete (pre-commit):**
+- New `R/crt_schema_validate.R` — walks `canonical.cols`, accumulates missing required cols, throws fail-loud listing all (one cli_abort, all info). Skips cols with `required: false` or absent `required` key (liberal: only enforce explicit required:true).
+- `R/crt_ingest.R` — added `crt_schema_validate(result, schema)` call AFTER handler dispatch and BEFORE `crt_schema_apply` (validate shape first, coerce types second). Explanatory comment block.
+- New `tests/testthat/test-crt_schema_validate.R` — 6 test_that blocks covering all branches: success silent; multiple-missing throws listing all names; required:false skip; absent-key skip; no canonical.cols no-op; end-to-end success via crt_ingest.
+- @details in roxygen reserves future family slots (range/enum/predicate) without implementing — schema YAML drives behavior, function signature stays stable.
+- 60/60 tests PASS. R/ lintr clean.
+- Code-check round 1 clean.
+
 **Next:**
-- Commit Phase 3 → Phase 4 (crt_schema_validate)
+- Commit Phase 4 → Phase 5 (direct tests for crt_registry_load + crt_handler)
