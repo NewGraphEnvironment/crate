@@ -54,5 +54,14 @@
 - 60/60 tests PASS. R/ lintr clean.
 - Code-check round 1 clean.
 
+**Phase 4 shipped** as commit `74bb4b6`.
+
+**Phase 5 complete (pre-commit):**
+- New `tests/testthat/test-crt_registry_load.R` — 4 test_that blocks: returns tibble with expected cols; non-empty; contains bcfp/user_habitat_classification entry pointing at renamed handler; all cols read as character (no auto-type coercion).
+- New `tests/testthat/test-crt_handler_bcfp_user_habitat_classification.R` — 8 test_that blocks covering: dispatcher branches (wide + long variant_id); unknown variant_id throws; both helpers' required-cols validation paths; -4 preservation in identity; both spawning+rearing produced after pivot; canonical column order from identity.
+- 86/86 tests PASS (was 60; +26 from new test files).
+- R/ lintr clean.
+- Code-check round 1 clean.
+
 **Next:**
-- Commit Phase 4 → Phase 5 (direct tests for crt_registry_load + crt_handler)
+- Commit Phase 5 → Phase 6 (README + DESCRIPTION + R CMD check)

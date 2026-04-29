@@ -46,11 +46,11 @@ Locks 3 design decisions: Convention C naming, schema-as-contract scope (types n
 - [x] Commit: "Add crt_schema_validate() — required-cols enforcement"
 
 ## Phase 5 — Direct tests for crt_registry_load + handler
-- [ ] Create `tests/testthat/test-crt_registry_load.R`
-- [ ] Create `tests/testthat/test-crt_handler_bcfp_user_habitat_classification.R`
-- [ ] document + test + lint
-- [ ] /code-check
-- [ ] Commit: "Add direct tests for crt_registry_load + crt_handler_bcfp_user_habitat_classification"
+- [x] Created `tests/testthat/test-crt_registry_load.R` (4 test_that blocks: shape, non-empty, bcfp/uhc entry, all-character types)
+- [x] Created `tests/testthat/test-crt_handler_bcfp_user_habitat_classification.R` (8 test_that blocks: dispatcher branches, unknown variant_id throws, helper required-cols validation, -4 preservation, both spawning+rearing produced after pivot, canonical column order)
+- [x] test (86 PASS) + lint clean
+- [x] /code-check round 1 clean
+- [x] Commit: "Add direct tests for crt_registry_load + crt_handler_bcfp_user_habitat_classification"
 
 ## Phase 6 — README + DESCRIPTION + R CMD check
 - [ ] Update README.md "How it works" (5 pieces) + caveat (variant-matching narrowed)
