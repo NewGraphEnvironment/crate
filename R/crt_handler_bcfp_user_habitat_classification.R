@@ -1,4 +1,4 @@
-#' Internal handler: bcfp/user_habitat_classification
+#' Internal handler dispatcher: bcfp/user_habitat_classification
 #'
 #' Called by [crt_ingest()] via the registry's `handler_fn` lookup. Dispatches
 #' on `variant_id` (matched upstream from schema YAML) to the appropriate
@@ -12,18 +12,21 @@
 #' @return A tibble in canonical wide shape (per
 #'   `inst/extdata/schemas/bcfp/user_habitat_classification.yaml`).
 #' @keywords internal
-internal_bcfp_user_habitat_classification <- function(raw, variant_id) {
+crt_handler_bcfp_user_habitat_classification <- function(raw, variant_id) {
   switch(
     variant_id,
-    "2026-04-26-wide" = bcfp_uhc_identity(raw),
-    "pre-2026-04-26-long" = bcfp_uhc_pivot_long_to_wide(raw),
+    "2026-04-26-wide" = crt_handler_bcfp_uhc_identity(raw),
+    "pre-2026-04-26-long" = crt_handler_bcfp_uhc_pivot_long_to_wide(raw),
     cli::cli_abort("Unknown variant_id for bcfp/user_habitat_classification: {variant_id}")
   )
 }
 
+#' @keywords internal
+#' @rdname crt_handler_bcfp_user_habitat_classification
+#' @noRd
 # Wide-input identity passthrough — validates required cols and returns
 # tibble in canonical column order.
-bcfp_uhc_identity <- function(raw) {
+crt_handler_bcfp_uhc_identity <- function(raw) {
   required <- c(
     "blue_line_key", "downstream_route_measure", "upstream_route_measure",
     "watershed_group_code", "species_code", "spawning", "rearing"
@@ -54,7 +57,10 @@ bcfp_uhc_identity <- function(raw) {
 # that has never bitten real-world data. If it does, refactor to aggregate
 # metadata strictly by data keys (blue_line_key, route measures, watershed,
 # species_code) using a "first non-NA per group" rule.
-bcfp_uhc_pivot_long_to_wide <- function(raw) {
+#' @keywords internal
+#' @rdname crt_handler_bcfp_user_habitat_classification
+#' @noRd
+crt_handler_bcfp_uhc_pivot_long_to_wide <- function(raw) {
   required <- c(
     "blue_line_key", "downstream_route_measure", "upstream_route_measure",
     "watershed_group_code", "species_code", "habitat_type", "habitat_ind"

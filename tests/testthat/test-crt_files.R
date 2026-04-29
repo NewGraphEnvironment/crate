@@ -12,7 +12,7 @@ test_that("crt_files() includes the bcfp/user_habitat_classification entry", {
   out <- crt_files()
   bcfp_uhc <- out[out$source == "bcfp" & out$file_name == "user_habitat_classification", ]
   expect_equal(nrow(bcfp_uhc), 1L)
-  expect_equal(bcfp_uhc$handler_fn, "internal_bcfp_user_habitat_classification")
+  expect_equal(bcfp_uhc$handler_fn, "crt_handler_bcfp_user_habitat_classification")
   expect_equal(bcfp_uhc$schema_yaml, "schemas/bcfp/user_habitat_classification.yaml")
 })
 

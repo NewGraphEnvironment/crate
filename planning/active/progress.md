@@ -1,0 +1,76 @@
+# Progress — crate#4: Convention C refactor + schema family
+
+## Session 2026-04-29
+
+**Branch:** `4-convention-c-refactor` (from main `e4a9149`)
+**Issue:** NewGraphEnvironment/crate#4
+**Plan file:** `/Users/airvine/.claude/plans/bright-spinning-wall.md`
+
+**Setup:**
+- Verified main is at `e4a9149` (no schema_apply on it; the `6764fd9` commit is on local-only `65-schema-driven-types` branch from link-Claude's session — never pushed)
+- Created `4-convention-c-refactor` from main
+- Plan approved via plan-mode; PWF baseline being committed now
+
+**Auto mode active** — executing all phases per plan.
+
+**Phase 0 done.** PWF baseline committed.
+
+**Phase 1 complete (pre-commit):**
+- Renamed `R/registry_load.R` → `R/crt_registry_load.R` + function `registry_load` → `crt_registry_load`
+- Renamed `R/internal_bcfp_user_habitat_classification.R` → `R/crt_handler_bcfp_user_habitat_classification.R` + function rename
+- Renamed file-local helpers: `bcfp_uhc_identity` → `crt_handler_bcfp_uhc_identity`; `bcfp_uhc_pivot_long_to_wide` → `crt_handler_bcfp_uhc_pivot_long_to_wide`
+- Updated callers (`crt_ingest.R`, `crt_files.R`), registry CSV, test fixture
+- `.lintr` cap NOT bumped — longest function name (44 chars) fits existing 50-char cap
+- 29/29 tests PASS, lintr clean (one pre-existing unrelated data-raw warning), document clean
+- Code-check round 1 clean (reviewer flagged that README + decisions/ have stale name references; planned for Phase 6 README update — out of scope for Phase 1 atomic)
+
+**Phase 1 shipped** as commit `da40dcc`.
+
+**Phase 2 complete (pre-commit):**
+- New `R/crt_schema_read.R` — extracts inline yaml::read_yaml + system.file path resolution from crt_ingest into a dedicated internal function. Single source of truth for schema YAML loading. chk-validates yaml_path arg.
+- `R/crt_ingest.R` shed ~10 inline lines; now calls `crt_schema_read(matched$schema_yaml[[1L]])`.
+- New `tests/testthat/test-crt_schema_read.R` — 3 test_that blocks cover bundled-path success, missing-path fail-loud, type validation.
+- 38/38 tests PASS (was 29; +9 from new test file's 3 blocks × multiple expectations).
+- lintr clean (one pre-existing data-raw warning still present).
+- Code-check round 1 clean.
+
+**Phase 2 shipped** as commit `09b6629`.
+
+**Phase 3 complete (pre-commit):**
+- New `R/crt_schema_apply.R` — re-implemented from abandoned 65-schema-driven-types branch under Convention C name. Walks `canonical.cols`, coerces each named col to declared type (integer/double/string/logical), skips unrecognized cols, fails loud on unknown types.
+- `R/crt_ingest.R` — added `result <- crt_schema_apply(result, schema)` call after handler dispatch, with explanatory comment block + nolint marker.
+- New `tests/testthat/test-crt_schema_apply.R` — 6 test_that blocks: integer enforcement end-to-end, type enforcement on long pivot output too, no-op when no canonical.cols, skip absent cols, fail-loud on unknown type, logical+string coercion.
+- Fixed lintr indent issues in test file (formatting only).
+- 54/54 tests PASS. R/ lintr clean.
+- Code-check round 1 clean.
+
+**Phase 3 shipped** as commit `152b1ef`.
+
+**Phase 4 complete (pre-commit):**
+- New `R/crt_schema_validate.R` — walks `canonical.cols`, accumulates missing required cols, throws fail-loud listing all (one cli_abort, all info). Skips cols with `required: false` or absent `required` key (liberal: only enforce explicit required:true).
+- `R/crt_ingest.R` — added `crt_schema_validate(result, schema)` call AFTER handler dispatch and BEFORE `crt_schema_apply` (validate shape first, coerce types second). Explanatory comment block.
+- New `tests/testthat/test-crt_schema_validate.R` — 6 test_that blocks covering all branches: success silent; multiple-missing throws listing all names; required:false skip; absent-key skip; no canonical.cols no-op; end-to-end success via crt_ingest.
+- @details in roxygen reserves future family slots (range/enum/predicate) without implementing — schema YAML drives behavior, function signature stays stable.
+- 60/60 tests PASS. R/ lintr clean.
+- Code-check round 1 clean.
+
+**Phase 4 shipped** as commit `74bb4b6`.
+
+**Phase 5 complete (pre-commit):**
+- New `tests/testthat/test-crt_registry_load.R` — 4 test_that blocks: returns tibble with expected cols; non-empty; contains bcfp/user_habitat_classification entry pointing at renamed handler; all cols read as character (no auto-type coercion).
+- New `tests/testthat/test-crt_handler_bcfp_user_habitat_classification.R` — 8 test_that blocks covering: dispatcher branches (wide + long variant_id); unknown variant_id throws; both helpers' required-cols validation paths; -4 preservation in identity; both spawning+rearing produced after pivot; canonical column order from identity.
+- 86/86 tests PASS (was 60; +26 from new test files).
+- R/ lintr clean.
+- Code-check round 1 clean.
+
+**Phase 5 shipped** as commit `420950c`.
+
+**Phase 6 complete (pre-commit):**
+- README.md: "How it works" expanded from 3 to 5 pieces (registry, schema YAML, handler, validation, type enforcement). Each cites the real R function. Added new "Naming convention" section documenting Convention C + reserved future families. Updated caveat (variant matching by names only still v0.1.x; types + required-cols enforced now). Updated "Adding a new" recipe to point at correct `R/crt_handler_<source>_<file_name>.R` path.
+- DESCRIPTION: Version bumped from 0.0.0.9000 (dev sentinel) to 0.0.2 (skipping 0.0.1 which was prior tagged release).
+- R/crt_schema_read.R: fixed broken roxygen Rd link `[crt_schema_*]` → `\`crt_schema_*\`` (markdown code, not a link).
+- devtools::check(): **0 errors, 0 warnings, 0 notes** — fully clean.
+- Code-check round 1 clean.
+
+**Next:**
+- Commit Phase 6 → Phase 7 (push branch, open PR, monitor CI)

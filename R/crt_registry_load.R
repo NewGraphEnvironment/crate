@@ -3,7 +3,7 @@
 # crt_ingest() (lookup-then-dispatch). Centralizing here avoids duplicated
 # system.file() resolution.
 
-registry_load <- function() {
+crt_registry_load <- function() {
   registry_path <- system.file("extdata/crate_registry.csv", package = "crate")
   if (!nzchar(registry_path)) {
     cli::cli_abort(

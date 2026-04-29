@@ -58,7 +58,7 @@ crt_ingest <- function(source, file_name, path) {
     cli::cli_abort("File does not exist at path: {path}")
   }
 
-  reg <- registry_load() # nolint: object_usage_linter.
+  reg <- crt_registry_load() # nolint: object_usage_linter.
   matched <- reg[reg$source == source & reg$file_name == file_name, , drop = FALSE]
   if (nrow(matched) == 0L) {
     cli::cli_abort(c(
@@ -67,17 +67,7 @@ crt_ingest <- function(source, file_name, path) {
     ))
   }
 
-  schema_yaml_rel <- matched$schema_yaml[[1L]]
-  schema_path <- system.file(
-    file.path("extdata", schema_yaml_rel),
-    package = "crate"
-  )
-  if (!nzchar(schema_path)) {
-    cli::cli_abort(
-      "Schema YAML not bundled at inst/extdata/{schema_yaml_rel}"
-    )
-  }
-  schema <- yaml::read_yaml(schema_path)
+  schema <- crt_schema_read(matched$schema_yaml[[1L]]) # nolint: object_usage_linter.
 
   raw <- readr::read_csv(path, show_col_types = FALSE)
   raw_cols <- names(raw)
@@ -109,6 +99,21 @@ crt_ingest <- function(source, file_name, path) {
     mode = "function"
   )
   result <- handler(raw, matched_variant$id)
+
+  # Validate canonical-shape contract: required cols must be present.
+  # Runs BEFORE crt_schema_apply because a missing required col would
+  # silently become NA after coercion; surface the failure at the
+  # right layer.
+  crt_schema_validate(result, schema) # nolint: object_usage_linter.
+
+  # Schema-driven canonical typing. The schema YAML declares the type of
+  # every canonical column; crt_schema_apply() enforces those declarations
+  # on the handler's output. Handlers stay focused on shape transforms
+  # (long->wide, renames) and inherit type enforcement generically.
+  # Without this, readr's defaults leak through (integer cols become
+  # double, "YYYY-MM-DD" strings become Date), violating the schema's
+  # declared contract.
+  result <- crt_schema_apply(result, schema) # nolint: object_usage_linter.
 
   tibble::as_tibble(result)
 }
