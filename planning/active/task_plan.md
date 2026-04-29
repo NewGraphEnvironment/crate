@@ -30,12 +30,12 @@ Locks 3 design decisions: Convention C naming, schema-as-contract scope (types n
 - [x] Commit: "Extract crt_schema_read() — single source of truth for schema YAML loading"
 
 ## Phase 3 — Add crt_schema_apply
-- [ ] Create `R/crt_schema_apply.R` (re-implement from abandoned 65-schema-driven-types branch under Convention C name)
-- [ ] Update `R/crt_ingest.R` to call it after handler
-- [ ] Create `tests/testthat/test-crt_schema_apply.R` (port 6 tests from abandoned branch)
-- [ ] document + test + lint
-- [ ] /code-check
-- [ ] Commit: "Add crt_schema_apply() — schema-driven canonical type enforcement"
+- [x] Created `R/crt_schema_apply.R` (re-implemented from abandoned 65-schema-driven-types branch under Convention C name)
+- [x] Updated `R/crt_ingest.R` to call after handler with nolint comment
+- [x] Created `tests/testthat/test-crt_schema_apply.R` (6 test_that blocks ported from abandoned branch)
+- [x] document + test (54 PASS) + lint clean (R/ clean; pre-existing data-raw warning unchanged)
+- [x] /code-check round 1 clean
+- [x] Commit: "Add crt_schema_apply() — schema-driven canonical type enforcement"
 
 ## Phase 4 — Add crt_schema_validate
 - [ ] Create `R/crt_schema_validate.R` (required-cols check; future-proof for range/enum/predicate)

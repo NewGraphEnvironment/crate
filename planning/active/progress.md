@@ -34,5 +34,15 @@
 - lintr clean (one pre-existing data-raw warning still present).
 - Code-check round 1 clean.
 
+**Phase 2 shipped** as commit `09b6629`.
+
+**Phase 3 complete (pre-commit):**
+- New `R/crt_schema_apply.R` — re-implemented from abandoned 65-schema-driven-types branch under Convention C name. Walks `canonical.cols`, coerces each named col to declared type (integer/double/string/logical), skips unrecognized cols, fails loud on unknown types.
+- `R/crt_ingest.R` — added `result <- crt_schema_apply(result, schema)` call after handler dispatch, with explanatory comment block + nolint marker.
+- New `tests/testthat/test-crt_schema_apply.R` — 6 test_that blocks: integer enforcement end-to-end, type enforcement on long pivot output too, no-op when no canonical.cols, skip absent cols, fail-loud on unknown type, logical+string coercion.
+- Fixed lintr indent issues in test file (formatting only).
+- 54/54 tests PASS. R/ lintr clean.
+- Code-check round 1 clean.
+
 **Next:**
-- Commit Phase 2 → Phase 3 (crt_schema_apply)
+- Commit Phase 3 → Phase 4 (crt_schema_validate)

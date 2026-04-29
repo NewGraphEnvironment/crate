@@ -100,5 +100,14 @@ crt_ingest <- function(source, file_name, path) {
   )
   result <- handler(raw, matched_variant$id)
 
+  # Schema-driven canonical typing. The schema YAML declares the type of
+  # every canonical column; crt_schema_apply() enforces those declarations
+  # on the handler's output. Handlers stay focused on shape transforms
+  # (long->wide, renames) and inherit type enforcement generically.
+  # Without this, readr's defaults leak through (integer cols become
+  # double, "YYYY-MM-DD" strings become Date), violating the schema's
+  # declared contract.
+  result <- crt_schema_apply(result, schema) # nolint: object_usage_linter.
+
   tibble::as_tibble(result)
 }
