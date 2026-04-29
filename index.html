@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,12 +100,12 @@
 <div class="section level2">
 <h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
 </h2>
-<p>Three pieces wire together at runtime when you call <code>crt_ingest("bcfp", "user_habitat_classification", path)</code>:</p>
+<p>When you call <code>crt_ingest("bcfp", "user_habitat_classification", path)</code>, five pieces wire together at runtime:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Registry</strong> (<a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>) — a CSV mapping each <code>(source, file_name)</code> pair to a handler function name and a schema YAML path. crate looks up “what do I know about this file?” here.</p></li>
-<li><p><strong>Schema YAML</strong> (<a href="inst/extdata/schemas/bcfp/user_habitat_classification.yaml"><code>inst/extdata/schemas/bcfp/user_habitat_classification.yaml</code></a>) — declares the canonical column shape AND each known upstream variant (a column-name set + a normalize-function id). When crate reads the file at <code>path</code>, it matches the actual columns against each variant’s declared columns; the first set-equal match wins.</p></li>
+<li><p><strong>Registry</strong> (<a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>) — a CSV mapping each <code>(source, file_name)</code> pair to a handler function name and a schema YAML path. crate looks up “what do I know about this file?” here. Loaded by <code>crt_registry_load()</code>.</p></li>
+<li><p><strong>Schema YAML</strong> (<a href="inst/extdata/schemas/bcfp/user_habitat_classification.yaml"><code>inst/extdata/schemas/bcfp/user_habitat_classification.yaml</code></a>) — declares the canonical column shape (names, types, required flags) AND each known upstream variant (a column-name set + a normalize-function id). Loaded by <code><a href="reference/crt_schema_read.html">crt_schema_read()</a></code>.</p></li>
 <li>
-<p><strong>Handler</strong> (<a href="R/internal_bcfp_user_habitat_classification.R"><code>R/internal_bcfp_user_habitat_classification.R</code></a>) — one function per <code>(source, file_name)</code>. Dispatches on the matched variant id and runs the right normalizer:</p>
+<p><strong>Handler</strong> (<a href="R/crt_handler_bcfp_user_habitat_classification.R"><code>R/crt_handler_bcfp_user_habitat_classification.R</code></a>) — one function per <code>(source, file_name)</code>. crate matches the actual file columns against each variant’s declared columns (first set-equal match wins), then dispatches the matched <code>variant_id</code> into the handler:</p>
 <ul>
 <li>
 <code>2026-04-26-wide</code> → identity passthrough (already canonical)</li>
@@ -113,12 +113,29 @@
 <code>pre-2026-04-26-long</code> → pivot long rows to wide canonical, mapping <code>habitat_ind</code> text values to integer indicators</li>
 </ul>
 </li>
+<li><p><strong>Validation</strong> (<code><a href="reference/crt_schema_validate.html">crt_schema_validate()</a></code>) — after the handler returns, crate checks every column declared <code>required: true</code> in the schema is present. Fails loud listing all missing required columns.</p></li>
+<li><p><strong>Type enforcement</strong> (<code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code>) — finally, crate coerces every named column to the type declared in the schema (<code>integer</code>, <code>double</code>, <code>string</code>, <code>logical</code>). Schema YAML is the single source of truth for types; handlers don’t encode type knowledge. Without this, readr’s defaults leak through (integer cols become double, declared strings become Date).</p></li>
 </ol>
-<p>The handler is what made the type change transparent in our example. The wide canonical declares <code>spawning</code> and <code>rearing</code> as integer columns; the long upstream had <code>habitat_ind</code> as text (<code>"t"</code>/<code>"f"</code>). The pivot function does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form.</p>
+<p>The handler made the type change transparent in our example. The wide canonical declares <code>spawning</code> and <code>rearing</code> as integer columns; the long upstream had <code>habitat_ind</code> as text (<code>"t"</code>/<code>"f"</code>). The pivot does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form. Type enforcement (step 5) catches any leaks at the boundary regardless of handler.</p>
+<div class="section level3">
+<h3 id="naming-convention">Naming convention<a class="anchor" aria-label="anchor" href="#naming-convention"></a>
+</h3>
+<p>Every function in crate’s namespace starts with <code>crt_</code>, family-namespaced:</p>
+<ul>
+<li>
+<code>crt_&lt;verb&gt;</code> — public singletons (<code>crt_ingest</code>, <code>crt_files</code>)</li>
+<li>
+<code>crt_handler_&lt;source&gt;_&lt;file_name&gt;</code> — per-(source, file) dispatchers</li>
+<li>
+<code>crt_&lt;family&gt;_&lt;verb&gt;</code> — internal helper families (<code>crt_registry_*</code>, <code>crt_schema_*</code>)</li>
+</ul>
+<p>Reserved future families (slots in the <code>crt_schema_*</code> family for the schema-as-contract roadmap): <code>crt_schema_version</code>, <code>crt_schema_migrate</code>, plus future <code>cols[].range</code>, <code>cols[].enum</code>, <code>cols[].predicate</code> extensions to <code>crt_schema_validate</code>.</p>
+</div>
 <div class="section level3">
 <h3 id="caveat-variant-matching-is-column-names-only">Caveat: variant matching is column-names only<a class="anchor" aria-label="anchor" href="#caveat-variant-matching-is-column-names-only"></a>
 </h3>
-<p><code><a href="reference/crt_ingest.html">crt_ingest()</a></code> matches input to upstream variants by exact column-name set equality. It does not validate column types. If upstream later ships the same column names with different types, the handler would receive misshapen data without erroring at the variant-match step. Type-aware variant matching (declaring <code>cols: [{name, type}]</code> and validating both) is a planned v0.1.x improvement.</p>
+<p><code><a href="reference/crt_ingest.html">crt_ingest()</a></code> matches input to upstream variants by exact column-name set equality. It does not validate column types at the variant-match step. If upstream later ships the same column names with different types, the handler would receive misshapen data; <code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code> then coerces the output (some coercions silently produce NAs, e.g., <code>as.integer("yes")</code> → NA). Type-aware variant matching (declaring <code>cols: [{name, type}]</code> and validating both at dispatch) is a planned v0.1.x improvement.</p>
+<p>Output types and required-cols ARE enforced via <code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code> and <code><a href="reference/crt_schema_validate.html">crt_schema_validate()</a></code> respectively (steps 4–5 above).</p>
 </div>
 <div class="section level3">
 <h3 id="adding-a-new-source-file_name-pair">Adding a new (source, file_name) pair<a class="anchor" aria-label="anchor" href="#adding-a-new-source-file_name-pair"></a>
@@ -126,7 +143,7 @@
 <ol style="list-style-type: decimal">
 <li>Author the schema YAML at <code>inst/extdata/schemas/&lt;source&gt;/&lt;file_name&gt;.yaml</code>
 </li>
-<li>Write a normalize handler at <code>R/internal_&lt;source&gt;_&lt;file_name&gt;.R</code>
+<li>Write a normalize handler at <code>R/crt_handler_&lt;source&gt;_&lt;file_name&gt;.R</code>
 </li>
 <li>Add a row to <a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>
 </li>

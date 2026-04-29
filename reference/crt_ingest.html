@@ -13,7 +13,7 @@ tibble in canonical shape."><meta property="og:image" content="https://newgraphe
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,7 +97,7 @@ call continues returning canonical output.</p>
 <span class="r-in"><span><span class="va">wide</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   blue_line_key downstream_route_measure upstream_route_measure</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     356<span style="text-decoration: underline;">385</span>867                        0                    208</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     356<span style="text-decoration: underline;">385</span>867                        0                    208</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     356<span style="text-decoration: underline;">400</span>111                      500                   <span style="text-decoration: underline;">1</span>500</span>
@@ -105,7 +105,7 @@ call continues returning canonical output.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     356<span style="text-decoration: underline;">500</span>222                        0                    800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     356<span style="text-decoration: underline;">600</span>333                        0                    300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: watershed_group_code &lt;chr&gt;, species_code &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   spawning &lt;dbl&gt;, rearing &lt;dbl&gt;, reviewer_name &lt;chr&gt;, review_date &lt;date&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   spawning &lt;int&gt;, rearing &lt;int&gt;, reviewer_name &lt;chr&gt;, review_date &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   source &lt;chr&gt;, notes &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Read the bundled long-format fixture (historical pre-2026-04-26 shape).</span></span></span>
@@ -119,14 +119,14 @@ call continues returning canonical output.</p>
 <span class="r-in"><span><span class="va">long</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   blue_line_key downstream_route_measure upstream_route_measure</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     356<span style="text-decoration: underline;">385</span>867                        0                    208</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     356<span style="text-decoration: underline;">385</span>867                        0                    208</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     356<span style="text-decoration: underline;">400</span>111                      500                   <span style="text-decoration: underline;">1</span>500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     356<span style="text-decoration: underline;">400</span>111                      500                   <span style="text-decoration: underline;">1</span>500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     356<span style="text-decoration: underline;">500</span>222                        0                    800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: watershed_group_code &lt;chr&gt;, species_code &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   spawning &lt;int&gt;, rearing &lt;int&gt;, reviewer_name &lt;chr&gt;, review_date &lt;date&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   spawning &lt;int&gt;, rearing &lt;int&gt;, reviewer_name &lt;chr&gt;, review_date &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   source &lt;chr&gt;, notes &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Both calls return the same canonical column set</span></span></span>

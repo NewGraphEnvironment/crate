@@ -35,14 +35,14 @@ crt_files()
 #> # A tibble: 1 × 5
 #>   source file_name                   handler_fn       schema_yaml canonical_cols
 #>   <chr>  <chr>                       <chr>            <chr>       <chr>         
-#> 1 bcfp   user_habitat_classification internal_bcfp_u… schemas/bc… blue_line_key…
+#> 1 bcfp   user_habitat_classification crt_handler_bcf… schemas/bc… blue_line_key…
 
 # Filter to bcfp-sourced entries
 crt_files(source = "bcfp")
 #> # A tibble: 1 × 5
 #>   source file_name                   handler_fn       schema_yaml canonical_cols
 #>   <chr>  <chr>                       <chr>            <chr>       <chr>         
-#> 1 bcfp   user_habitat_classification internal_bcfp_u… schemas/bc… blue_line_key…
+#> 1 bcfp   user_habitat_classification crt_handler_bcf… schemas/bc… blue_line_key…
 
 # Bogus source filter returns an empty tibble (not an error)
 crt_files(source = "nonexistent")

@@ -66,7 +66,7 @@ wide <- crt_ingest("bcfp", "user_habitat_classification", wide_path)
 wide
 #> # A tibble: 6 × 11
 #>   blue_line_key downstream_route_measure upstream_route_measure
-#>           <dbl>                    <dbl>                  <dbl>
+#>           <int>                    <dbl>                  <dbl>
 #> 1     356385867                        0                    208
 #> 2     356385867                        0                    208
 #> 3     356400111                      500                   1500
@@ -74,7 +74,7 @@ wide
 #> 5     356500222                        0                    800
 #> 6     356600333                        0                    300
 #> # ℹ 8 more variables: watershed_group_code <chr>, species_code <chr>,
-#> #   spawning <dbl>, rearing <dbl>, reviewer_name <chr>, review_date <date>,
+#> #   spawning <int>, rearing <int>, reviewer_name <chr>, review_date <chr>,
 #> #   source <chr>, notes <chr>
 
 # Read the bundled long-format fixture (historical pre-2026-04-26 shape).
@@ -88,14 +88,14 @@ long <- crt_ingest("bcfp", "user_habitat_classification", long_path)
 long
 #> # A tibble: 5 × 11
 #>   blue_line_key downstream_route_measure upstream_route_measure
-#>           <dbl>                    <dbl>                  <dbl>
+#>           <int>                    <dbl>                  <dbl>
 #> 1     356385867                        0                    208
 #> 2     356385867                        0                    208
 #> 3     356400111                      500                   1500
 #> 4     356400111                      500                   1500
 #> 5     356500222                        0                    800
 #> # ℹ 8 more variables: watershed_group_code <chr>, species_code <chr>,
-#> #   spawning <int>, rearing <int>, reviewer_name <chr>, review_date <date>,
+#> #   spawning <int>, rearing <int>, reviewer_name <chr>, review_date <chr>,
 #> #   source <chr>, notes <chr>
 
 # Both calls return the same canonical column set
