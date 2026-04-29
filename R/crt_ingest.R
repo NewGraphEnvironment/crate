@@ -58,7 +58,7 @@ crt_ingest <- function(source, file_name, path) {
     cli::cli_abort("File does not exist at path: {path}")
   }
 
-  reg <- registry_load() # nolint: object_usage_linter.
+  reg <- crt_registry_load() # nolint: object_usage_linter.
   matched <- reg[reg$source == source & reg$file_name == file_name, , drop = FALSE]
   if (nrow(matched) == 0L) {
     cli::cli_abort(c(

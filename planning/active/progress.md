@@ -13,10 +13,16 @@
 
 **Auto mode active** — executing all phases per plan.
 
+**Phase 0 done.** PWF baseline committed.
+
+**Phase 1 complete (pre-commit):**
+- Renamed `R/registry_load.R` → `R/crt_registry_load.R` + function `registry_load` → `crt_registry_load`
+- Renamed `R/internal_bcfp_user_habitat_classification.R` → `R/crt_handler_bcfp_user_habitat_classification.R` + function rename
+- Renamed file-local helpers: `bcfp_uhc_identity` → `crt_handler_bcfp_uhc_identity`; `bcfp_uhc_pivot_long_to_wide` → `crt_handler_bcfp_uhc_pivot_long_to_wide`
+- Updated callers (`crt_ingest.R`, `crt_files.R`), registry CSV, test fixture
+- `.lintr` cap NOT bumped — longest function name (44 chars) fits existing 50-char cap
+- 29/29 tests PASS, lintr clean (one pre-existing unrelated data-raw warning), document clean
+- Code-check round 1 clean (reviewer flagged that README + decisions/ have stale name references; planned for Phase 6 README update — out of scope for Phase 1 atomic)
+
 **Next:**
-- Commit PWF baseline
-- Phase 1: Convention C renames (registry_load → crt_registry_load, internal_bcfp_* → crt_handler_bcfp_*, file-local helpers → crt_handler_bcfp_uhc_*)
-- Phase 2-5: schema family additions + tests
-- Phase 6: README + version bump
-- Phase 7: PR + monitor
-- Phase 8: tag + comms to link + archive
+- Commit Phase 1 → Phase 2 (crt_schema_read)

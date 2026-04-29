@@ -10,16 +10,16 @@ Locks 3 design decisions: Convention C naming, schema-as-contract scope (types n
 - [ ] Commit baseline
 
 ## Phase 1 — Internal renames (Convention C)
-- [ ] `git mv R/registry_load.R R/crt_registry_load.R`; rename function
-- [ ] `git mv R/internal_bcfp_user_habitat_classification.R R/crt_handler_bcfp_user_habitat_classification.R`; rename function
-- [ ] Rename file-local helpers: `bcfp_uhc_*` → `crt_handler_bcfp_uhc_*`
-- [ ] Update `R/crt_ingest.R` + `R/crt_files.R` callers
-- [ ] Update `inst/extdata/crate_registry.csv` handler_fn cell
-- [ ] Update nolint comments
-- [ ] Bump `.lintr` object_length_linter cap to 60
-- [ ] devtools::document() + test (29 PASS) + lint clean
-- [ ] /code-check
-- [ ] Commit: "Rename internals to Convention C (crt_* prefix, family-namespaced)"
+- [x] `git mv R/registry_load.R R/crt_registry_load.R`; renamed function
+- [x] `git mv R/internal_bcfp_user_habitat_classification.R R/crt_handler_bcfp_user_habitat_classification.R`; renamed function
+- [x] Renamed file-local helpers: `bcfp_uhc_*` → `crt_handler_bcfp_uhc_*`
+- [x] Updated `R/crt_ingest.R` + `R/crt_files.R` callers
+- [x] Updated `inst/extdata/crate_registry.csv` handler_fn cell
+- [x] nolint comments unchanged (still valid — same nolint rule applies to renamed function)
+- [N/A] `.lintr` cap bump — longest function name is 44 chars (`crt_handler_bcfp_user_habitat_classification`); existing 50-char cap fits. No bump needed.
+- [x] devtools::document() + test (29 PASS) + lint clean
+- [x] /code-check round 1 clean
+- [x] Commit: "Rename internals to Convention C (crt_* prefix, family-namespaced)"
 
 ## Phase 2 — Add crt_schema_read
 - [ ] Create `R/crt_schema_read.R` (path resolution + read_yaml)

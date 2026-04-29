@@ -27,7 +27,7 @@ crt_files <- function(source = NULL) {
     chk::chk_string(source)
   }
 
-  reg <- registry_load() # nolint: object_usage_linter.
+  reg <- crt_registry_load() # nolint: object_usage_linter.
 
   if (!is.null(source)) {
     reg <- reg[reg$source == source, , drop = FALSE]
