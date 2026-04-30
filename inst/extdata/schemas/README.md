@@ -16,7 +16,7 @@ See `bcfp/user_habitat_classification.yaml` as a template.
 
 1. Identify the source family (e.g. `bcfp`, `edna`, `pscis`). Use existing naming if present.
 2. Write the YAML at `<source>/<file_name>.yaml`
-3. Add a corresponding internal handler at `R/internal_<source>_<file_name>.R` in crate's `R/`
+3. Add a corresponding internal handler at `R/crt_handler_<source>_<file_name>.R` in crate's `R/` (per Convention C naming, locked in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4))
 4. Add a registry row in `inst/extdata/crate_registry.csv`
 5. Write a decision log entry at `decisions/<source>/<YYYYMMDD>_<topic>.md` (root-level `decisions/`, not under `inst/`)
 6. Update tests in `tests/testthat/`
