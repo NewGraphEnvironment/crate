@@ -16,6 +16,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/NewGraphEnvironment/crate/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -57,11 +58,19 @@
 </ul></div>
 <div class="section level2">
 <h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a></h2>
-<p>Early. File structure not yet committed — umbrella issue frames the problem space before opinionated layout is adopted.</p>
+<p>Public R package. Currently at <strong>v0.0.2</strong> (2026-04-29). One source family registered (<code>bcfp</code>), one handler shipped (<code>crt_handler_bcfp_user_habitat_classification</code>). Schema-as-contract scope settled in <a href="https://github.com/NewGraphEnvironment/crate/issues/4" class="external-link">crate#4</a>: <code>crt_schema_read</code> / <code>crt_schema_apply</code> / <code>crt_schema_validate</code> exist; <code>crt_schema_version</code> / <code>crt_schema_migrate</code> reserved for future.</p>
+<p>See README “How it works” for the 5-piece runtime + naming convention. See <code>decisions/</code> for canonical-shape decision log.</p>
 </div>
 <div class="section level2">
-<h2 id="bootstrap-note">Bootstrap note<a class="anchor" aria-label="anchor" href="#bootstrap-note"></a></h2>
-<p>This CLAUDE.md is a minimal placeholder. Run <code>/claude-md-init</code> to inject the standard soul conventions block (newgraph, karpathy, planning, code-check, sred, comms, etc.).</p>
+<h2 id="naming-convention-convention-c-locked-in-crate4">Naming convention (Convention C, locked in crate#4)<a class="anchor" aria-label="anchor" href="#naming-convention-convention-c-locked-in-crate4"></a></h2>
+<p>Every function in crate’s namespace prefixed <code>crt_*</code>, family-namespaced:</p>
+<ul><li>
+<code>crt_&lt;verb&gt;</code> — public singletons (<code>crt_ingest</code>, <code>crt_files</code>)</li>
+<li>
+<code>crt_handler_&lt;source&gt;_&lt;file_name&gt;</code> — per-(source, file) registry-dispatched handlers</li>
+<li>
+<code>crt_&lt;family&gt;_&lt;verb&gt;</code> — internal helper families (<code>crt_registry_*</code>, <code>crt_schema_*</code>)</li>
+</ul><p>Reserved future families: <code>crt_schema_version</code>, <code>crt_schema_migrate</code>, <code>crt_normalize_&lt;verb&gt;</code>. See <a href="https://github.com/NewGraphEnvironment/crate/issues/4" class="external-link">crate#4</a> for the lock-in discussion.</p>
 <!-- BEGIN SOUL CONVENTIONS — DO NOT EDIT BELOW THIS LINE -->
 </div>
 </div>
@@ -362,13 +371,13 @@
 </div>
 <div class="section level2">
 <h2 id="skills">Skills<a class="anchor" aria-label="anchor" href="#skills"></a></h2>
-<table class="table"><colgroup><col width="35%"><col width="65%"></colgroup><thead><tr class="header"><th>Skill</th>
+<table class="table"><colgroup><col width="35%"><col width="65%"></colgroup><thead><tr><th>Skill</th>
 <th>When to use</th>
-</tr></thead><tbody><tr class="odd"><td><code>/planning-init</code></td>
+</tr></thead><tbody><tr><td><code>/planning-init</code></td>
 <td>First time in a repo — creates directory structure</td>
-</tr><tr class="even"><td><code>/planning-update</code></td>
+</tr><tr><td><code>/planning-update</code></td>
 <td>Mid-session — sync checkboxes and progress</td>
-</tr><tr class="odd"><td><code>/planning-archive</code></td>
+</tr><tr><td><code>/planning-archive</code></td>
 <td>Issue complete — archive and create fresh active/</td>
 </tr></tbody></table></div>
 </div>

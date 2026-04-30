@@ -14,6 +14,7 @@ downstream keeps working.
 ## Installation
 
 ``` r
+
 pak::pak("NewGraphEnvironment/crate")
 ```
 
@@ -27,6 +28,7 @@ included both a structural change (one column → two) and a type change
 (text → integer). crate handles both shapes:
 
 ``` r
+
 library(crate)
 
 # What sources + files does crate know how to ingest?

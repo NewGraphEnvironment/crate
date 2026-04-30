@@ -39,14 +39,31 @@ across all NGE domains.**
 
 ## Status
 
-Early. File structure not yet committed — umbrella issue frames the
-problem space before opinionated layout is adopted.
+Public R package. Currently at **v0.0.2** (2026-04-29). One source
+family registered (`bcfp`), one handler shipped
+(`crt_handler_bcfp_user_habitat_classification`). Schema-as-contract
+scope settled in
+[crate#4](https://github.com/NewGraphEnvironment/crate/issues/4):
+`crt_schema_read` / `crt_schema_apply` / `crt_schema_validate` exist;
+`crt_schema_version` / `crt_schema_migrate` reserved for future.
 
-## Bootstrap note
+See README “How it works” for the 5-piece runtime + naming convention.
+See `decisions/` for canonical-shape decision log.
 
-This CLAUDE.md is a minimal placeholder. Run `/claude-md-init` to inject
-the standard soul conventions block (newgraph, karpathy, planning,
-code-check, sred, comms, etc.).
+## Naming convention (Convention C, locked in crate#4)
+
+Every function in crate’s namespace prefixed `crt_*`, family-namespaced:
+
+- `crt_<verb>` — public singletons (`crt_ingest`, `crt_files`)
+- `crt_handler_<source>_<file_name>` — per-(source, file)
+  registry-dispatched handlers
+- `crt_<family>_<verb>` — internal helper families (`crt_registry_*`,
+  `crt_schema_*`)
+
+Reserved future families: `crt_schema_version`, `crt_schema_migrate`,
+`crt_normalize_<verb>`. See
+[crate#4](https://github.com/NewGraphEnvironment/crate/issues/4) for the
+lock-in discussion.
 
 # Code Check Conventions
 
@@ -572,6 +589,7 @@ be worth fixing.
 ### Recommended .lintr config
 
 ``` r
+
 linters: linters_with_defaults(
     line_length_linter(120),
     object_name_linter(styles = c("snake_case", "dotted.case")),
