@@ -7,8 +7,11 @@
 #' @param source Character or NULL. If supplied, filter to entries with that
 #'   source family code (e.g. `"bcfp"`). NULL returns all entries.
 #'
-#' @return A tibble with columns `source`, `file_name`, `handler_fn`,
-#'   `schema_yaml`, `canonical_cols`.
+#' @return A tibble with columns `source`, `file_name`, `kind`,
+#'   `handler_fn`, `schema_yaml`, `canonical_cols`. `kind` is `file` when
+#'   crate reads the source file and dispatches to a handler, or
+#'   `schema_only` when crate declares the canonical shape but the caller
+#'   supplies the data — see [crt_schema_conform()].
 #'
 #' @examples
 #' # All registered (source, file_name) entries

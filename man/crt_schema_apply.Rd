@@ -7,7 +7,7 @@
 crt_schema_apply(df, schema)
 }
 \arguments{
-\item{df}{A data frame returned by a registered handler.}
+\item{df}{A data frame.}
 
 \item{schema}{The parsed schema YAML (a list with \code{canonical$cols}).}
 }
@@ -16,7 +16,7 @@ A tibble with columns coerced to canonical types.
 }
 \description{
 Schema YAML is the single source of truth for canonical column types.
-\code{\link[=crt_ingest]{crt_ingest()}} calls this after the registered handler returns, so every
+\code{\link[=crt_schema_conform]{crt_schema_conform()}} calls this after validation, so every registered
 (source, file_name) pair gets type enforcement for free — handlers do not
 encode type knowledge.
 }
@@ -35,6 +35,35 @@ Supported \code{type} values:
 \item \code{string} -> \code{\link[=as.character]{as.character()}} (handles readr's Date / POSIXct
 auto-parsing for columns the schema declares as text)
 \item \code{logical} -> \code{\link[=as.logical]{as.logical()}}
+\item \code{datetime} -> \code{POSIXct} rendered in UTC, see below
 }
 }
+\section{datetime is stamped, never converted}{
+
+
+A \code{datetime} column means \strong{an instant}, and this function never changes
+which instant it is. A \code{POSIXct} input has its \code{tzone} attribute \emph{stamped}
+to \code{"UTC"}, which changes the rendering and nothing else; the epoch is
+untouched.
+
+That distinction is the whole point of the type. Several readers return
+correct UTC instants with an \strong{empty \code{tzone}} attribute — GeoPackage
+\code{DATETIME} columns read through \code{sf} are the case this was written for — so
+R renders them in \code{Sys.timezone()}. On a UTC-7 machine the same instant
+prints seven hours earlier than it does from an epoch, which reads as a
+second clock in a second timezone. Converting to "fix" the rendering injects
+a real whole-hour error into every downstream join; stamping fixes the label,
+which is all that was ever wrong.
+
+Other inputs:
+\itemize{
+\item numeric is read as \strong{epoch seconds}
+\item \code{Date} is read as UTC midnight. Note \code{\link[=as.POSIXct]{as.POSIXct()}} silently ignores \code{tz}
+for a \code{Date}, converting in the system zone instead, so this goes through
+\code{format()} first — west of UTC the naive call moves the day boundary.
+\item character is parsed as ISO 8601 in UTC, accepting a \code{T} separator and a
+trailing \code{Z}
+}
+}
+
 \keyword{internal}

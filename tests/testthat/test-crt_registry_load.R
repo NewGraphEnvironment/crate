@@ -6,7 +6,7 @@ test_that("crt_registry_load returns tibble with expected columns", {
   reg <- crt_registry_load()
   expect_s3_class(reg, "tbl_df")
   expected_cols <- c(
-    "source", "file_name", "handler_fn", "schema_yaml", "canonical_cols"
+    "source", "file_name", "kind", "handler_fn", "schema_yaml", "canonical_cols"
   )
   expect_equal(names(reg), expected_cols)
 })

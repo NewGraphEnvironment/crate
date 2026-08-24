@@ -11,8 +11,11 @@ crt_files(source = NULL)
 source family code (e.g. \code{"bcfp"}). NULL returns all entries.}
 }
 \value{
-A tibble with columns \code{source}, \code{file_name}, \code{handler_fn},
-\code{schema_yaml}, \code{canonical_cols}.
+A tibble with columns \code{source}, \code{file_name}, \code{kind},
+\code{handler_fn}, \code{schema_yaml}, \code{canonical_cols}. \code{kind} is \code{file} when
+crate reads the source file and dispatches to a handler, or
+\code{schema_only} when crate declares the canonical shape but the caller
+supplies the data — see \code{\link[=crt_schema_conform]{crt_schema_conform()}}.
 }
 \description{
 Returns the registry as a tibble. Optionally filterable by \code{source}.
