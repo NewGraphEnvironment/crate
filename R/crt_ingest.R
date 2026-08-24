@@ -20,8 +20,15 @@
 #' the schema YAML and add a normalize handler, and the same `crt_ingest()`
 #' call continues returning canonical output.
 #'
+#' Validation and typing are not done here — the handler's output goes through
+#' [crt_schema_conform()], which is also the entry point for data crate did not
+#' read. One code path, so the two cannot drift.
+#'
 #' Throws on:
 #' - Unknown `(source, file_name)` pair (not in registry)
+#' - An entry registered `kind = schema_only`, which declares a canonical shape
+#'   crate does not read. Conform your own data frame with
+#'   [crt_schema_conform()] instead.
 #' - File at `path` does not exist
 #' - Input file's shape does not match any known upstream variant
 #'
@@ -47,27 +54,35 @@
 #' # Both calls return the same canonical column set
 #' identical(names(wide), names(long))
 #'
-#' @seealso [crt_files()] to list registered entries.
+#' @seealso [crt_files()] to list registered entries,
+#'   [crt_schema_conform()] to conform a data frame crate did not read.
 #' @export
 crt_ingest <- function(source, file_name, path) {
   chk::chk_string(source)
   chk::chk_string(file_name)
   chk::chk_string(path)
 
+  matched <- crt_registry_entry(source, file_name)
+
+  # Check this before touching the filesystem. A schema_only entry has no
+  # handler to dispatch to, and "file not found" would be a misleading first
+  # error for a caller who is simply at the wrong entry point.
+  kind <- crt_registry_kind(matched)
+  if (!identical(kind, "file")) {
+    cli::cli_abort(c(
+      "({source}, {file_name}) is registered {.val {kind}}; there is no file for \\
+       crate to read.",
+      "i" = "crate declares its canonical shape but does not read it.",
+      "i" = "Conform your own data frame with {.code crt_schema_conform(df, \\
+             \"{source}\", \"{file_name}\")}."
+    ))
+  }
+
   if (!fs::file_exists(path)) {
     cli::cli_abort("File does not exist at path: {path}")
   }
 
-  reg <- crt_registry_load() # nolint: object_usage_linter.
-  matched <- reg[reg$source == source & reg$file_name == file_name, , drop = FALSE]
-  if (nrow(matched) == 0L) {
-    cli::cli_abort(c(
-      "Unknown (source, file_name) pair: ({source}, {file_name}).",
-      "i" = "See {.code crt_files()} for registered entries."
-    ))
-  }
-
-  schema <- crt_schema_read(matched$schema_yaml[[1L]]) # nolint: object_usage_linter.
+  schema <- crt_schema_read(matched$schema_yaml[[1L]])
 
   raw <- readr::read_csv(path, show_col_types = FALSE)
   raw_cols <- names(raw)
@@ -100,20 +115,9 @@ crt_ingest <- function(source, file_name, path) {
   )
   result <- handler(raw, matched_variant$id)
 
-  # Validate canonical-shape contract: required cols must be present.
-  # Runs BEFORE crt_schema_apply because a missing required col would
-  # silently become NA after coercion; surface the failure at the
-  # right layer.
-  crt_schema_validate(result, schema) # nolint: object_usage_linter.
-
-  # Schema-driven canonical typing. The schema YAML declares the type of
-  # every canonical column; crt_schema_apply() enforces those declarations
-  # on the handler's output. Handlers stay focused on shape transforms
-  # (long->wide, renames) and inherit type enforcement generically.
-  # Without this, readr's defaults leak through (integer cols become
-  # double, "YYYY-MM-DD" strings become Date), violating the schema's
-  # declared contract.
-  result <- crt_schema_apply(result, schema) # nolint: object_usage_linter.
-
-  tibble::as_tibble(result)
+  # Validation then typing, both from the schema YAML. Routed through
+  # crt_schema_conform() rather than calling crt_schema_validate() and
+  # crt_schema_apply() here, so a caller arriving with their own data frame
+  # gets exactly the treatment a file gets.
+  crt_schema_conform(result, source, file_name)
 }

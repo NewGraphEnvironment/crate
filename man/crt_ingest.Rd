@@ -31,9 +31,16 @@ callers from the change: register the new shape as an \code{upstream_variant} in
 the schema YAML and add a normalize handler, and the same \code{crt_ingest()}
 call continues returning canonical output.
 
+Validation and typing are not done here — the handler's output goes through
+\code{\link[=crt_schema_conform]{crt_schema_conform()}}, which is also the entry point for data crate did not
+read. One code path, so the two cannot drift.
+
 Throws on:
 \itemize{
 \item Unknown \verb{(source, file_name)} pair (not in registry)
+\item An entry registered \code{kind = schema_only}, which declares a canonical shape
+crate does not read. Conform your own data frame with
+\code{\link[=crt_schema_conform]{crt_schema_conform()}} instead.
 \item File at \code{path} does not exist
 \item Input file's shape does not match any known upstream variant
 }
@@ -62,5 +69,6 @@ identical(names(wide), names(long))
 
 }
 \seealso{
-\code{\link[=crt_files]{crt_files()}} to list registered entries.
+\code{\link[=crt_files]{crt_files()}} to list registered entries,
+\code{\link[=crt_schema_conform]{crt_schema_conform()}} to conform a data frame crate did not read.
 }

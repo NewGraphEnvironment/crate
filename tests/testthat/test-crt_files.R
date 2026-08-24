@@ -2,7 +2,7 @@ test_that("crt_files() returns registry tibble with expected columns", {
   out <- crt_files()
   expect_s3_class(out, "tbl_df")
   expected_cols <- c(
-    "source", "file_name", "handler_fn", "schema_yaml", "canonical_cols"
+    "source", "file_name", "kind", "handler_fn", "schema_yaml", "canonical_cols"
   )
   expect_equal(names(out), expected_cols)
   expect_gte(nrow(out), 1L)
