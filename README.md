@@ -6,6 +6,8 @@ When external data we depend on changes shape — columns renamed, types swapped
 
 Call `crt_ingest("source", "file_name", path)` from anywhere. Same call, same output, regardless of which version of the upstream file landed. When upstream changes shape again, fix it once in crate; everywhere downstream keeps working.
 
+Some data crate should not read — a spatial format, a database, an API. For that, `crt_schema_conform(df, "source", "file_name")` takes a data frame you already have and holds it to the same declared shape. crate says what the columns mean either way; reading the bytes is somebody else's job.
+
 ## Installation
 
 ```r
@@ -19,12 +21,15 @@ pak::pak("NewGraphEnvironment/crate")
 ```r
 library(crate)
 
-# What sources + files does crate know how to ingest?
+# What does crate know about?
 crt_files()
-#> # A tibble: 1 × 5
-#>   source file_name                   handler_fn                              schema_yaml                                       canonical_cols
-#>   <chr>  <chr>                       <chr>                                   <chr>                                             <chr>
-#> 1 bcfp   user_habitat_classification internal_bcfp_user_habitat_classifica… schemas/bcfp/user_habitat_classification.yaml     blue_line_key,…
+#> # A tibble: 4 × 6
+#>   source file_name                   kind        handler_fn                schema_yaml
+#>   <chr>  <chr>                       <chr>       <chr>                     <chr>
+#> 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml
+#> 2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml
+#> 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml
+#> 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml
 
 # Ingest a bundled wide-format example fixture (today's upstream shape)
 wide_path <- system.file(
@@ -64,7 +69,11 @@ When you call `crt_ingest("bcfp", "user_habitat_classification", path)`, five pi
 
 4. **Validation** (`crt_schema_validate()`) — after the handler returns, crate checks every column declared `required: true` in the schema is present. Fails loud listing all missing required columns.
 
-5. **Type enforcement** (`crt_schema_apply()`) — finally, crate coerces every named column to the type declared in the schema (`integer`, `double`, `string`, `logical`). Schema YAML is the single source of truth for types; handlers don't encode type knowledge. Without this, readr's defaults leak through (integer cols become double, declared strings become Date).
+5. **Type enforcement** (`crt_schema_apply()`) — finally, crate coerces every named column to the type declared in the schema (`integer`, `double`, `string`, `logical`, `datetime`). Schema YAML is the single source of truth for types; handlers don't encode type knowledge. Without this, readr's defaults leak through (integer cols become double, declared strings become Date).
+
+Steps 4 and 5 are `crt_schema_conform()`, which `crt_ingest()` calls rather than reimplements — so a file and a frame you supply yourself get identical treatment.
+
+A `datetime` column is **an instant**, and crate never moves it. A `POSIXct` has its timezone attribute *stamped* to UTC rather than converted: several readers return correct UTC instants carrying no timezone label, so R renders them in the session's zone and they read as a second clock in a second timezone. Converting to "fix" that rendering injects a real whole-hour error into every join downstream. Stamping fixes the label, which was the only thing wrong.
 
 The handler made the type change transparent in our example. The wide canonical declares `spawning` and `rearing` as integer columns; the long upstream had `habitat_ind` as text (`"t"`/`"f"`). The pivot does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form. Type enforcement (step 5) catches any leaks at the boundary regardless of handler.
 
@@ -73,6 +82,7 @@ The handler made the type change transparent in our example. The wide canonical 
 Every function in crate's namespace starts with `crt_`, family-namespaced:
 
 - `crt_<verb>` — public singletons (`crt_ingest`, `crt_files`)
+- `crt_schema_conform` — public, and in the `crt_schema_*` family because that is what it belongs to
 - `crt_handler_<source>_<file_name>` — per-(source, file) dispatchers
 - `crt_<family>_<verb>` — internal helper families (`crt_registry_*`, `crt_schema_*`)
 
@@ -96,12 +106,21 @@ See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) and [`dec
 
 ## What crate handles today
 
-One source family, one file:
+Entries come in two kinds. `file` entries crate reads and normalizes; `schema_only` entries declare a canonical shape for data crate does not read, which you conform yourself with `crt_schema_conform()`.
+
+**`file`**
 
 - `bcfp` (files from [smnorris/bcfishpass](https://github.com/smnorris/bcfishpass))
   - `user_habitat_classification` — handles both pre-2026-04-26 long and current 2026-04-26 wide upstream variants
 
-More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a small R function + a registry row. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
+**`schema_only`**
+
+- `nge` — GPS tracks
+  - `track_sessions` — one row per tracking session, carrying the evidence that its two clocks agree
+  - `track_vertices` — one row per recorded position; non-spatial, so the geometry is reconstructable without a spatial dependency in the read path
+  - `track_annotations` — human-supplied fields, deliberately a separate table. A capture schema is fixed by the tool that writes it, so a name has to be applied afterwards, and putting it in the captured table means the next harvest overwrites it. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else's track. See the [decision entry](decisions/nge/20260824_track_canonical_two_tables.md).
+
+More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a registry row, plus a handler when crate does the reading. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
 
 ## Sibling public packages
 

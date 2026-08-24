@@ -1,0 +1,121 @@
+file: track_sessions
+description: >
+  One row per GPS tracking session. The companion table is track_vertices, which
+  holds the positions; this one holds what is true of the session as a whole,
+  including the evidence that its two clocks agree.
+
+  Canonical shape is deliberately not tied to any one capture tool. `project`
+  and `session_id` are defined below in source-neutral terms so that a track
+  recorded years earlier as a GPX file is the same canonical thing as one
+  captured by a mobile plugin today, and fits this schema without a rename.
+
+canonical:
+  shape: long
+  cols:
+    - name: project
+      type: string
+      required: true
+      notes: >
+        The dataset the track came from (key). For a synced field project this
+        is the project identifier; for a file-based import it names the source
+        collection. Paired with session_id it is the session's identity.
+    - name: session_id
+      type: integer
+      required: true
+      notes: >
+        Identifier unique within `project` (key). Carried from the capture
+        source rather than reassigned, so annotations keyed on it survive a
+        re-harvest. It is unique within one file lineage, not globally, and not
+        guaranteed across a rebuild of the source layer - see track_annotations
+        for the fingerprint that makes a reassignment detectable.
+    - name: tracked_by
+      type: string
+      required: true
+      notes: Account or person the capture source attributes the session to.
+    - name: time_start
+      type: datetime
+      required: true
+      notes: >
+        Session start as reported by the capture source's own attribute, in
+        UTC. Compare against time_start_m rather than trusting either alone.
+    - name: time_end
+      type: datetime
+      required: true
+      notes: Session end as reported by the capture source's attribute, in UTC.
+    - name: time_start_m
+      type: datetime
+      required: true
+      notes: >
+        Session start derived from the first vertex's own timestamp, in UTC.
+        This is the authoritative clock: it is the same value every vertex is
+        stamped with, so it is what a join to any other observation resolves
+        against.
+    - name: time_end_m
+      type: datetime
+      required: true
+      notes: Session end derived from the last vertex's timestamp, in UTC.
+    - name: clock_delta_start_s
+      type: double
+      required: true
+      notes: >
+        time_start_m minus time_start, in seconds. Not a passthrough - a
+        semantic claim that the attribute clock and the vertex clock agree.
+        Expected to be within a few seconds of zero. A whole-hour value is the
+        signature of a capture source that has begun writing local time, which
+        is the failure this column exists to make visible rather than silent.
+    - name: clock_delta_end_s
+      type: double
+      required: true
+      notes: time_end_m minus time_end, in seconds. Same reading as above.
+    - name: total_distance
+      type: double
+      required: true
+      notes: >
+        Session length in metres as reported by the capture source. Reported,
+        not recomputed - it is kept as captured so a disagreement with a
+        recomputation from the vertices is discoverable. NA for a source that
+        does not report one.
+    - name: n_vertices
+      type: integer
+      required: true
+      notes: Count of rows this session has in track_vertices.
+
+upstream_variants:
+  - id: mergin-tracking-plugin-2026-08
+    description: >
+      GeoPackage layer `tracking_layer` written by the Mergin Maps position
+      tracking plugin. One LineStringZM feature per session in EPSG:4326, where
+      per vertex there is X, Y, Z and M and nothing else - no accuracy, speed,
+      bearing or satellite count. Z is ellipsoidal altitude; M is the UTC
+      timestamp in epoch seconds.
+
+      Both clocks are UTC. `tracking_start_time` is stored as ISO 8601 with an
+      explicit trailing Z and agrees with the vertex M to within a second.
+      Readers that return the DATETIME column with an empty timezone attribute
+      make it render in the session's local zone, which reads as a second clock
+      and is not one - hence the datetime type stamps rather than converts, and
+      hence the clock_delta columns above.
+
+      The capture shape is fixed by the plugin and cannot be extended, which is
+      why a human-supplied name cannot live in it. See track_annotations.
+    cols:
+      - fid
+      - geom
+      - tracking_start_time
+      - tracking_end_time
+      - total_distance
+      - tracked_by
+    normalize_fn: reader-supplied
+    first_seen: 2026-08
+
+forward_compat:
+  - cols:
+      - horizontal_accuracy
+      - speed
+    note: >
+      A capture source reporting per-fix accuracy or speed would carry them on
+      the vertices, not here. Nothing writes them today; declare them in
+      track_vertices when one does.
+
+decisions:
+  - decisions/nge/20260824_track_canonical_two_tables.md

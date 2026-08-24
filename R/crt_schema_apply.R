@@ -70,7 +70,7 @@ crt_schema_apply <- function(df, schema) {
       "datetime" = crt_datetime_utc(x, col_name),
       cli::cli_abort(c(
         "Unknown canonical type {.val {col_type}} declared for column {.field {col_name}}.",
-        "i" = "Supported types: integer, double, string, logical, datetime."
+        "i" = "Supported types: {paste(crt_schema_types(), collapse = ', ')}."
       ))
     )
   }
@@ -148,8 +148,9 @@ crt_datetime_parse_iso <- function(x, col_name) {
   # below is the one the caller sees.
   out <- tryCatch(
     as.POSIXct(cleaned, tz = "UTC"),
-    error = function(e) as.POSIXct(rep(NA_real_, length(cleaned)),
-                                   origin = "1970-01-01", tz = "UTC")
+    error = function(e) {
+      as.POSIXct(rep(NA_real_, length(cleaned)), origin = "1970-01-01", tz = "UTC")
+    }
   )
   unparsed <- is.na(out) & !is.na(trimmed) & nzchar(trimmed)
   if (any(unparsed)) {
@@ -160,4 +161,17 @@ crt_datetime_parse_iso <- function(x, col_name) {
     ))
   }
   out
+}
+
+#' Canonical types crt_schema_apply() understands
+#'
+#' One source of truth, so the abort message above and the registry-integrity
+#' test cannot disagree about what is supported. A test asserting a hardcoded
+#' list would go stale the moment a type was added and would still pass.
+#'
+#' @return A character vector of supported `type` values.
+#' @keywords internal
+#' @noRd
+crt_schema_types <- function() {
+  c("integer", "double", "string", "logical", "datetime")
 }

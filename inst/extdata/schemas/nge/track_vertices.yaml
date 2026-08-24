@@ -1,0 +1,71 @@
+file: track_vertices
+description: >
+  One row per recorded position, non-spatial on purpose. X, Y, Z and the
+  timestamp are ordinary columns, so the line geometry is reconstructable from
+  this table and both track tables go straight to columnar storage without a
+  spatial dependency.
+
+  `time` is the column that makes a track worth keeping: it is what lets an
+  observation recorded at a known instant be resolved to a position.
+
+canonical:
+  shape: long
+  cols:
+    - name: project
+      type: string
+      required: true
+      notes: The dataset the track came from (key). Matches track_sessions.
+    - name: session_id
+      type: integer
+      required: true
+      notes: Session identifier, unique within `project` (key).
+    - name: vertex_seq
+      type: integer
+      required: true
+      notes: >
+        Position within the session, counting from 1 (key). Capture order, not
+        a sort by time - so an out-of-order timestamp stays visible instead of
+        being tidied away.
+    - name: "x"
+      type: double
+      required: true
+      notes: Longitude, EPSG:4326.
+    - name: "y"
+      type: double
+      required: true
+      notes: Latitude, EPSG:4326.
+    - name: "z"
+      type: double
+      required: true
+      notes: >
+        Ellipsoidal altitude in metres, as reported. Not orthometric height -
+        it is tens of metres from an elevation above sea level and should not
+        be read as one. NA for a source that does not report altitude.
+    - name: time
+      type: datetime
+      required: true
+      notes: >
+        The instant this position was recorded, in UTC. Authoritative - it is
+        carried per vertex by the capture source rather than interpolated from
+        the session bounds.
+
+upstream_variants:
+  - id: mergin-tracking-plugin-2026-08
+    description: >
+      Vertices of the LineStringZM in `tracking_layer`. There is no vertex
+      attribute table upstream; the columns above are read out of the geometry,
+      where M is the UTC timestamp in epoch seconds and Z is ellipsoidal
+      altitude.
+    cols:
+      # Quoted: YAML 1.1 resolves a bare Y (and y, N, n, on, off, yes, no) to a
+      # boolean, so an unquoted - Y stops being a column name and becomes TRUE.
+      - "X"
+      - "Y"
+      - "Z"
+      - "M"
+      - "L1"
+    normalize_fn: reader-supplied
+    first_seen: 2026-08
+
+decisions:
+  - decisions/nge/20260824_track_canonical_two_tables.md

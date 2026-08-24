@@ -1,0 +1,77 @@
+file: track_annotations
+description: >
+  Human-supplied fields about a tracking session: what to call it, and anything
+  worth saying about it. Deliberately a separate table from track_sessions.
+
+  Capture schemas are fixed by the tool that writes them, so a name cannot come
+  from capture - it has to be applied afterwards. Putting it in track_sessions
+  would mean the next harvest overwrites it, or that every rebuild has to be
+  careful forever. Keeping it here makes re-harvest safe by construction: a
+  harvest only ever writes the captured tables, and nothing it writes can reach
+  an edit.
+
+  The principle, stated once: captured tables are immutable and capture-shaped;
+  annotations are ours and live beside them. Mixing the two is what makes a
+  re-harvest dangerous.
+
+  There is no upstream variant for this table because there is no upstream. It
+  is born canonical, which is why it is registered `schema_only`.
+
+canonical:
+  shape: long
+  cols:
+    - name: project
+      type: string
+      required: true
+      notes: The dataset the annotated session belongs to (key).
+    - name: session_id
+      type: integer
+      required: true
+      notes: >
+        Session identifier, unique within `project` (key). Together with
+        `project` this is the join to track_sessions.
+    - name: time_start_m
+      type: datetime
+      required: true
+      notes: >
+        Fingerprint, not data. Copied from the session's time_start_m when the
+        annotation was written, and checked against it at join time.
+
+        session_id is stable while the source layer's identity sequence is -
+        for a GeoPackage that means AUTOINCREMENT, which never reissues a
+        deleted id. It is not stable across a *rebuild* of that layer, which
+        restarts the sequence and would silently repoint every annotation onto
+        a different session. Comparing this column at join time turns that
+        from silent mis-attribution into a loud failure, and costs no column
+        that did not already exist.
+    - name: track_name
+      type: string
+      required: true
+      notes: >
+        What this session is called. The first editable field, and the reason
+        this table exists; it is not expected to be the last.
+    - name: notes
+      type: string
+      required: true
+      notes: >
+        Free text. Why a session ended, whether it is a route or a bushwhack,
+        anything that does not yet deserve a column of its own.
+
+forward_compat:
+  - cols:
+      - annotated_by
+      - annotated_at
+    note: >
+      Provenance for a hand-edited table is real - who claimed a name, and
+      when - and was considered when this schema was written. Deferred rather
+      than omitted: nothing reads it yet, and a column added before it has a
+      consumer is a guess about what that consumer will want. Add both when
+      something needs to attribute an edit.
+  - cols:
+      - review_status
+    note: >
+      Anticipated the moment more than one person annotates. Same reasoning -
+      declare it when there is a workflow to attach it to.
+
+decisions:
+  - decisions/nge/20260824_track_canonical_two_tables.md
