@@ -1,10 +1,10 @@
 # Apply a schema's canonical type declarations to handler output
 
 Schema YAML is the single source of truth for canonical column types.
-[`crt_ingest()`](https://newgraphenvironment.github.io/crate/reference/crt_ingest.md)
-calls this after the registered handler returns, so every (source,
-file_name) pair gets type enforcement for free — handlers do not encode
-type knowledge.
+[`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md)
+calls this after validation, so every registered (source, file_name)
+pair gets type enforcement for free — handlers do not encode type
+knowledge.
 
 ## Usage
 
@@ -16,7 +16,7 @@ crt_schema_apply(df, schema)
 
 - df:
 
-  A data frame returned by a registered handler.
+  A data frame.
 
 - schema:
 
@@ -47,3 +47,36 @@ Supported `type` values:
   declares as text)
 
 - `logical` -\> [`as.logical()`](https://rdrr.io/r/base/logical.html)
+
+- `datetime` -\> `POSIXct` rendered in UTC, see below
+
+## datetime is stamped, never converted
+
+A `datetime` column means **an instant**, and this function never
+changes which instant it is. A `POSIXct` input has its `tzone` attribute
+*stamped* to `"UTC"`, which changes the rendering and nothing else; the
+epoch is untouched.
+
+That distinction is the whole point of the type. Several readers return
+correct UTC instants with an **empty `tzone`** attribute — GeoPackage
+`DATETIME` columns read through `sf` are the case this was written for —
+so R renders them in
+[`Sys.timezone()`](https://rdrr.io/r/base/timezones.html). On a UTC-7
+machine the same instant prints seven hours earlier than it does from an
+epoch, which reads as a second clock in a second timezone. Converting to
+"fix" the rendering injects a real whole-hour error into every
+downstream join; stamping fixes the label, which is all that was ever
+wrong.
+
+Other inputs:
+
+- numeric is read as **epoch seconds**
+
+- `Date` is read as UTC midnight. Note
+  [`as.POSIXct()`](https://rdrr.io/r/base/as.POSIXlt.html) silently
+  ignores `tz` for a `Date`, converting in the system zone instead, so
+  this goes through [`format()`](https://rdrr.io/r/base/format.html)
+  first — west of UTC the naive call moves the day boundary.
+
+- character is parsed as ISO 8601 in UTC, accepting a `T` separator and
+  a trailing `Z`

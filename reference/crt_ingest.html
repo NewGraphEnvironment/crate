@@ -13,7 +13,7 @@ tibble in canonical shape."><meta property="og:image" content="https://newgraphe
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,13 +78,20 @@ S3 URLs, postgres connections, etc. as the registered handler grows).</p></dd>
 callers from the change: register the new shape as an <code>upstream_variant</code> in
 the schema YAML and add a normalize handler, and the same <code>crt_ingest()</code>
 call continues returning canonical output.</p>
+<p>Validation and typing are not done here — the handler's output goes through
+<code><a href="crt_schema_conform.html">crt_schema_conform()</a></code>, which is also the entry point for data crate did not
+read. One code path, so the two cannot drift.</p>
 <p>Throws on:</p><ul><li><p>Unknown <code>(source, file_name)</code> pair (not in registry)</p></li>
+<li><p>An entry registered <code>kind = schema_only</code>, which declares a canonical shape
+crate does not read. Conform your own data frame with
+<code><a href="crt_schema_conform.html">crt_schema_conform()</a></code> instead.</p></li>
 <li><p>File at <code>path</code> does not exist</p></li>
 <li><p>Input file's shape does not match any known upstream variant</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="crt_files.html">crt_files()</a></code> to list registered entries.</p></div>
+    <div class="dont-index"><p><code><a href="crt_files.html">crt_files()</a></code> to list registered entries,
+<code><a href="crt_schema_conform.html">crt_schema_conform()</a></code> to conform a data frame crate did not read.</p></div>
     </div>
 
     <div class="section level2">

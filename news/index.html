@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,17 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
 </div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.0" id="crate-010-2026-08-24">crate 0.1.0 (2026-08-24)<a class="anchor" aria-label="anchor" href="#crate-010-2026-08-24"></a></h2>
+<p>crate can now declare a canonical shape for data it does not read, and can type a column as an instant.</p>
+<ul><li>
+<code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code> takes a data frame you already have and holds it to a registered canonical schema. <code><a href="../reference/crt_ingest.html">crt_ingest()</a></code> calls it rather than reimplementing validation and typing, so a file and a caller-supplied frame get identical treatment.</li>
+<li>New canonical type <code>datetime</code>. It never moves an instant: a <code>POSIXct</code> has its timezone attribute stamped to UTC rather than converted, because several readers return correct UTC instants carrying no timezone label and “correcting” the rendering injects a real whole-hour error into every join.</li>
+<li>The registry gains a <code>kind</code> column. <code>schema_only</code> entries declare a shape crate does not read; <code><a href="../reference/crt_ingest.html">crt_ingest()</a></code> aborts on them naming <code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code>.</li>
+<li>First <code>schema_only</code> entries: <code>nge/track_sessions</code>, <code>nge/track_vertices</code> and <code>nge/track_annotations</code>, the canonical shape of a GPS track. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260824_track_canonical_two_tables.md" class="external-link">decision entry</a> for why a track is two tables and why annotations are a third.</li>
+<li>
+<code>test-crt_registry_integrity.R</code> walks the registry and the schemas directory rather than a hand-written list, so a row without a YAML, a YAML without a row, or a declared type nothing implements fails the suite.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.2" id="crate-002-2026-04-29">crate 0.0.2 (2026-04-29)<a class="anchor" aria-label="anchor" href="#crate-002-2026-04-29"></a></h2>
 <p>Schema-as-contract scope settled and Convention C naming locked in (see <a href="https://github.com/NewGraphEnvironment/crate/issues/4" class="external-link">crate#4</a>).</p>

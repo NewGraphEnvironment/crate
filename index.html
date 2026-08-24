@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,6 +57,7 @@
 </blockquote>
 <p>When external data we depend on changes shape — columns renamed, types swapped, layouts flipped — code that reads those files breaks. crate is the one place that knows about all the shape variations.</p>
 <p>Call <code>crt_ingest("source", "file_name", path)</code> from anywhere. Same call, same output, regardless of which version of the upstream file landed. When upstream changes shape again, fix it once in crate; everywhere downstream keeps working.</p>
+<p>Some data crate should not read — a spatial format, a database, an API. For that, <code>crt_schema_conform(df, "source", "file_name")</code> takes a data frame you already have and holds it to the same declared shape. crate says what the columns mean either way; reading the bytes is somebody else’s job.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -70,12 +71,15 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/NewGraphEnvironment/crate" class="external-link">crate</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># What sources + files does crate know how to ingest?</span></span>
+<span><span class="co"># What does crate know about?</span></span>
 <span><span class="fu"><a href="reference/crt_files.html">crt_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 5</span></span>
-<span><span class="co">#&gt;   source file_name                   handler_fn                              schema_yaml                                       canonical_cols</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;                                   &lt;chr&gt;                                             &lt;chr&gt;</span></span>
-<span><span class="co">#&gt; 1 bcfp   user_habitat_classification internal_bcfp_user_habitat_classifica… schemas/bcfp/user_habitat_classification.yaml     blue_line_key,…</span></span>
+<span><span class="co">#&gt; # A tibble: 4 × 6</span></span>
+<span><span class="co">#&gt;   source file_name                   kind        handler_fn                schema_yaml</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;       &lt;chr&gt;                     &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml</span></span>
+<span><span class="co">#&gt; 2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml</span></span>
+<span><span class="co">#&gt; 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml</span></span>
+<span><span class="co">#&gt; 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml</span></span>
 <span></span>
 <span><span class="co"># Ingest a bundled wide-format example fixture (today's upstream shape)</span></span>
 <span><span class="va">wide_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
@@ -115,8 +119,10 @@
 </ul>
 </li>
 <li><p><strong>Validation</strong> (<code><a href="reference/crt_schema_validate.html">crt_schema_validate()</a></code>) — after the handler returns, crate checks every column declared <code>required: true</code> in the schema is present. Fails loud listing all missing required columns.</p></li>
-<li><p><strong>Type enforcement</strong> (<code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code>) — finally, crate coerces every named column to the type declared in the schema (<code>integer</code>, <code>double</code>, <code>string</code>, <code>logical</code>). Schema YAML is the single source of truth for types; handlers don’t encode type knowledge. Without this, readr’s defaults leak through (integer cols become double, declared strings become Date).</p></li>
+<li><p><strong>Type enforcement</strong> (<code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code>) — finally, crate coerces every named column to the type declared in the schema (<code>integer</code>, <code>double</code>, <code>string</code>, <code>logical</code>, <code>datetime</code>). Schema YAML is the single source of truth for types; handlers don’t encode type knowledge. Without this, readr’s defaults leak through (integer cols become double, declared strings become Date).</p></li>
 </ol>
+<p>Steps 4 and 5 are <code><a href="reference/crt_schema_conform.html">crt_schema_conform()</a></code>, which <code><a href="reference/crt_ingest.html">crt_ingest()</a></code> calls rather than reimplements — so a file and a frame you supply yourself get identical treatment.</p>
+<p>A <code>datetime</code> column is <strong>an instant</strong>, and crate never moves it. A <code>POSIXct</code> has its timezone attribute <em>stamped</em> to UTC rather than converted: several readers return correct UTC instants carrying no timezone label, so R renders them in the session’s zone and they read as a second clock in a second timezone. Converting to “fix” that rendering injects a real whole-hour error into every join downstream. Stamping fixes the label, which was the only thing wrong.</p>
 <p>The handler made the type change transparent in our example. The wide canonical declares <code>spawning</code> and <code>rearing</code> as integer columns; the long upstream had <code>habitat_ind</code> as text (<code>"t"</code>/<code>"f"</code>). The pivot does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form. Type enforcement (step 5) catches any leaks at the boundary regardless of handler.</p>
 <div class="section level3">
 <h3 id="naming-convention">Naming convention<a class="anchor" aria-label="anchor" href="#naming-convention"></a>
@@ -125,6 +131,8 @@
 <ul>
 <li>
 <code>crt_&lt;verb&gt;</code> — public singletons (<code>crt_ingest</code>, <code>crt_files</code>)</li>
+<li>
+<code>crt_schema_conform</code> — public, and in the <code>crt_schema_*</code> family because that is what it belongs to</li>
 <li>
 <code>crt_handler_&lt;source&gt;_&lt;file_name&gt;</code> — per-(source, file) dispatchers</li>
 <li>
@@ -158,7 +166,8 @@
 <div class="section level2">
 <h2 id="what-crate-handles-today">What crate handles today<a class="anchor" aria-label="anchor" href="#what-crate-handles-today"></a>
 </h2>
-<p>One source family, one file:</p>
+<p>Entries come in two kinds. <code>file</code> entries crate reads and normalizes; <code>schema_only</code> entries declare a canonical shape for data crate does not read, which you conform yourself with <code><a href="reference/crt_schema_conform.html">crt_schema_conform()</a></code>.</p>
+<p><strong><code>file</code></strong></p>
 <ul>
 <li>
 <code>bcfp</code> (files from <a href="https://github.com/smnorris/bcfishpass" class="external-link">smnorris/bcfishpass</a>)
@@ -168,7 +177,21 @@
 </ul>
 </li>
 </ul>
-<p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a small R function + a registry row. See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
+<p><strong><code>schema_only</code></strong></p>
+<ul>
+<li>
+<code>nge</code> — GPS tracks
+<ul>
+<li>
+<code>track_sessions</code> — one row per tracking session, carrying the evidence that its two clocks agree</li>
+<li>
+<code>track_vertices</code> — one row per recorded position; non-spatial, so the geometry is reconstructable without a spatial dependency in the read path</li>
+<li>
+<code>track_annotations</code> — human-supplied fields, deliberately a separate table. A capture schema is fixed by the tool that writes it, so a name has to be applied afterwards, and putting it in the captured table means the next harvest overwrites it. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else’s track. See the <a href="decisions/nge/20260824_track_canonical_two_tables.html">decision entry</a>.</li>
+</ul>
+</li>
+</ul>
+<p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a registry row, plus a handler when crate does the reading. See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
 </div>
 <div class="section level2">
 <h2 id="sibling-public-packages">Sibling public packages<a class="anchor" aria-label="anchor" href="#sibling-public-packages"></a>

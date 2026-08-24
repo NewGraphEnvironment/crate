@@ -41,9 +41,20 @@ shields callers from the change: register the new shape as an
 `upstream_variant` in the schema YAML and add a normalize handler, and
 the same `crt_ingest()` call continues returning canonical output.
 
+Validation and typing are not done here — the handler's output goes
+through
+[`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md),
+which is also the entry point for data crate did not read. One code
+path, so the two cannot drift.
+
 Throws on:
 
 - Unknown `(source, file_name)` pair (not in registry)
+
+- An entry registered `kind = schema_only`, which declares a canonical
+  shape crate does not read. Conform your own data frame with
+  [`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md)
+  instead.
 
 - File at `path` does not exist
 
@@ -52,7 +63,9 @@ Throws on:
 ## See also
 
 [`crt_files()`](https://newgraphenvironment.github.io/crate/reference/crt_files.md)
-to list registered entries.
+to list registered entries,
+[`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md)
+to conform a data frame crate did not read.
 
 ## Examples
 
