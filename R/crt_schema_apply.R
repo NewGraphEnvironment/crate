@@ -118,21 +118,38 @@ crt_datetime_utc <- function(x, col_name) {
 }
 
 #' Parse ISO 8601 character to POSIXct in UTC
+#'
+#' Per element, against an explicit format chosen by the value's own shape.
+#'
+#' Not [as.POSIXct()], which infers **one** format for the whole vector by
+#' finding the first candidate that parses every element -- and `strptime()`
+#' ignores trailing characters, so a single date-only value makes
+#' `"%Y-%m-%d"` parse the lot and every fully-specified timestamp in the
+#' column silently loses its time of day. One minute-precision value does the
+#' same to the seconds. That is exactly the class of silent shift the datetime
+#' type exists to prevent, so the shape is matched with a regex first and the
+#' format follows from it.
+#'
 #' @param x Character vector.
 #' @param col_name Column name, for the error message.
 #' @return A POSIXct vector in UTC.
 #' @keywords internal
 #' @noRd
 crt_datetime_parse_iso <- function(x, col_name) {
-  # Normalise the two ISO spellings R's parser does not take: the "T"
-  # separator and a trailing zone designator. Only "Z" (and an explicit
-  # +00:00) is accepted -- a non-UTC offset is dropped silently by
-  # as.POSIXct(format = ...), which would be a silent hour error, so refuse it.
   trimmed <- trimws(x)
-  offset <- grepl("[+-][0-9]{2}:?[0-9]{2}$", trimmed) &
-    !grepl("[+-]00:?00$", trimmed)
-  if (any(offset, na.rm = TRUE)) {
-    bad <- unique(trimmed[which(offset)]) # nolint: object_usage_linter.
+
+  # An offset only counts as an offset when it follows a time -- otherwise the
+  # trailing "-15" of a plain date reads as a -15 hour zone. Both the four
+  # digit (+05:30, -0700) and the two digit (+02) ISO spellings are matched;
+  # missing the latter would let it fall through to be stripped as trailing
+  # junk, moving the instant by whole hours with nothing reported. Postgres
+  # emits the two digit form for whole-hour zones.
+  time_part <- "[0-9]{2}:[0-9]{2}(:[0-9]{2}([.][0-9]+)?)?"
+  has_offset <- grepl(paste0(time_part, "[+-][0-9]{2}(:?[0-9]{2})?$"), trimmed)
+  is_utc_offset <- grepl(paste0(time_part, "[+-]00(:?00)?$"), trimmed)
+  offending <- has_offset & !is_utc_offset
+  if (any(offending, na.rm = TRUE)) {
+    bad <- unique(trimmed[which(offending)]) # nolint: object_usage_linter.
     cli::cli_abort(c(
       "{.field {col_name}} carries a non-UTC offset.",
       "x" = "First seen: {.val {bad[[1]]}}.",
@@ -140,27 +157,48 @@ crt_datetime_parse_iso <- function(x, col_name) {
              {.val datetime} is stored as an instant in UTC."
     ))
   }
-  cleaned <- sub("[Zz]$", "", sub("T", " ", trimmed))
-  cleaned <- sub("[+-]00:?00$", "", cleaned)
-  # as.POSIXct.character throws on an unrecognised string rather than
-  # returning NA, and the message it throws ("not in a standard unambiguous
-  # format") names neither the column nor the value. Catch it so the abort
-  # below is the one the caller sees.
-  out <- tryCatch(
-    as.POSIXct(cleaned, tz = "UTC"),
-    error = function(e) {
-      as.POSIXct(rep(NA_real_, length(cleaned)), origin = "1970-01-01", tz = "UTC")
-    }
+
+  cleaned <- sub("[Zz]$", "", trimmed)
+  cleaned <- sub(paste0("(", time_part, ")[+-]00(:?00)?$"), "\\1", cleaned)
+  cleaned <- sub("T", " ", cleaned)
+
+  # Shape -> format. Ordered most specific first; the match is anchored at both
+  # ends, so a value carrying anything else is unparseable rather than
+  # truncated.
+  shapes <- list(
+    c("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[.][0-9]+$",
+      "%Y-%m-%d %H:%M:%OS"),
+    c("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$",
+      "%Y-%m-%d %H:%M:%S"),
+    c("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$", "%Y-%m-%d %H:%M"),
+    c("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "%Y-%m-%d")
   )
-  unparsed <- is.na(out) & !is.na(trimmed) & nzchar(trimmed)
+
+  out <- rep(NA_real_, length(cleaned))
+  absent <- is.na(cleaned) | !nzchar(cleaned)
+  matched <- absent
+  for (shape in shapes) {
+    todo <- !matched & grepl(shape[[1L]], cleaned)
+    if (!any(todo)) next
+    parsed <- strptime(cleaned[todo], format = shape[[2L]], tz = "UTC")
+    out[todo] <- as.numeric(as.POSIXct(parsed))
+    matched <- matched | todo
+  }
+
+  # Named from the values that actually failed, not from the whole vector: an
+  # error pointing at a valid timestamp sends the reader to the wrong row.
+  unparsed <- !matched | (is.na(out) & !absent)
   if (any(unparsed)) {
     bad <- unique(trimmed[which(unparsed)]) # nolint: object_usage_linter.
     cli::cli_abort(c(
       "{.field {col_name}} is not parseable as ISO 8601.",
-      "x" = "First unparseable value: {.val {bad[[1]]}}."
+      "x" = "First unparseable value: {.val {bad[[1]]}}.",
+      "i" = "Accepted: YYYY-MM-DD, optionally with a time, optionally with a \\
+             {.val T} separator and a {.val Z}."
     ))
   }
-  out
+
+  as.POSIXct(out, origin = "1970-01-01", tz = "UTC")
 }
 
 #' Canonical types crt_schema_apply() understands
