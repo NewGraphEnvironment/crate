@@ -1,5 +1,12 @@
 # crate (development version)
 
+# crate 0.2.0 (2026-09-01)
+
+New `schema_only` entry `nge/form_capture`: the envelope every captured field-form record carries — `project`, `form`, `record_id`, `schema_version`, `captured_at` — and nothing about what any observation means.
+
+- Vintage is a column, not a filename. Two shapes of one form are one logical table, distinguished by `schema_version`; a column absent from the older vintage is null there and `schema_version` says why, which is what separates "not asked" from "not answered".
+- Per-form column meaning is still [#13](https://github.com/NewGraphEnvironment/crate/issues/13). The envelope leans on `crt_schema_conform()`'s documented floor-not-ceiling behaviour, so a form's own columns pass through untouched until #13 defines them. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260901_form_capture_envelope.md) for why an envelope rather than waiting, and why `harvested_at` is not a column.
+
 # crate 0.1.0 (2026-08-24)
 
 crate can now declare a canonical shape for data it does not read, and can type a column as an instant.
