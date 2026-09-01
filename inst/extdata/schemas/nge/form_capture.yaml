@@ -1,0 +1,124 @@
+file: form_capture
+description: >
+  The envelope every captured field-form record carries, independent of what
+  that form's own columns mean. One row per record.
+
+  This schema declares a floor, not a ceiling. A form's own columns pass through
+  `crt_schema_conform()` untouched, which is what lets a harvest start before
+  the canonical per-form schemas exist. Those are #13's job, and this entry is
+  deliberately not a substitute for them: it says where a record came from and
+  what shape it was captured in, and says nothing about what any observation
+  means.
+
+  Two vintages of one form are therefore the same logical table, distinguished
+  by `schema_version` rather than by a filename. A column absent from the older
+  vintage is null there and `schema_version` explains why, which is what makes
+  the null interpretable instead of ambiguous between "the observer left it
+  blank" and "the form did not have that field yet".
+
+canonical:
+  shape: long
+  cols:
+    - name: "project"
+      type: string
+      required: true
+      notes: >
+        The dataset the record came from (key). For a synced field project this
+        is the project identifier; for a file-based import it names the source
+        collection. Source-neutral on purpose, matching track_sessions.
+    - name: "form"
+      type: string
+      required: true
+      notes: >
+        Which form captured the record (key), e.g. `form_vri_qa`. Carried as a
+        column rather than left implicit in a table name, so records from
+        several forms can be stacked and a consumer can still tell them apart.
+    - name: "record_id"
+      type: integer
+      required: true
+      notes: >
+        Identifier unique within `(project, form)` (key). Carried from the
+        capture source rather than reassigned, so anything keyed on it survives
+        a re-harvest.
+
+        Unique within one file lineage, not globally. A GeoPackage `fid` is
+        `INTEGER PRIMARY KEY AUTOINCREMENT`, so SQLite never reissues a deleted
+        id - but rewriting the layer with another tool restarts the sequence at
+        1 and silently repoints anything that keyed on it. Pair it with
+        `captured_at` as a fingerprint wherever that matters, the same guard
+        track_annotations uses.
+    - name: "schema_version"
+      type: string
+      required: true
+      notes: >
+        Fingerprint of the column set this record was captured with. Derived
+        from the capture's own columns rather than assigned by hand, so two
+        vintages differ here if and only if their column sets differ and nobody
+        has to remember to bump anything.
+
+        It identifies a shape, not an ordering or a release. Two captures with
+        the same columns in a different order are the same vintage.
+    - name: "captured_at"
+      type: datetime
+      required: true
+      notes: >
+        When the observation was made, in UTC, taken from the form's own time
+        field - which is named differently by different forms, so the reader
+        supplies it.
+
+        Stamped, never converted. GeoPackage stores these as ISO 8601 with an
+        explicit trailing Z, and readers that return the column with an empty
+        timezone attribute make it render in the machine's local zone. On a
+        UTC-7 machine a record stored at 21:04:28Z displays as 14:04:28, and
+        writing what is displayed loses seven hours with nothing reported.
+
+upstream_variants:
+  - id: mergin-qgis-form-2026-07
+    description: >
+      GeoPackage point layer written by a QGIS/Mergin field form. One feature
+      per record, EPSG:3005, XY only, `fid` as
+      `INTEGER PRIMARY KEY AUTOINCREMENT`.
+
+      Time fields are stored as ISO 8601 with an explicit Z and are UTC. The
+      form's own time column is named per form - `date_time_start` on
+      form_vri_qa, form_viewscape, form_exceedance and form_transition_qa,
+      `date_time_sample` on form_edna - so it is named by the reader rather than
+      guessed here.
+
+      Photo fields hold capture-relative paths (`ignore_mobile/photos/<file>`),
+      relative to the project root. Extensions vary - jpeg and png both occur.
+      The photo filename's timestamp is written in the capture's **local** zone
+      while the record's time is UTC, so a filename is not a substitute for the
+      reference column when joining an asset to a record.
+
+      A conformed record from this variant is a strict subset of a later
+      vintage's columns: measured on form_vri_qa at restoration_wedzin_kwa v112,
+      the July 2026 capture carried 28 non-geometry columns and the then-current
+      repo schema carried 52, with zero captured columns absent from the repo
+      set.
+    cols:
+      - fid
+      - geom
+    normalize_fn: reader-supplied
+    first_seen: 2026-07
+
+forward_compat:
+  - cols:
+      - harvested_at
+    note: >
+      Deliberately not a column. When a harvest ran is a property of the
+      harvest, not of the observation, and it moves on every run - so carrying
+      it here rewrites a snapshot's bytes on every harvest with nothing behind
+      the diff, and enough of those is how a real change stops being noticed.
+
+      It belongs in the consumer's manifest alongside the source version, which
+      is text and diffs as one line. See #14 and NewGraphEnvironment/trap#2.
+  - cols:
+      - captured_by
+    note: >
+      Forms carry the capturing account (`mergin_user`) and a free-text crew
+      list, but the two are not the same claim and the crew field is not
+      structured. Declare a canonical one when #13 decides which it is.
+
+decisions:
+  - decisions/nge/20260901_form_capture_envelope.md

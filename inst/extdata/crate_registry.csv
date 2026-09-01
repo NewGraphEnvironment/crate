@@ -3,3 +3,4 @@ bcfp,user_habitat_classification,file,crt_handler_bcfp_user_habitat_classificati
 nge,track_sessions,schema_only,,schemas/nge/track_sessions.yaml,"project,session_id,tracked_by,time_start,time_end,time_start_m,time_end_m,clock_delta_start_s,clock_delta_end_s,total_distance,n_vertices"
 nge,track_vertices,schema_only,,schemas/nge/track_vertices.yaml,"project,session_id,vertex_seq,x,y,z,time"
 nge,track_annotations,schema_only,,schemas/nge/track_annotations.yaml,"project,session_id,time_start_m,track_name,notes"
+nge,form_capture,schema_only,,schemas/nge/form_capture.yaml,"project,form,record_id,schema_version,captured_at"
