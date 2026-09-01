@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,13 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
 </div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="crate-030-2026-09-01">crate 0.3.0 (2026-09-01)<a class="anchor" aria-label="anchor" href="#crate-030-2026-09-01"></a></h2>
+<p><code>nge/form_capture</code> gains <code>source_version</code>, the upstream version a record was captured at.</p>
+<ul><li>Deliberately a column rather than a consumer-side manifest field, which is the opposite of the usual rule. That rule exists because stamping the upstream’s <em>current</em> version on every row churns a snapshot’s bytes for reasons unrelated to the data; a per-row capture version is fixed at capture and never moves. It is also what keeps <code>(project, form, source_version, record_id)</code> unique once a rebuild has restarted <code>record_id</code> at 1.</li>
+<li>
+<code>schema_version</code> now documents <strong>how it is computed</strong> — <code>&lt;n&gt;-&lt;digest&gt;</code> over sorted <code>name:type</code> pairs of the capture’s own columns, hashing a joined string rather than a vector. Two producers computing it differently would give two genuinely different vintages the same version by accident, so the rule belongs with the declaration rather than with each caller.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="crate-020-2026-09-01">crate 0.2.0 (2026-09-01)<a class="anchor" aria-label="anchor" href="#crate-020-2026-09-01"></a></h2>
 <p>New <code>schema_only</code> entry <code>nge/form_capture</code>: the envelope every captured field-form record carries — <code>project</code>, <code>form</code>, <code>record_id</code>, <code>schema_version</code>, <code>captured_at</code> — and nothing about what any observation means.</p>

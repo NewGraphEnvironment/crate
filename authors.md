@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/NewGraphEnvironment/crate/blob/main/DESCRIPTION)
 
 Irvine A (2026). *crate: Canonical Schema and Data Governance for New
-Graph Environment*. R package version 0.2.0,
+Graph Environment*. R package version 0.3.0,
 <https://github.com/NewGraphEnvironment/crate>.
 
     @Manual{,
       title = {crate: Canonical Schema and Data Governance for New Graph Environment},
       author = {Allan Irvine},
       year = {2026},
-      note = {R package version 0.2.0},
+      note = {R package version 0.3.0},
       url = {https://github.com/NewGraphEnvironment/crate},
     }
