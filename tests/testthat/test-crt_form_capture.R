@@ -10,6 +10,7 @@ envelope <- function(n = 2, ...) {
     project = rep("newgraph/example_2026", n),
     form = rep("form_vri_qa", n),
     record_id = seq_len(n),
+    source_version = rep("v112", n),
     schema_version = rep("abc12345", n),
     captured_at = paste0("2026-07-2", seq_len(n), "T21:04:28Z"),
     stringsAsFactors = FALSE
@@ -90,6 +91,27 @@ test_that("a record missing an envelope column is refused", {
   x <- envelope(2)
   x$schema_version <- NULL
   expect_error(crt_schema_conform(x, "nge", "form_capture"), "schema_version")
+})
+
+test_that("source_version is what keeps a stacked table's key unique", {
+  # A rebuild of the capture layer restarts record_id at 1, so two vintages of
+  # one form hold two rows that are both "record 1". The envelope has to carry
+  # something that separates them or a consumer ordering on the key gets a row
+  # order the source does not guarantee.
+  july <- envelope(2)
+  sept <- envelope(2)
+  sept$source_version <- "v130"
+  sept$schema_version <- "52-def67890"
+
+  both <- rbind(
+    crt_schema_conform(july, "nge", "form_capture"),
+    crt_schema_conform(sept, "nge", "form_capture")
+  )
+  key <- paste(both$project, both$form, both$record_id, sep = "\\x1f")
+  expect_true(anyDuplicated(key) > 0)   # the premise: record_id alone collides
+
+  key_v <- paste(key, both$source_version, sep = "\\x1f")
+  expect_identical(anyDuplicated(key_v), 0L)
 })
 
 test_that("harvested_at is declared forward-incompatible with a reason", {
