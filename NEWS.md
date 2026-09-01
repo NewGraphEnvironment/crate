@@ -1,5 +1,12 @@
 # crate (development version)
 
+# crate 0.3.0 (2026-09-01)
+
+`nge/form_capture` gains `source_version`, the upstream version a record was captured at.
+
+- Deliberately a column rather than a consumer-side manifest field, which is the opposite of the usual rule. That rule exists because stamping the upstream's *current* version on every row churns a snapshot's bytes for reasons unrelated to the data; a per-row capture version is fixed at capture and never moves. It is also what keeps `(project, form, source_version, record_id)` unique once a rebuild has restarted `record_id` at 1.
+- `schema_version` now documents **how it is computed** — `<n>-<digest>` over sorted `name:type` pairs of the capture's own columns, hashing a joined string rather than a vector. Two producers computing it differently would give two genuinely different vintages the same version by accident, so the rule belongs with the declaration rather than with each caller.
+
 # crate 0.2.0 (2026-09-01)
 
 New `schema_only` entry `nge/form_capture`: the envelope every captured field-form record carries — `project`, `form`, `record_id`, `schema_version`, `captured_at` — and nothing about what any observation means.

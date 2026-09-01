@@ -47,6 +47,28 @@ canonical:
         1 and silently repoints anything that keyed on it. Pair it with
         `captured_at` as a fingerprint wherever that matters, the same guard
         track_annotations uses.
+    - name: "source_version"
+      type: string
+      required: true
+      notes: >
+        The upstream version the record was captured at, e.g. `v112`.
+
+        Deliberately a column and not a consumer-side manifest field, which is
+        the opposite of the usual rule and is worth stating plainly. That rule
+        exists because stamping the upstream's *current* version onto every row
+        rewrites a snapshot's bytes every time the project versions for reasons
+        that have nothing to do with the data. This is not that: the version a
+        record was captured at is fixed at capture and never moves again.
+
+        It is also load-bearing for identity. A rebuild of the capture layer
+        restarts `record_id` at 1, so a table holding two vintages holds two
+        rows with the same `record_id`. `(project, form, source_version,
+        record_id)` is what stays unique across them - and a consumer that
+        orders on a non-unique key gets a row order the source does not
+        guarantee, which is a reproducibility failure with nothing visible
+        behind it.
+
+        NA where there is no versioned upstream.
     - name: "schema_version"
       type: string
       required: true
@@ -58,6 +80,26 @@ canonical:
 
         It identifies a shape, not an ordering or a release. Two captures with
         the same columns in a different order are the same vintage.
+
+        **How it is computed**, stated here rather than left to each producer,
+        because two producers computing it differently would give two genuinely
+        different vintages the same version by accident:
+
+        `<n>-<digest>`, where `n` is the count of capture columns and `digest`
+        is a short hash of `name:type` pairs, sorted by name and joined with
+        commas, over the capture's own columns only - excluding geometry, and
+        excluding any surrogate row id the reader supplies rather than the
+        capture carrying.
+
+        Types are in the pair because a set of names alone is blind to a column
+        changing type between vintages, which is a real schema change that would
+        otherwise report as no change and then either error or silently coerce
+        when the two are stacked.
+
+        Hash a joined **string**, never a vector of names: a hash of an
+        in-memory object carries the language's serialization format, so a
+        serialization change would move this column - and therefore the bytes of
+        any snapshot carrying it - with no schema change behind it.
     - name: "captured_at"
       type: datetime
       required: true
