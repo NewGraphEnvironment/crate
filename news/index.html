@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,12 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
 </div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="crate-020-2026-09-01">crate 0.2.0 (2026-09-01)<a class="anchor" aria-label="anchor" href="#crate-020-2026-09-01"></a></h2>
+<p>New <code>schema_only</code> entry <code>nge/form_capture</code>: the envelope every captured field-form record carries — <code>project</code>, <code>form</code>, <code>record_id</code>, <code>schema_version</code>, <code>captured_at</code> — and nothing about what any observation means.</p>
+<ul><li>Vintage is a column, not a filename. Two shapes of one form are one logical table, distinguished by <code>schema_version</code>; a column absent from the older vintage is null there and <code>schema_version</code> says why, which is what separates “not asked” from “not answered”.</li>
+<li>Per-form column meaning is still <a href="https://github.com/NewGraphEnvironment/crate/issues/13" class="external-link">#13</a>. The envelope leans on <code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code>’s documented floor-not-ceiling behaviour, so a form’s own columns pass through untouched until <a href="https://github.com/NewGraphEnvironment/crate/issues/13" class="external-link">#13</a> defines them. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260901_form_capture_envelope.md" class="external-link">decision entry</a> for why an envelope rather than waiting, and why <code>harvested_at</code> is not a column.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="crate-010-2026-08-24">crate 0.1.0 (2026-08-24)<a class="anchor" aria-label="anchor" href="#crate-010-2026-08-24"></a></h2>
 <p>crate can now declare a canonical shape for data it does not read, and can type a column as an instant.</p>
