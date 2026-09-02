@@ -1,7 +1,8 @@
 Package: crate
 Title: Canonical Schema and Data Governance for New Graph Environment
 Version: 0.4.0
-Date: 2026-09-02Authors@R:
+Date: 2026-09-02
+Authors@R:
     person("Allan", "Irvine", , "al@newgraphenvironment.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3495-2128"))
 Description: Source-explicit dispatcher and declarative schemas for
