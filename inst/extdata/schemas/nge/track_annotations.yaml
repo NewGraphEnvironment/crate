@@ -1,18 +1,40 @@
 file: track_annotations
 description: >
-  Human-supplied fields about a tracking session: what to call it, and anything
-  worth saying about it. Deliberately a separate table from track_sessions.
+  Overrides for what a crew said about a tracking session. Deliberately a
+  separate table from track_sessions, and deliberately shaped like part of it.
 
-  Capture schemas are fixed by the tool that writes them, so a name cannot come
-  from capture - it has to be applied afterwards. Putting it in track_sessions
-  would mean the next harvest overwrites it, or that every rebuild has to be
-  careful forever. Keeping it here makes re-harvest safe by construction: a
-  harvest only ever writes the captured tables, and nothing it writes can reach
-  an edit.
+  Naming can come from capture now: an rfp-deployed tracking layer carries
+  `track_name`, `track_type` and `track_description`, typed by the person who
+  walked the track at the moment they stopped recording. Those values are
+  captured, so they are immutable and re-harvest safe, and for anything a crew
+  can say at walk time they are better than a name reconstructed off a map
+  weeks later. This table exists for what capture cannot do: correct a value
+  typed wrong in the field, and name a session from a source that has no naming
+  fields at all - a layer the tracking plugin created on its own, or a GPX
+  import, where every one of those columns is NA.
 
-  The principle, stated once: captured tables are immutable and capture-shaped;
-  annotations are ours and live beside them. Mixing the two is what makes a
-  re-harvest dangerous.
+  The rule, stated once: a column here that is not part of the join - not
+  `project`, `session_id` or the `time_start_m` fingerprint, each labelled as
+  such below - and that shares its name with a column of track_sessions is an
+  override of it. At read time the override wins where it
+  is non-NA and the captured value stands otherwise -
+  coalesce(annotation, captured). Nothing here is a second field with the same
+  name; it is the same field, corrected. A reader that assigns the annotation
+  column over the captured one without the coalesce blanks every session nobody
+  annotated, which is the failure this paragraph is written to prevent.
+
+  Two consequences of NA meaning "no override", stated so no reader has to
+  guess. An empty string is not an override either: a text widget that was
+  opened and cleared writes `""`, and a reader normalises that to NA before
+  coalescing. And there is therefore no way to override a captured value *to*
+  blank - a wrongly typed name can be replaced, not erased. Nothing needs that
+  today; if something does, it is a new column with its own semantics, not a
+  reinterpretation of NA.
+
+  Why still a separate table: captured tables are immutable and capture-shaped;
+  annotations are ours and live beside them. A harvest only ever writes the
+  captured tables, so nothing it writes can reach an edit, and re-harvest safety
+  is a property of the layout rather than of somebody remembering.
 
   There is no upstream variant for this table because there is no upstream. It
   is born canonical, which is why it is registered `schema_only`.
@@ -48,14 +70,27 @@ canonical:
       type: string
       required: true
       notes: >
-        What this session is called. The first editable field, and the reason
-        this table exists; it is not expected to be the last.
-    - name: notes
+        Override of track_sessions.track_name. NA means no override - the
+        captured name stands.
+
+        Required as a column, though its values may all be NA: this table is
+        ours, so its shape is fixed rather than a floor, and a writer that
+        drops a column has changed the contract, not omitted an optional.
+    - name: track_type
       type: string
       required: true
       notes: >
-        Free text. Why a session ended, whether it is a route or a bushwhack,
-        anything that does not yet deserve a column of its own.
+        Override of track_sessions.track_type. Same open string, same
+        convention for its values - see that column.
+    - name: track_description
+      type: string
+      required: true
+      notes: >
+        Override of track_sessions.track_description. This absorbs what an
+        earlier `notes` column carried - why a session ended, whether it was a
+        route or a bushwhack - which the capture now records under
+        track_type and track_description, so a second free-text field with a
+        different name would be the same thing twice.
 
 forward_compat:
   - cols:
@@ -67,6 +102,10 @@ forward_compat:
       than omitted: nothing reads it yet, and a column added before it has a
       consumer is a guess about what that consumer will want. Add both when
       something needs to attribute an edit.
+
+      This is also why track_sessions.named_by has no override here. Who
+      named a session at capture and who corrected it afterwards are two
+      different claims; the second one is `annotated_by`.
   - cols:
       - review_status
     note: >

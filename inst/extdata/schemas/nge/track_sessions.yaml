@@ -9,6 +9,13 @@ description: >
   recorded years earlier as a GPX file is the same canonical thing as one
   captured by a mobile plugin today, and fits this schema without a rename.
 
+  Four columns - `track_name`, `track_type`, `track_description`, `named_by` -
+  are what the crew said about the session at the moment they walked it. They
+  are captured, so they are immutable and re-harvest safe like everything else
+  here. A capture source that has no such fields yields `NA` in them. A later
+  correction does not edit them: it lives in track_annotations, whose columns of
+  the same name override these at read time. See that schema for the rule.
+
 canonical:
   shape: long
   cols:
@@ -79,15 +86,62 @@ canonical:
       type: integer
       required: true
       notes: Count of rows this session has in track_vertices.
+    - name: track_name
+      type: string
+      required: false
+      notes: >
+        What the session was, typed by the person who walked it, at the time
+        they walked it. Written once at capture and never edited here; a
+        correction is an annotation. NA where the capture source has no such
+        field, which is any layer the tracking plugin created on its own and
+        any GPX import.
+
+        Not required, because a source without it is still a complete session.
+        A source that *has* the field and carries no value is a session nobody
+        named, which is different, and reads as NA all the same.
+    - name: track_type
+      type: string
+      required: false
+      notes: >
+        What kind of session it was. An open string here: the allowed values
+        are a convention of the capture tool, not a canonical enumeration, and
+        the current list lives in rfp's shipped lookup rather than in this
+        schema so that a field-app change is not a crate release. At the time
+        of writing that list is `day log`, `stream survey`, `bushwhack`,
+        `access route`, `drive`, `other`, with `day log` the default - the
+        normal case is a track that runs all day, so anything recorded
+        separately is found by its time.
+
+        Declared as a string with no enum rather than left undeclared, so the
+        column is typed and carried. If the list ever needs enforcing, that is
+        the `enum` slot crt_schema_validate() reserves.
+    - name: track_description
+      type: string
+      required: false
+      notes: >
+        Free text for what a name cannot carry - why the session ended, what
+        was found, conditions. Same capture rules as track_name.
+    - name: named_by
+      type: string
+      required: false
+      notes: >
+        Who named the session, where that differs from `tracked_by`, who walked
+        it. The capture tool defaults this to the same account variable it
+        stamps `tracked_by` with, so the two agree unless someone changed one -
+        a second identity that is only informative when it disagrees with the
+        first.
+
+        Deliberately not mirrored in track_annotations: who wrote an
+        *override* is `annotated_by`, which that schema reserves.
 
 upstream_variants:
   - id: mergin-tracking-plugin-2026-08
     description: >
       GeoPackage layer `tracking_layer` written by the Mergin Maps position
-      tracking plugin. One LineStringZM feature per session in EPSG:4326, where
-      per vertex there is X, Y, Z and M and nothing else - no accuracy, speed,
-      bearing or satellite count. Z is ellipsoidal altitude; M is the UTC
-      timestamp in epoch seconds.
+      tracking plugin, as the plugin creates it. One LineStringZM feature per
+      session in EPSG:4326, where per vertex there is X, Y, Z and M and nothing
+      else - no accuracy, speed, bearing or satellite count. Z is ellipsoidal
+      altitude; M is the UTC timestamp in epoch seconds.
 
       Both clocks are UTC. `tracking_start_time` is stored as ISO 8601 with an
       explicit trailing Z and agrees with the vertex M to within a second.
@@ -96,8 +150,13 @@ upstream_variants:
       and is not one - hence the datetime type stamps rather than converts, and
       hence the clock_delta columns above.
 
-      The capture shape is fixed by the plugin and cannot be extended, which is
-      why a human-supplied name cannot live in it. See track_annotations.
+      This shape has none of the four crew-supplied columns. They are optional
+      in the canonical shape, so the frame conforms without them, and a reader
+      producing the canonical table yields NA for them. A layer carrying *some*
+      of them but not all is neither this variant nor
+      the rfp one - it is drift, and a reader should abort on it rather than
+      conform it. crate cannot tell the two apart from the frame alone, which is
+      why that check is the reader's.
     cols:
       - fid
       - geom
@@ -105,6 +164,40 @@ upstream_variants:
       - tracking_end_time
       - total_distance
       - tracked_by
+    normalize_fn: reader-supplied
+    first_seen: 2026-08
+
+  - id: mergin-tracking-rfp-2026-08
+    description: >
+      The plugin's layer above, with four columns appended by
+      `rfp::rfp_tracking_fields_add()` and given widgets in the project by
+      `rfp::rfp_qgs_tracking_fields_add()`, so a crew can name a session in
+      the field app at the moment they stop recording. All four are TEXT.
+      `track_type` is a value map whose stored value equals its label;
+      `named_by` defaults to the capturing account via `@mergin_username`.
+
+      The shipped lookup `inst/lookups/rfp_tracking_fields.csv` in rfp is the
+      authority for the field set, widgets, options and defaults - not rfp's
+      roxygen, which has lagged it. rfp carries a measured argument that
+      augmenting the plugin's schema is safe (the plugin's own reconcile path is
+      unreachable for an rfp-deployed project and it never enumerates or prunes
+      columns), asserted by test against the installed plugin's source rather
+      than against prose. That argument covers the desktop plugin only; the
+      mobile app is a separate codebase.
+
+      Measured on a real project's layer, 2026-09: four sessions, three
+      carrying a crew-supplied name, all four a `track_type` and a `named_by`.
+    cols:
+      - fid
+      - geom
+      - tracking_start_time
+      - tracking_end_time
+      - total_distance
+      - tracked_by
+      - track_name
+      - track_type
+      - track_description
+      - named_by
     normalize_fn: reader-supplied
     first_seen: 2026-08
 
