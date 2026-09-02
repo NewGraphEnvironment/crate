@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.4.0" id="crate-040-2026-09-02">crate 0.4.0 (2026-09-02)<a class="anchor" aria-label="anchor" href="#crate-040-2026-09-02"></a></h2>
 <p><code>nge/track_sessions</code> declares the four columns a crew fills in when they stop recording — <code>track_name</code>, <code>track_type</code>, <code>track_description</code>, <code>named_by</code> — and <code>nge/track_annotations</code> becomes the table of overrides for them.</p>
 <ul><li>The four are optional strings. An rfp-deployed tracking layer carries them (new upstream variant <code>mergin-tracking-rfp-2026-08</code>); a layer the plugin created on its own, or a GPX import, does not, and still conforms. A layer carrying some but not all is drift the reader must abort on — crate sees a frame, not a variant.</li>
 <li>

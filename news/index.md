@@ -1,6 +1,6 @@
 # Changelog
 
-## crate (development version)
+## crate 0.4.0 (2026-09-02)
 
 `nge/track_sessions` declares the four columns a crew fills in when they
 stop recording — `track_name`, `track_type`, `track_description`,
