@@ -23,13 +23,14 @@ library(crate)
 
 # What does crate know about?
 crt_files()
-#> # A tibble: 4 × 6
+#> # A tibble: 5 × 6
 #>   source file_name                   kind        handler_fn                schema_yaml
 #>   <chr>  <chr>                       <chr>       <chr>                     <chr>
 #> 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml
 #> 2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml
 #> 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml
 #> 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml
+#> 5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml
 
 # Ingest a bundled wide-format example fixture (today's upstream shape)
 wide_path <- system.file(
@@ -116,9 +117,11 @@ Entries come in two kinds. `file` entries crate reads and normalizes; `schema_on
 **`schema_only`**
 
 - `nge` — GPS tracks
-  - `track_sessions` — one row per tracking session, carrying the evidence that its two clocks agree
+  - `track_sessions` — one row per tracking session, carrying the evidence that its two clocks agree, and what the crew said about the session when they walked it (`track_name`, `track_type`, `track_description`, `named_by` — optional, because not every capture source has them)
   - `track_vertices` — one row per recorded position; non-spatial, so the geometry is reconstructable without a spatial dependency in the read path
-  - `track_annotations` — human-supplied fields, deliberately a separate table. A capture schema is fixed by the tool that writes it, so a name has to be applied afterwards, and putting it in the captured table means the next harvest overwrites it. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else's track. See the [decision entry](decisions/nge/20260824_track_canonical_two_tables.md).
+  - `track_annotations` — overrides for the crew-supplied columns, deliberately a separate table. Captured tables are immutable and a harvest only ever writes those, so a correction lives beside them; a non-key column here sharing a captured column's name overrides it where non-`NA`. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else's track. See the decision entries on [the two-table shape](decisions/nge/20260824_track_canonical_two_tables.md) and [captured naming and overrides](decisions/nge/20260902_track_naming_captured_and_overridden.md).
+- `nge` — field forms
+  - `form_capture` — the envelope every captured field-form record carries (`project`, `form`, `record_id`, `source_version`, `schema_version`, `captured_at`), saying where a record came from and in what shape, and nothing about what any observation means. See the [decision entry](decisions/nge/20260901_form_capture_envelope.md).
 
 More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a registry row, plus a handler when crate does the reading. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
 

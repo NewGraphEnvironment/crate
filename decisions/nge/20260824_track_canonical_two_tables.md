@@ -3,6 +3,10 @@
 **Date:** 2026-08-24
 **Schemas:** `schemas/nge/track_sessions.yaml`, `schemas/nge/track_vertices.yaml`,
 `schemas/nge/track_annotations.yaml`
+**Amended by:** [`20260902_track_naming_captured_and_overridden.md`](20260902_track_naming_captured_and_overridden.md) —
+the "Annotations separate" premise that a capture shape cannot carry a name no
+longer holds for an rfp-deployed layer; the two-table layout stands, the
+annotation table becomes overrides.
 
 ## Decision
 

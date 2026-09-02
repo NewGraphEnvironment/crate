@@ -26,7 +26,7 @@ A `schema_only` entry can still carry `upstream_variants`. They document the cap
 1. Identify the source family (e.g. `bcfp`, `nge`, `edna`). Use existing naming if present. The family is who the data belongs to, not which tool captured it — a tool is a variant.
 2. Write the YAML at `<source>/<file_name>.yaml`
 3. For a `file` entry, add a handler at `R/crt_handler_<source>_<file_name>.R` (per Convention C naming, locked in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4)). A `schema_only` entry has none.
-4. Add a registry row in `inst/extdata/crate_registry.csv`
+4. Add a registry row in `inst/extdata/crate_registry.csv`. Its `canonical_cols` lists the schema's **required** columns — it is informational, what `crt_files()` shows, and `test-crt_registry_integrity.R` only checks it never names a column the schema lacks. Optional (`required: false`) columns are declared in the YAML alone, so a reader wanting the full set reads the schema, not the registry.
 5. Write a decision log entry at `decisions/<source>/<YYYYMMDD>_<topic>.md` (root-level `decisions/`, not under `inst/`)
 6. Update tests in `tests/testthat/` — `test-crt_ingest.R` for a `file` entry, `test-crt_schema_conform.R` for a `schema_only` one
 

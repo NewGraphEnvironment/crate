@@ -2,5 +2,5 @@ source,file_name,kind,handler_fn,schema_yaml,canonical_cols
 bcfp,user_habitat_classification,file,crt_handler_bcfp_user_habitat_classification,schemas/bcfp/user_habitat_classification.yaml,"blue_line_key,downstream_route_measure,upstream_route_measure,watershed_group_code,species_code,spawning,rearing"
 nge,track_sessions,schema_only,,schemas/nge/track_sessions.yaml,"project,session_id,tracked_by,time_start,time_end,time_start_m,time_end_m,clock_delta_start_s,clock_delta_end_s,total_distance,n_vertices"
 nge,track_vertices,schema_only,,schemas/nge/track_vertices.yaml,"project,session_id,vertex_seq,x,y,z,time"
-nge,track_annotations,schema_only,,schemas/nge/track_annotations.yaml,"project,session_id,time_start_m,track_name,notes"
+nge,track_annotations,schema_only,,schemas/nge/track_annotations.yaml,"project,session_id,time_start_m,track_name,track_type,track_description"
 nge,form_capture,schema_only,,schemas/nge/form_capture.yaml,"project,form,record_id,source_version,schema_version,captured_at"
