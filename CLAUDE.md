@@ -461,6 +461,19 @@ one.
     heredoc: `grep -n ', ,\|(( ))\|  |' file` finds the empty spans a swallowed
     code span leaves behind.
 - Pass-through-ssh args: `printf '%q'` escapes per-arg so workload paths with spaces / quotes / metacharacters survive the local-shell → ssh-argv → remote-shell round-trip. Without it, `ssh host 'cmd' "$path"` joins args with spaces on remote and re-parses, losing argument boundaries.
+- **A plain `git commit -m "…"` runs command substitution too, and unlike the heredoc cases it
+  SUCCEEDS.** The rules above are about forms that fail loudly. This one does not: backticks in a
+  double-quoted `-m` string execute, bash prints `something: command not found` to **stderr**, and
+  the commit lands anyway with the span replaced by empty output. Seen 2026-09-02 in floodplains:
+  a message reading ``prov_keys() now takes a `part` argument`` committed as "now takes a
+  argument". The only signal was one stderr line scrolling past above a successful commit.
+  - Markdown code spans are exactly what a good commit message is full of — function names,
+    arguments, file paths — so the failure targets careful messages, not sloppy ones.
+  - Fix is the one already prescribed for multi-line bodies, applied to single-line ones too:
+    write the message to a file and `git commit -F`, or use single quotes when the text has no
+    apostrophes. `git commit --amend -F msg.txt` repairs it after the fact.
+  - Detection, since the commit is already made: `git log -1 --format=%B | grep -n "  \|takes a $"`
+    finds the collapsed double spaces an eaten span leaves behind.
 - `git commit -m "$(cat <<'EOF' ... EOF)"` chokes on apostrophes in prose bodies in some contexts — the bash parser surfaces an unmatched-quote error even though heredoc bodies should be quote-neutral. Resilient default for multi-line commit messages: write the body to `/tmp/msg.txt` and use `git commit -F /tmp/msg.txt`.
 - **The same trap has a silent variant: `Rscript -e` / `python -c` carrying backslash escapes.** The heredoc case above fails loudly, which costs a retry. Passing a regex inline does not: `\\b` reaches the interpreter mangled, so `grepl()` returns 0 matches against text it matches perfectly from a file. Nothing errors. Seen 2026-07-31 in rfp#93 — the 0 read as "my regex is wrong" and nearly triggered a rewrite of working code; the identical regex scored 4 matches the moment it ran from `/tmp/x.R`.
   - Rule: anything carrying a regex, nested quotes or backslashes gets written to a file and run (`Rscript /tmp/x.R`). Inline `-e` is for trivial one-liners only.
@@ -3275,6 +3288,19 @@ namespace separator: `update_tags(**{"NGE:LINK_RUN_UID": "abc"})` round-trips as
 `NGE` with value `LINK_RUN_UID=abc`. Eleven prefixed fields collapse into one tag holding
 whichever was written last — uniform, silent, on every file.
 
+**And the reader may drop the null you did publish.** Getting a real `null` onto the wire is
+only half of it: the *serving* layer can omit null-valued keys on output while the store keeps
+them. Measured 2026-09-02 on `images.a11s.one` (stac_floodplains_bc#36): on the pgstac row all 11
+`nge:` properties are present with `jsonb_typeof` `null`; from `GET /collections/.../items/<id>`
+they are absent, while every non-null value and every asset field round-trips byte-for-byte. So
+an API consumer cannot distinguish "published null" from "never published" — the whole reason
+for publishing the null — and a verify that compares the served document with the built one
+reports every null as a defect. Two consequences: a null-means-something contract has to be
+checked against the **store**, not the API, or it has to carry a non-null sentinel; and a
+read-back guard needs a stated rule for the build-null / served-absent pair, measured against
+the real reader rather than reasoned about. Found only because the first single-item release
+ran a wholesale document compare and printed exactly the eleven keys.
+
 ### A rename emits two signals, and reading only one cannot distinguish it from absence
 
 When code reads a document produced by something else — an upstream JSON contract, a
@@ -3621,6 +3647,92 @@ Generalises past geometry to any guard whose message names a fix: an encoding
 coercion, a `--force` flag, a schema migration, "re-run with `--fix`". Ask what
 the input looks like *after* the suggested fix, and whether the guard would still
 object.
+
+### A library call that dispatches on a global option is not a pure function
+
+A function whose *units* or *algorithm* are chosen by a session-wide setting behaves
+differently depending on what the caller did before reaching your code. Inside a
+package that is not a nuisance, it is a silent correctness bug: the option is set
+somewhere you do not control, usually for a good reason, and your result changes
+without any warning.
+
+`sf::st_distance()` is the live case. With s2 on — the default — a lon/lat distance
+comes back in **metres**. With s2 off it does not. And `cartography.md` in this very
+repo prescribes **`sf_use_s2(FALSE)` at the top of every mapping script**, so the
+setting is routinely off in exactly the sessions that do spatial work.
+
+A tolerance compared against that number then silently changes what it means. A gate
+written as "reject a fix whose bracketing vertices are more than 50 m apart" becomes
+"more than 50 degrees apart" — which rejects nothing, on a planet 180 degrees wide.
+It fails toward **pass**, and neither the code nor the output carries a unit.
+
+- **The tell is a call whose behaviour is documented in terms of a global.** Grep the
+  function's docs for `options(`, `Sys.setenv`, or a package-level `*_use_*` toggle.
+  If the answer depends on one, you cannot call it from library code and reason about
+  the result locally.
+- **Compute it yourself when the maths is small enough to own.** A haversine is six
+  lines, has no global state, and was measured against `sf::st_distance()` over 200
+  BC-scale pairs at **under a millimetre** of disagreement. A gate that is a fraction
+  of a percent out is strictly better than one whose units move with a setting.
+- **Where you must call it, pin the option locally** (`withr::with_options()`, or the
+  library's own scoped setter) rather than assuming the caller's state — and assert the
+  unit in a test, because that is the property that silently changes.
+
+Generalises well past `sf`: `stringsAsFactors` historically, `OutDec`, `digits`,
+`stringi` locale collation (see the `sort()` entry above), pandas' `mode.chained_assignment`,
+anything reading `TZ`. Ask of any library call in package code: *what could a caller
+have set that changes this answer?*
+
+Caught 2026-09-01 in trap#25 while replacing a time-based tolerance with a
+distance-based one — the gate was the whole point of the change, and it would have
+been unitless in half the sessions that ran it.
+
+### A proxy can be inverted, not merely imprecise
+
+The proxy rules above assume the stand-in is *weaker* than the property — a
+compression, losing resolution. There is a worse case: a proxy **negatively
+correlated** with what it stands for, so the guard fires hardest on exactly the data
+it should trust most, and passes what it should refuse.
+
+Measured 2026-09-01 in trap#25. A fix interpolated between two GPS vertices was
+gated on **elapsed time** to the nearer one, on the reasoning that a longer gap means
+a less supported position. The logger emits a vertex on **movement**, not on a timer,
+so a long gap means the person *stood still* — which is when the interpolation is at
+its most accurate:
+
+```
+gap between vertices     n      median distance apart
+<= 10 s               2516      6.5 m
+60-120 s                 7      5.2 m
+2-5 min                  8      5.4 m
+5-15 min                 5      5.3 m
+
+Spearman correlation between gap duration and distance moved: -0.154
+```
+
+Of sixteen gaps over two minutes, fifteen had the subject move 18 m or less. The
+two-minute gate rejected **all sixteen**, including a fix later measured at 2.5 m from
+ground truth. The correct measure — the distance between the bracketing vertices — is
+not a proxy at all: the subject was somewhere between two recorded positions, so that
+distance *is* the error bound.
+
+- **Ask which direction the proxy moves with the property, and measure the sign.** A
+  correlation coefficient over real data is one line and it is the whole check. A
+  proxy nobody has correlated is an assumption, however obvious it looks.
+- **Prefer a quantity that bounds the answer over one that correlates with it.** "How
+  far apart are the two things I interpolated between" cannot be inverted; "how long
+  ago" can.
+- **A generating mechanism you have not established is the usual cause.** The proxy
+  was reasonable for a timer-triggered sampler and wrong for a movement-triggered one,
+  and nothing in the data announced which it was until someone plotted it.
+
+**And a default no fixture can exercise is a judgement wearing a measurement's
+clothes.** That threshold shipped documented as "a judgement rather than a
+measurement", with a note that neither bundled fixture could reach it — their widest
+gaps were 50 s and 6 s against a 120 s default. Writing the limitation down felt like
+diligence and was not: the unexercisable default *was* the defect, found within a day
+of meeting real data. If no test can reach a threshold, do not ship it with a note —
+get data that reaches it, or make the threshold something your fixtures can bound.
 
 
 # NGE Feature Workflow
