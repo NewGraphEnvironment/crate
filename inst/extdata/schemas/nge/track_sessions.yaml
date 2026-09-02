@@ -212,3 +212,4 @@ forward_compat:
 
 decisions:
   - decisions/nge/20260824_track_canonical_two_tables.md
+  - decisions/nge/20260902_track_naming_captured_and_overridden.md

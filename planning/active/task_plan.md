@@ -77,35 +77,46 @@ and none of the four. The schema is what is out of date.
 
 ## Phase 3: Decision entry, README, NEWS, CLAUDE.md
 
-- [ ] `decisions/nge/20260902_track_naming_captured_and_overridden.md` in the
+- [x] `decisions/nge/20260902_track_naming_captured_and_overridden.md` in the
       README's format: Decision; Trigger (rfp#186, four sessions measured, three named);
       Rationale (captured beats annotated for anything sayable at walk time; override
       rule; open-string `track_type`; partial set = drift); Alternatives (rename the
       annotation column; drop annotation `track_name`; crate-owned enum; variant-aware
       conform now); Consequences (trap coalesce; GPX all-`NA`; reader aborts on partial
-      set; `working.trp_track_annotations` reseed); References.
-- [ ] `decisions/nge/20260824_track_canonical_two_tables.md`: one line under the title
+      set; `working.trp_track_annotations` reseed); References. Plan review added:
+      reader always emits all four (B1), `required` on the override side is presence
+      not value (A2), `""` is `NA` / no override-to-blank (G3), partial means columns
+      present not values and crate cannot enforce it (G4), fingerprint stays (Ac2).
+- [x] `decisions/nge/20260824_track_canonical_two_tables.md`: one line under the title
       pointing at the new entry as amending the "Annotations separate" premise. Body
       untouched.
-- [ ] `README.md` "What crate handles today": `track_sessions` bullet mentions the
+- [x] `README.md` "What crate handles today": `track_sessions` bullet mentions the
       crew-supplied naming columns; `track_annotations` bullet becomes the override
-      table; both link the new decision entry.
-- [ ] `NEWS.md` development-version entry.
-- [ ] `CLAUDE.md` project section (above the soul marker): add the early-stage design
-      principle from the user; refresh the stale Status paragraph (still says v0.0.2 and
+      table; both link the new decision entry. Also (G5) the `crt_files()` sample
+      output and the `schema_only` list gain `form_capture`, which they had missed.
+- [x] `NEWS.md` development-version entry.
+- [x] `CLAUDE.md` project section (above the soul marker): add the early-stage design
+      principle from the user; refresh the stale Status paragraph (still said v0.0.2 and
       one source family).
+- [x] `inst/extdata/schemas/README.md` (G6): the registry's `canonical_cols` lists
+      required columns only — written down rather than inferred from bcfp.
+- [x] Both track YAMLs reference the new decision entry (deferred from Phase 1 so
+      that commit stayed green).
 
 ## Phase 4: Cross-repo follow-ups (file, do not fix here)
 
-- [ ] trap issue: `trp_track_annotate()` must coalesce (currently overwrites captured
-      values with `NA` for unannotated sessions); `trp_track_read()` must carry the four
-      when present and abort on a partial set; fixtures move from `notes` to the three
-      override columns; `working.trp_track_annotations` (empty) reseeded to the new
-      shape. Link crate#18 and the decision entry.
-- [ ] rfp issue: roxygen table in `rfp_tracking_fields_add()` disagrees with the
-      shipped lookup (`reach walk…` vs `day log…`; `track_description` missing).
-- [ ] crate#18 body: rewrite the three "Open" items as the decisions taken, per the
-      issue-bodies-get-edited convention.
+- [x] trap issue: `trp_track_annotate()` must coalesce (currently overwrites captured
+      values with `NA` for unannotated sessions); both readers always emit the four,
+      `NA`-filled (plan review B1); the Mergin reader aborts on a partial set; fixtures
+      and the example move off `notes`; `working.trp_track_annotations` (empty)
+      reseeded; crate pin bumped (G1). Filed as
+      [trap#28](https://github.com/NewGraphEnvironment/trap/issues/28) with the full
+      breakage inventory.
+- [x] rfp issue: roxygen table in `rfp_tracking_fields_add()` disagrees with the
+      shipped lookup (`reach walk…` vs `day log…`; `track_description` missing). Filed
+      as [rfp#255](https://github.com/NewGraphEnvironment/rfp/issues/255).
+- [x] crate#18 body: rewritten — stale `track_type` table corrected (A3), the three
+      "Open" items replaced by a "Decided" section, follow-ups linked.
 
 ## Validation
 

@@ -1,5 +1,11 @@
 # crate (development version)
 
+`nge/track_sessions` declares the four columns a crew fills in when they stop recording — `track_name`, `track_type`, `track_description`, `named_by` — and `nge/track_annotations` becomes the table of overrides for them.
+
+- The four are optional strings. An rfp-deployed tracking layer carries them (new upstream variant `mergin-tracking-rfp-2026-08`); a layer the plugin created on its own, or a GPX import, does not, and still conforms. A layer carrying some but not all is drift the reader must abort on — crate sees a frame, not a variant.
+- `track_annotations` now carries `track_name`, `track_type` and `track_description`, same names and types as the captured columns, and drops `notes`. The rule, stated once: a non-key annotation column sharing a captured column's name overrides it where non-`NA`, `coalesce(annotation, captured)`. A reader that assigns instead of coalescing blanks every unannotated session, which is why the rule is written down rather than left to each consumer.
+- `track_type` is an open string; the value list is the capture tool's convention, recorded in the variant description and not enforced. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260902_track_naming_captured_and_overridden.md) for why captured beats annotated and why the annotation table was reshaped rather than extended.
+
 # crate 0.3.0 (2026-09-01)
 
 `nge/form_capture` gains `source_version`, the upstream version a record was captured at.

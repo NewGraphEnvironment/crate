@@ -19,4 +19,11 @@
   clean (Phase 1 alone), 2 one fragile (override rule matched key columns — fixed),
   3 on the fix
 - Suite: 234 passing, 0 lints
-- Next: Phase 3 commit (decision entry, README, NEWS, CLAUDE.md), then Phase 4 issues
+- Commit `4f52998`: Phases 1+2
+- Phase 3: decision entry (amending 2026-08-24), README (track bullets, `crt_files()`
+  sample and `schema_only` list gain `form_capture`), NEWS, CLAUDE.md status refresh +
+  the reshape-don't-accrete rule, schemas README registry rule, YAML decision refs.
+  `/code-check` round 4 on this diff
+- Phase 4: trap#28 (consumer changes + breakage inventory + pin bump), rfp#255
+  (roxygen lags CSV), crate#18 body rewritten with a Decided section
+- Next: commit Phase 3+4, `/planning-archive`, `/gh-pr-push`
