@@ -73,13 +73,14 @@
 <span></span>
 <span><span class="co"># What does crate know about?</span></span>
 <span><span class="fu"><a href="reference/crt_files.html">crt_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 4 × 6</span></span>
+<span><span class="co">#&gt; # A tibble: 5 × 6</span></span>
 <span><span class="co">#&gt;   source file_name                   kind        handler_fn                schema_yaml</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;       &lt;chr&gt;                     &lt;chr&gt;</span></span>
 <span><span class="co">#&gt; 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml</span></span>
 <span><span class="co">#&gt; 2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml</span></span>
 <span><span class="co">#&gt; 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml</span></span>
 <span><span class="co">#&gt; 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml</span></span>
+<span><span class="co">#&gt; 5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml</span></span>
 <span></span>
 <span><span class="co"># Ingest a bundled wide-format example fixture (today's upstream shape)</span></span>
 <span><span class="va">wide_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
@@ -183,11 +184,18 @@
 <code>nge</code> — GPS tracks
 <ul>
 <li>
-<code>track_sessions</code> — one row per tracking session, carrying the evidence that its two clocks agree</li>
+<code>track_sessions</code> — one row per tracking session, carrying the evidence that its two clocks agree, and what the crew said about the session when they walked it (<code>track_name</code>, <code>track_type</code>, <code>track_description</code>, <code>named_by</code> — optional, because not every capture source has them)</li>
 <li>
 <code>track_vertices</code> — one row per recorded position; non-spatial, so the geometry is reconstructable without a spatial dependency in the read path</li>
 <li>
-<code>track_annotations</code> — human-supplied fields, deliberately a separate table. A capture schema is fixed by the tool that writes it, so a name has to be applied afterwards, and putting it in the captured table means the next harvest overwrites it. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else’s track. See the <a href="decisions/nge/20260824_track_canonical_two_tables.html">decision entry</a>.</li>
+<code>track_annotations</code> — overrides for the crew-supplied columns, deliberately a separate table. Captured tables are immutable and a harvest only ever writes those, so a correction lives beside them; a non-key column here sharing a captured column’s name overrides it where non-<code>NA</code>. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else’s track. See the decision entries on <a href="decisions/nge/20260824_track_canonical_two_tables.html">the two-table shape</a> and <a href="decisions/nge/20260902_track_naming_captured_and_overridden.html">captured naming and overrides</a>.</li>
+</ul>
+</li>
+<li>
+<code>nge</code> — field forms
+<ul>
+<li>
+<code>form_capture</code> — the envelope every captured field-form record carries (<code>project</code>, <code>form</code>, <code>record_id</code>, <code>source_version</code>, <code>schema_version</code>, <code>captured_at</code>), saying where a record came from and in what shape, and nothing about what any observation means. See the <a href="decisions/nge/20260901_form_capture_envelope.html">decision entry</a>.</li>
 </ul>
 </li>
 </ul>
