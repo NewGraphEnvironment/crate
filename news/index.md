@@ -1,5 +1,22 @@
 # Changelog
 
+## crate (development version)
+
+crate now publishes JSON Schemas for the custom fields NGE’s STAC
+catalogues write, starting with `lidarbc:` (LidarBC’s objectstore paths
+and file names) and `las:` (the LAS format’s version and point format),
+at
+`https://newgraphenvironment.github.io/crate/stac/<prefix>/v1.0.0/schema.json`
+([\#23](https://github.com/NewGraphEnvironment/crate/issues/23)).
+
+- An item lists the URL in `stac_extensions`, and pystac then checks
+  each field’s type: a point format of 11 or an unknown `lidarbc:` field
+  fails validation.
+- A released version is never edited. A change is a new version beside
+  it, and the site build fails if a version already on `gh-pages` would
+  change or disappear. See the [decision
+  entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261010_stac_field_schemas.md).
+
 ## crate 0.4.0 (2026-09-02)
 
 `nge/track_sessions` declares the four columns a crew fills in when they

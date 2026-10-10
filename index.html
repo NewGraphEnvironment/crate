@@ -199,6 +199,11 @@
 </ul>
 </li>
 </ul>
+<p><strong>STAC field schemas</strong></p>
+<ul>
+<li>
+<code>lidarbc</code> and <code>las</code> — JSON Schemas for the custom fields NGE’s STAC catalogues write, published by this site at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v&lt;X.Y.Z&gt;/schema.json</code> for items to list in <code>stac_extensions</code>. They are not R schemas and not part of the package: they live in <a href="pkgdown/assets/stac/README.html"><code>pkgdown/assets/stac/</code></a>, and a released version is never edited. See the <a href="decisions/nge/20261010_stac_field_schemas.html">decision entry</a>.</li>
+</ul>
 <p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a registry row, plus a handler when crate does the reading. See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
 </div>
 <div class="section level2">

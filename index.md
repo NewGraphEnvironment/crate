@@ -242,6 +242,17 @@ read, which you conform yourself with
     the [decision
     entry](https://newgraphenvironment.github.io/crate/decisions/nge/20260901_form_capture_envelope.md).
 
+**STAC field schemas**
+
+- `lidarbc` and `las` — JSON Schemas for the custom fields NGE’s STAC
+  catalogues write, published by this site at
+  `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json`
+  for items to list in `stac_extensions`. They are not R schemas and not
+  part of the package: they live in
+  [`pkgdown/assets/stac/`](https://newgraphenvironment.github.io/crate/pkgdown/assets/stac/README.md),
+  and a released version is never edited. See the [decision
+  entry](https://newgraphenvironment.github.io/crate/decisions/nge/20261010_stac_field_schemas.md).
+
 More land as integration work surfaces. Each addition = a YAML in
 `inst/extdata/schemas/` + a registry row, plus a handler when crate does
 the reading. See
