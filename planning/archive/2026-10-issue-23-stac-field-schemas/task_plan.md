@@ -69,14 +69,14 @@ pkgdown/assets/stac/
 - [x] README "How it works", and `inst/extdata/schemas/README.md` if it is the right place: one line pointing to `pkgdown/assets/stac/`
 - [x] `decisions/nge/20261010_stac_field_schemas.md`: the URL and versioning contract, no required fields, the `las:version` breadth
 - [x] NEWS entry (the version bump is left to `/gh-pr-merge`)
-- [ ] Edit the #23 body: tick off lidarbc and las and record the URL; it stays open for the siblings
+- [x] Edit the #23 body: tick off lidarbc and las and record the URL; it stays open for the siblings
 
 - [x] Plan-review fixes (planning/active/review-plan.md): test step in pkgdown.yaml, `$ref`-sibling assertion, version-aware examples, collection negatives, redirect recorded
 
 ## Validation
 - [x] Tests pass
 - [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
 ## Verification
