@@ -10,3 +10,4 @@
 - Phase 2: schemas, examples (from a live item), READMEs, CHANGELOGs; 79 pass; mutation table and pystac interop in findings.md
 - Phase 3: pkgdown.yaml step 'Check the STAC schemas against what is published'; guard fixed to fail closed on a bad ref; 8-case table in findings.md
 - Phase 4: README section, decision entry, NEWS. Plan review folded in (review-plan.md); full suite 343 pass; R CMD check 0E/0W, 2 pre-existing CITATION.cff NOTEs; pystac rejects all 16 value negatives
+- code-check round 1: 2 fragile (test/guard selector mismatch; feature-branch dispatch could freeze schemas) fixed + las summaries tests; each new guard mutation-proven

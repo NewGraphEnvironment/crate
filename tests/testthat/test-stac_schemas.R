@@ -64,6 +64,11 @@ test_that("each released schema names its own published URL", {
   rel <- stac_schemas(pkg)
   expect_gt(length(rel), 0)
   expect_setequal(sub("/.*", "", rel), c("lidarbc", "las"))
+  # The site and the publishing guard take every schema.json; a misnamed version
+  # directory would deploy, be frozen by the guard, and never be tested.
+  every <- list.files(file.path(pkg, "pkgdown", "assets", "stac"), pattern = "^schema\\.json$",
+                      recursive = TRUE)
+  expect_setequal(every, rel)
   for (r in rel) {
     s <- json_read(file.path(pkg, "pkgdown", "assets", "stac", r))
     url <- stac_url(pkg, r)
@@ -157,4 +162,28 @@ test_that("a collection's summaries are checked against the field types", {
   x <- base
   x$stac_extensions <- list("https://stac-extensions.github.io/version/v1.2.0/schema.json")
   expect_false(stac_valid(x, path), info = "extension URL not listed")
+})
+
+test_that("las summaries take a list or a range of valid values", {
+  pkg <- stac_root()
+  item <- json_read(file.path(pkg, "pkgdown", "assets", "stac", "las", "examples", "item.json"))
+  path <- stac_schema_path(pkg, "las", item)
+  coll <- json_read(file.path(pkg, "pkgdown", "assets", "stac", "lidarbc", "examples",
+                              "collection.json"))
+  coll$stac_extensions <- Filter(function(u) grepl("/stac/las/", u), item$stac_extensions)
+  coll$summaries <- list(`las:version` = list("1.2", "1.4"),
+                         `las:point_format` = list(minimum = 0L, maximum = 6L))
+  expect_true(stac_valid(coll, path))
+  x <- coll
+  x$summaries$`las:point_format`$maximum <- 11L
+  expect_false(stac_valid(x, path), info = "range above 10")
+  x <- coll
+  x$summaries$`las:point_format` <- list(1L, 11L)
+  expect_false(stac_valid(x, path), info = "list value above 10")
+  x <- coll
+  x$summaries$`las:version` <- list(minimum = "1.0", maximum = "1.4")
+  expect_false(stac_valid(x, path), info = "version as a range")
+  x <- coll
+  x$item_assets <- list(copc = list(`las:point_format` = 11L))
+  expect_false(stac_valid(x, path), info = "item_assets value above 10")
 })
