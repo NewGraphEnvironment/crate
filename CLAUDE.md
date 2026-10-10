@@ -22,7 +22,7 @@ Data governance repo for New Graph Environment — canonical schemas, data dicti
 
 ## Status
 
-Public R package; the current version and what each release changed are in [`NEWS.md`](NEWS.md), not restated here. Two source families registered: `bcfp` (one `file` entry with a handler) and `nge` (`schema_only` entries — the three GPS-track tables and the `form_capture` envelope — conformed by the caller via `crt_schema_conform()`). Schema-as-contract scope settled in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4): `crt_schema_read` / `crt_schema_apply` / `crt_schema_validate` / `crt_schema_conform` exist; `crt_schema_version` / `crt_schema_migrate` reserved for future.
+Public R package; the current version and what each release changed are in [`NEWS.md`](NEWS.md), not restated here. Two source families registered: `bcfp` (one `file` entry with a handler) and `nge` (`schema_only` entries — the three GPS-track tables and the `form_capture` envelope — conformed by the caller via `crt_schema_conform()`). Schema-as-contract scope settled in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4): `crt_schema_read` / `crt_schema_apply` / `crt_schema_validate` / `crt_schema_conform` exist; `crt_schema_version` / `crt_schema_migrate` reserved for future. crate also publishes STAC field schemas (`lidarbc`, `las`) from `pkgdown/assets/stac/` via the pkgdown site. A version on `gh-pages` is frozen: change one by adding a version, never by editing (see `pkgdown/assets/stac/README.md`, crate#23).
 
 See README "How it works" for the 5-piece runtime + naming convention. See `decisions/` for canonical-shape decision log.
 
