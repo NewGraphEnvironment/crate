@@ -35,5 +35,7 @@ Suggests:
     knitr,
     rmarkdown,
     lintr,
-    hexSticker
+    hexSticker,
+    jsonlite,
+    jsonvalidate
 Config/testthat/edition: 3

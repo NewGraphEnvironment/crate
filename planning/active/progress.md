@@ -6,3 +6,4 @@
 - Created branch `23-stac-field-schemas-for-the-catalogues-cu` off main
 - Scaffolded PWF baseline from issue #23 with approved phases
 - Next: start Phase 1
+- Phase 1: `tests/testthat/test-stac_schemas.R` written; fails 7 with no schemas present (expected). Site URL derived from `_pkgdown.yml`'s `url:`, so the test and the site share one source.

@@ -45,13 +45,13 @@ pkgdown/assets/stac/
 - **A misspelled field is rejected:** `additionalProperties: false` within the prefix catches `lidarbc:bogus`.
 
 ## Phase 1: Tests first
-- [ ] Add `jsonvalidate` (plus `jsonlite`) to Suggests
-- [ ] `tests/testthat/test-stac_schemas.R`. Discover every `pkgdown/assets/stac/*/v*/schema.json`, then for each:
-  - [ ] it parses, and `$schema` is draft-07
-  - [ ] `$id` equals the URL derived from its path, and the `stac_extensions` const equals `$id`
-  - [ ] the prefix's `examples/item.json` validates (engine `ajv`)
-  - [ ] negative cases, each of which must fail: `las:point_format` 11 or `"6"`, `las:version` `"1.5"`, `lidarbc:datetime_source` `"guess"`, a bad `lidarbc:delivery`, an unknown `lidarbc:bogus`, a bad `las:version` on the `copc` asset, and the extension URL missing from `stac_extensions`
-  - [ ] the directory is found (`expect_gt(length(files), 0)`) so the test cannot pass vacuously. Under `R CMD check` `pkgdown/` is not installed, so skip when the source tree is absent. `devtools::test()` and CI run it.
+- [x] Add `jsonvalidate` (plus `jsonlite`) to Suggests
+- [x] `tests/testthat/test-stac_schemas.R`. Discover every `pkgdown/assets/stac/*/v*/schema.json`, then for each:
+  - [x] it parses, and `$schema` is draft-07
+  - [x] `$id` equals the URL derived from its path, and the `stac_extensions` const equals `$id`
+  - [x] the prefix's `examples/item.json` validates (engine `ajv`)
+  - [x] negative cases, each of which must fail: `las:point_format` 11 or `"6"`, `las:version` `"1.5"`, `lidarbc:datetime_source` `"guess"`, a bad `lidarbc:delivery`, an unknown `lidarbc:bogus`, a bad `las:version` on the `copc` asset, and the extension URL missing from `stac_extensions`
+  - [x] the directory is found (`expect_gt(length(files), 0)`) so the test cannot pass vacuously. Under `R CMD check` `pkgdown/` is not installed, so skip when the source tree is absent. `devtools::test()` and CI run it.
 
 ## Phase 2: Schemas, examples, docs
 - [ ] `lidarbc/v1.0.0/schema.json`, `las/v1.0.0/schema.json`
