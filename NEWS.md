@@ -1,4 +1,4 @@
-# crate (development version)
+# crate 0.5.0 (2026-10-10)
 
 crate now publishes JSON Schemas for the custom fields NGE's STAC catalogues write, starting with `lidarbc:` (LidarBC's objectstore paths and file names) and `las:` (the LAS format's version and point format), at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v1.0.0/schema.json` ([#23](https://github.com/NewGraphEnvironment/crate/issues/23)).
 
