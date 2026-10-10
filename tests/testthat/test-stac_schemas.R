@@ -63,7 +63,6 @@ test_that("each released schema names its own published URL", {
   pkg <- stac_root()
   rel <- stac_schemas(pkg)
   expect_gt(length(rel), 0)
-  expect_setequal(sub("/.*", "", rel), c("lidarbc", "las"))
   # The site and the publishing guard take every schema.json; a misnamed version
   # directory would deploy, be frozen by the guard, and never be tested.
   every <- list.files(file.path(pkg, "pkgdown", "assets", "stac"), pattern = "^schema\\.json$",
@@ -78,17 +77,30 @@ test_that("each released schema names its own published URL", {
     refs <- ref_objects(s)
     expect_gt(length(refs), 0)
     for (o in refs) expect_equal(names(o), "$ref", info = r)
+    # Compiling checks every keyword's own type and resolves every $ref. A version no
+    # example names is otherwise checked only for the structure above.
+    expect_no_error(jsonvalidate::json_schema$new(
+      file.path(pkg, "pkgdown", "assets", "stac", r), engine = "ajv"
+    ))
   }
 })
 
-test_that("each prefix's examples validate against its schema", {
+# Prefixes come from the published tree, not a list here, so a new prefix cannot ship
+# without examples. Each prefix's examples name its newest version, so whatever is about
+# to be published is the version they exercise.
+test_that("each prefix's examples validate against its newest schema", {
   pkg <- stac_root()
-  for (prefix in c("lidarbc", "las")) {
+  rel <- stac_schemas(pkg)
+  for (prefix in unique(sub("/.*", "", rel))) {
+    versions <- sub("^[^/]+/v([^/]+)/schema\\.json$", "\\1", rel[startsWith(rel, paste0(prefix, "/"))])
+    newest <- paste0(prefix, "/v", as.character(max(package_version(versions))), "/schema.json")
     ex <- list.files(file.path(pkg, "pkgdown", "assets", "stac", prefix, "examples"),
                      pattern = "\\.json$", full.names = TRUE)
     expect_gt(length(ex), 0)
     for (f in ex) {
       x <- json_read(f)
+      expect_true(stac_url(pkg, newest) %in% unlist(x$stac_extensions),
+                  info = paste(f, "does not name", newest))
       ok <- stac_valid(x, stac_schema_path(pkg, prefix, x))
       expect_true(ok, info = paste(f, paste(capture.output(print(attr(ok, "errors"))),
                                             collapse = "\n")))

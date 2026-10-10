@@ -75,7 +75,7 @@ pkgdown/assets/stac/
 
 ## Validation
 - [x] Tests pass
-- [ ] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
+- [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 

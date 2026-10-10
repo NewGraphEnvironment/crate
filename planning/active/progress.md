@@ -12,3 +12,4 @@
 - Phase 4: README section, decision entry, NEWS. Plan review folded in (review-plan.md); full suite 343 pass; R CMD check 0E/0W, 2 pre-existing CITATION.cff NOTEs; pystac rejects all 16 value negatives
 - code-check round 1: 2 fragile (test/guard selector mismatch; feature-branch dispatch could freeze schemas) fixed + las summaries tests; each new guard mutation-proven
 - code-check round 2: release event could deploy an off-main tag (inside round 1's fix) — deploy now main-only; routes to gh-pages enumerated in findings.md
+- code-check round 3: mechanism = freeze set wider than checked set; open axes version (uncompiled, unexemplified versions) and prefix (literal list) fixed; enumeration table in findings.md ends the loop

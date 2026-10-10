@@ -106,3 +106,19 @@ Rounds 1 and 2 found the same defect twice (a non-main ref freezing schemas: dis
 The deploy condition is `github.event_name != 'pull_request' && github.ref == 'refs/heads/main'`; nothing above it can publish from another ref.
 
 Accepted: Python `re` `$` matches before a trailing newline, so `"092/092g/2019\n"` passes `lidarbc:delivery` in pystac and fails in ajv. No writer can produce it.
+
+## Enumeration: freeze set vs checked set (code-check round 3, terminal)
+
+Mechanism (round 3): the guard freezes whatever reaches gh-pages and treats it as checked, while the tests select what to check by a separate rule. Every axis on which the two selections can differ, and what now ties them:
+
+| axis | freeze takes | check now covers | tie |
+|---|---|---|---|
+| file name | every `*/v*/schema.json` | same set | test asserts every `schema.json` equals the strict set (R1) |
+| git ref | what deploys | the checkout the tests ran on | deploy is main-only (R1, R2), and the test step runs in the same job before the build, so a deployed tree has passed in that run |
+| source vs built bytes | `docs/stac/...` | `pkgdown/assets/stac/...` | guard `cmp`s each source against its built copy |
+| prefix | every prefix directory | prefixes derived from the tree | no literal list; each prefix must have examples (R3) |
+| version | every version built | every version compiled by ajv (keyword types, `$ref` resolution) + structure; the newest validated by examples | examples must name the newest version (R3) |
+
+Residual, accepted and documented in `pkgdown/assets/stac/README.md`: two new versions of one prefix added in a single push — the older of the two gets compile + structure only. Add one version at a time.
+
+Mutation proofs (scratch copy): unnamed invalid v1.1.0 → FAIL 2; valid v1.1.0 with examples on v1.0.0 → FAIL 1; new prefix without examples → FAIL 1. Clean: 120 pass.
