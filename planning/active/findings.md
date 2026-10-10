@@ -42,3 +42,27 @@ NewGraphEnvironment/stac_pointcloud_bc#2. Its full rebuild re-registers every it
 - The top-level-page gate in `pkgdown.yaml` checks only `docs/*.html|md`, so README.md files under `docs/stac/` do not trip it.
 - stac-extensions template schema (fetched from `stac-extensions/template` main): draft-07, `$id` carries a trailing `#` but the `stac_extensions` const does not; fields in `definitions/fields` with `additionalProperties: false` + `patternProperties "^(?!template:)"`.
 - jsonvalidate 1.5.0 and V8 8.2.0 installed locally.
+
+## Examples are a real published item (2026-10-10)
+
+`examples/item.json` is item `082-082l-2019-pointcloud-bc_082l100_3_4_4_xyes_8_utm11_2019` from the live API (`images.a11s.one`, catalogue v0.2.0) with the `nge:` keys renamed per stac_pointcloud_bc#12, `lidarbc:delivery` added, the pgstac-only links replaced by one collection link, and `datetime: null` restored (STAC requires the key). Both prefixes' `item.json` are the same item.
+
+## Mutation table (each constraint removed in a scratch copy; FAIL count of test-stac_schemas.R)
+
+| removed | FAIL |
+|---|---|
+| lidarbc `fields.additionalProperties` | 1 |
+| las `point_format.maximum` | 1 |
+| las `point_format.type` | 2 |
+| las top-level `assets` | 1 |
+| las `version` enum + "1.5" | 1 |
+| lidarbc `stac_extensions.contains` | 2 |
+| lidarbc `delivery.pattern` | 2 |
+| lidarbc `summaries.datetime_source.items` | 1 |
+| lidarbc `filename_date.minLength` | 1 |
+
+Clean tree: `[ FAIL 0 | PASS 79 ]`.
+
+## Consumer interop: pystac 1.15.2 (stac_pointcloud_bc's uv env)
+
+`JsonSchemaSTACValidator` with `schema_cache` preloaded from the local files under their URLs: the example item validates against core 1.1.0 + pointcloud + projection + file + lidarbc + las; the example collection validates; a `copc` asset with `las:point_format: 11` is rejected. Probe script lives in the session scratchpad only.

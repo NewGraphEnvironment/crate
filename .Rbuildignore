@@ -16,3 +16,4 @@
 ^README\.Rmd$
 ^\.claude$
 ^\.git$
+^pkgdown$

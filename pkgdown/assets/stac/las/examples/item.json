@@ -1,0 +1,189 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/pointcloud/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/projection/v2.0.0/schema.json",
+    "https://stac-extensions.github.io/file/v2.1.0/schema.json",
+    "https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.0.0/schema.json",
+    "https://newgraphenvironment.github.io/crate/stac/las/v1.0.0/schema.json"
+  ],
+  "id": "082-082l-2019-pointcloud-bc_082l100_3_4_4_xyes_8_utm11_2019",
+  "collection": "stac-pointcloud-bc",
+  "bbox": [
+    -118.12532201551605,
+    50.98727143206122,
+    -118.09972563375017,
+    51.000243019812956
+  ],
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -118.12501413969517,
+          50.98727143206122
+        ],
+        [
+          -118.09972563375017,
+          50.987512243537694
+        ],
+        [
+          -118.10002659245053,
+          51.000243019812956
+        ],
+        [
+          -118.12532201551605,
+          51.00000209961616
+        ],
+        [
+          -118.12501413969517,
+          50.98727143206122
+        ]
+      ]
+    ]
+  },
+  "properties": {
+    "datetime": null,
+    "start_datetime": "2019-01-01T00:00:00Z",
+    "end_datetime": "2019-12-31T23:59:59Z",
+    "lidarbc:product": "pointcloud",
+    "lidarbc:delivery": "082/082l/2019",
+    "lidarbc:datetime_source": "filename",
+    "lidarbc:filename_date": "2019",
+    "las:version": "1.4",
+    "las:point_format": 6,
+    "pc:type": "lidar",
+    "pc:count": 76638115,
+    "proj:bbox": [
+      421038.7,
+      5649011.09,
+      422814.0,
+      5650427.0600000005
+    ],
+    "proj:code": "EPSG:2955",
+    "pc:schemas": [
+      {
+        "name": "X",
+        "size": 4,
+        "type": "signed"
+      },
+      {
+        "name": "Y",
+        "size": 4,
+        "type": "signed"
+      },
+      {
+        "name": "Z",
+        "size": 4,
+        "type": "signed"
+      },
+      {
+        "name": "intensity",
+        "size": 2,
+        "type": "unsigned"
+      },
+      {
+        "name": "return_number",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "number_of_returns",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "synthetic",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "key_point",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "withheld",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "overlap",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "scanner_channel",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "scan_direction_flag",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "edge_of_flight_line",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "classification",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "user_data",
+        "size": 1,
+        "type": "unsigned"
+      },
+      {
+        "name": "scan_angle",
+        "size": 2,
+        "type": "signed"
+      },
+      {
+        "name": "point_source_id",
+        "size": 2,
+        "type": "unsigned"
+      },
+      {
+        "name": "gps_time",
+        "size": 8,
+        "type": "floating"
+      }
+    ],
+    "pc:encoding": "LASzip"
+  },
+  "links": [
+    {
+      "rel": "collection",
+      "type": "application/json",
+      "href": "https://stac-pointcloud-bc.s3.us-west-2.amazonaws.com/collection.json"
+    }
+  ],
+  "assets": {
+    "laz": {
+      "href": "https://nrs.objectstore.gov.bc.ca/gdwuts/082/082l/2019/pointcloud/bc_082l100_3_4_4_xyes_8_utm11_2019.laz",
+      "type": "application/vnd.laszip",
+      "roles": [
+        "data"
+      ],
+      "title": "Point cloud (LAZ)",
+      "file:size": 424658335
+    },
+    "copc": {
+      "href": "https://canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com/pointclouds_nuagespoints/BC/Riverine_Floodplain_UTM11_2019/bc_082l100_3_4_4_xyes_8_utm11_2019.copc.laz",
+      "type": "application/vnd.laszip+copc",
+      "roles": [
+        "data"
+      ],
+      "title": "Point cloud (COPC), NRCan CanElevation",
+      "file:size": 536141472,
+      "description": "The Cloud Optimized Point Cloud that Natural Resources Canada's CanElevation series publishes under this file's name, checked at build to have the same point count and horizontal CRS as the `laz` file and a header box within 0.05 m of it. Distributed by NRCan under the Open Government Licence - Canada.",
+      "las:version": "1.4",
+      "las:point_format": 6
+    }
+  }
+}

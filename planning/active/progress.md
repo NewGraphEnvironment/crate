@@ -7,3 +7,4 @@
 - Scaffolded PWF baseline from issue #23 with approved phases
 - Next: start Phase 1
 - Phase 1: `tests/testthat/test-stac_schemas.R` written; fails 7 with no schemas present (expected). Site URL derived from `_pkgdown.yml`'s `url:`, so the test and the site share one source.
+- Phase 2: schemas, examples (from a live item), READMEs, CHANGELOGs; 79 pass; mutation table and pystac interop in findings.md

@@ -54,11 +54,11 @@ pkgdown/assets/stac/
   - [x] the directory is found (`expect_gt(length(files), 0)`) so the test cannot pass vacuously. Under `R CMD check` `pkgdown/` is not installed, so skip when the source tree is absent. `devtools::test()` and CI run it.
 
 ## Phase 2: Schemas, examples, docs
-- [ ] `lidarbc/v1.0.0/schema.json`, `las/v1.0.0/schema.json`
-- [ ] `examples/item.json` for each: a realistic item based on one stac_pointcloud_bc item, with the new names and `laz` + `copc` assets
-- [ ] the per-prefix README (field table), CHANGELOG, and the `stac/README.md` index
-- [ ] `.Rbuildignore`: `^pkgdown$`
-- [ ] tests green, and each negative case shown to be caught (restore the bug: remove the constraint and watch the test fail)
+- [x] `lidarbc/v1.0.0/schema.json`, `las/v1.0.0/schema.json`
+- [x] `examples/item.json` for each: a realistic item based on one stac_pointcloud_bc item, with the new names and `laz` + `copc` assets
+- [x] the per-prefix README (field table), CHANGELOG, and the `stac/README.md` index
+- [x] `.Rbuildignore`: `^pkgdown$`
+- [x] tests green, and each negative case shown to be caught (restore the bug: remove the constraint and watch the test fail)
 
 ## Phase 3: Publishing guards (`.github/workflows/pkgdown.yaml`)
 - [ ] After the build, assert that each `docs/stac/<prefix>/v*/schema.json` exists. This proves the assets reached the site.
