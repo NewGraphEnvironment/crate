@@ -56,6 +56,47 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
+      # The STAC field schemas in pkgdown/assets/stac/ are fetched by every catalogue
+      # build that validates, and published items name their URLs. So each one must
+      # reach the site as committed, and a version already on gh-pages must be
+      # rebuilt byte for byte: an edit changes what published items mean, and a
+      # deletion (clean: true below) breaks every build that validates them.
+      #
+      # Compared against the gh-pages branch rather than the live URL: a 404 from
+      # Pages would read as "new version" whether or not the site was up. A failed
+      # fetch fails the step.
+      - name: Check the STAC schemas against what is published
+        run: |
+          set -euo pipefail
+          ref="${STAC_PUBLISHED_REF:-FETCH_HEAD}"
+          [ "$ref" != FETCH_HEAD ] || git fetch -q --depth=1 origin gh-pages
+          bad=0 n=0
+          for src in pkgdown/assets/stac/*/v*/schema.json; do
+            [ -e "$src" ] || continue
+            n=$((n + 1))
+            rel="${src#pkgdown/assets/}"
+            cmp -s "$src" "docs/$rel" || { echo "::error::$rel did not reach the site as committed"; bad=1; }
+          done
+          [ "$n" -gt 0 ] || { echo "::error::no STAC schemas under pkgdown/assets/stac/"; bad=1; }
+          # Assigned on their own lines so a bad ref stops the step under set -e; inside
+          # the loop header its failure would read as "nothing published".
+          git rev-parse -q --verify "$ref^{commit}" >/dev/null
+          published=$(git ls-tree -r --name-only "$ref" -- stac)
+          published=$(printf '%s\n' "$published" | grep -E '^stac/[^/]+/v[^/]+/schema\.json$' || true)
+          for rel in $published; do
+            if [ ! -e "docs/$rel" ]; then
+              echo "::error::$rel is published but no longer built. A released version stays; restore pkgdown/assets/$rel"
+              bad=1
+            elif ! git show "$ref:$rel" | cmp -s - "docs/$rel"; then
+              echo "::error::$rel differs from the published version. A released version is never edited; add a new version directory"
+              bad=1
+            else
+              echo "unchanged: $rel"
+            fi
+          done
+          [ "$bad" -eq 0 ]
+          echo "$n STAC schema(s) built"
+
 
       # A skip here would be invisible, so assert rather than assume. Any
       # top-level page beyond the ones pkgdown is expected to produce means a

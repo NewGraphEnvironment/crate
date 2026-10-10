@@ -61,9 +61,9 @@ pkgdown/assets/stac/
 - [x] tests green, and each negative case shown to be caught (restore the bug: remove the constraint and watch the test fail)
 
 ## Phase 3: Publishing guards (`.github/workflows/pkgdown.yaml`)
-- [ ] After the build, assert that each `docs/stac/<prefix>/v*/schema.json` exists. This proves the assets reached the site.
-- [ ] **Immutability guard** (runs on PRs and pushes): for each built schema, fetch the live URL. A 404 means a new version, which is fine. A 200 with different bytes fails the build. Any other status fails closed.
-- [ ] Prove the guard fires: run it locally against a temporary edit, once the schema is live (this check happens after merge, see Verification).
+- [x] After the build, assert that each `docs/stac/<prefix>/v*/schema.json` exists. This proves the assets reached the site.
+- [x] **Immutability guard** (runs on PRs and pushes): compare each built schema against the `gh-pages` branch (what is deployed), not the live URL. A version on gh-pages must be rebuilt byte for byte, and must still be built at all. A failed fetch or a bad ref fails the step. *Changed from the plan's live-URL fetch: a 404 from Pages reads as "new" whether or not the site is up, and a deletion is invisible to a URL check.*
+- [x] Prove the guard fires: the step's script, extracted from the YAML, run in a scratch clone against fake published refs (see findings.md)
 
 ## Phase 4: Docs and wiring
 - [ ] README "How it works", and `inst/extdata/schemas/README.md` if it is the right place: one line pointing to `pkgdown/assets/stac/`

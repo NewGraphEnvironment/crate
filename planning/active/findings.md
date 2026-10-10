@@ -66,3 +66,26 @@ Clean tree: `[ FAIL 0 | PASS 79 ]`.
 ## Consumer interop: pystac 1.15.2 (stac_pointcloud_bc's uv env)
 
 `JsonSchemaSTACValidator` with `schema_cache` preloaded from the local files under their URLs: the example item validates against core 1.1.0 + pointcloud + projection + file + lidarbc + las; the example collection validates; a `copc` asset with `las:point_format: 11` is rejected. Probe script lives in the session scratchpad only.
+
+## Publishing guard: gh-pages, not the live URL (2026-10-10)
+
+Comparing against the live URL fails toward pass: a Pages outage or a disabled site returns 404, which the guard must read as "new version". The gh-pages branch is what `clean: true` deploys over, so comparing against it also catches a version deleted from the repo, which a URL check cannot.
+
+Run in a scratch clone with the step's `run:` extracted from the YAML (`STAC_PUBLISHED_REF` points it at a fake published ref):
+
+| published state | exit |
+|---|---|
+| gh-pages with no `stac/` (today) | 0 |
+| identical | 0 |
+| las v1.0.0 edited | 1 |
+| a published version absent from the build | 1 |
+| built copy differs from source | 1 |
+| ref does not exist | 1 |
+| no schemas in source | 1 |
+| real `origin gh-pages` (deploy of 952cb73) | 0 |
+
+## Errors Encountered
+
+| Error | Resolution |
+|---|---|
+| Guard passed with a nonexistent ref: `git ls-tree` failing inside `$(… \| grep … \|\| true)` in a `for` header reads as "nothing published" | `git rev-parse --verify "$ref^{commit}"` and the `ls-tree` on their own assignment lines, so `set -e` stops the step |
