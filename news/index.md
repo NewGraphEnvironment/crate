@@ -1,6 +1,6 @@
 # Changelog
 
-## crate (development version)
+## crate 0.5.0 (2026-10-10)
 
 crate now publishes JSON Schemas for the custom fields NGE’s STAC
 catalogues write, starting with `lidarbc:` (LidarBC’s objectstore paths

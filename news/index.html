@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.0" id="crate-050-2026-10-10">crate 0.5.0 (2026-10-10)<a class="anchor" aria-label="anchor" href="#crate-050-2026-10-10"></a></h2>
 <p>crate now publishes JSON Schemas for the custom fields NGE’s STAC catalogues write, starting with <code>lidarbc:</code> (LidarBC’s objectstore paths and file names) and <code>las:</code> (the LAS format’s version and point format), at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v1.0.0/schema.json</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/23" class="external-link">#23</a>).</p>
 <ul><li>An item lists the URL in <code>stac_extensions</code>, and pystac then checks each field’s type: a point format of 11 or an unknown <code>lidarbc:</code> field fails validation.</li>
 <li>A released version is never edited. A change is a new version beside it, and the site build fails if a version already on <code>gh-pages</code> would change or disappear. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261010_stac_field_schemas.md" class="external-link">decision entry</a>.</li>
