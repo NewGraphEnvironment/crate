@@ -22,7 +22,7 @@ Data governance repo for New Graph Environment — canonical schemas, data dicti
 
 ## Status
 
-Public R package, at **v0.3.0** (2026-09-01); `NEWS.md` is current. Two source families registered: `bcfp` (one `file` entry with a handler) and `nge` (`schema_only` entries — the three GPS-track tables and the `form_capture` envelope — conformed by the caller via `crt_schema_conform()`). Schema-as-contract scope settled in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4): `crt_schema_read` / `crt_schema_apply` / `crt_schema_validate` / `crt_schema_conform` exist; `crt_schema_version` / `crt_schema_migrate` reserved for future.
+Public R package; the current version and what each release changed are in [`NEWS.md`](NEWS.md), not restated here. Two source families registered: `bcfp` (one `file` entry with a handler) and `nge` (`schema_only` entries — the three GPS-track tables and the `form_capture` envelope — conformed by the caller via `crt_schema_conform()`). Schema-as-contract scope settled in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4): `crt_schema_read` / `crt_schema_apply` / `crt_schema_validate` / `crt_schema_conform` exist; `crt_schema_version` / `crt_schema_migrate` reserved for future.
 
 See README "How it works" for the 5-piece runtime + naming convention. See `decisions/` for canonical-shape decision log.
 
@@ -31,6 +31,8 @@ See README "How it works" for the 5-piece runtime + naming convention. See `deci
 crate and its consumers (`trap`, the track and form schemas) are weeks old. When a schema turns out to be wrong-shaped, change the shape — rename the column, drop the table, reshape the override — rather than layering a workaround that preserves the mistake. There is very little to break, and what exists is cheap to rejig; a workaround written now is paid for at every reading for years.
 
 Measure the blast radius before deciding (grep the consumers, count the fixtures, check whether the live table has rows), say what it is, and then prefer the design you would choose from scratch. crate#18 is the worked example: the annotation table was reshaped to mirror captured columns instead of gaining a precedence footnote for one of them, because the cost was four fixture rows and an empty Postgres table.
+
+The data these schemas have met so far is test data — hornby, Nelson — collected to exercise the system, not to be preserved. Design for the shape the next real project will have, not for keeping a test dataset readable in its old form. Schema breaks are expected as projects and years are added: minimise them, record each new shape as an `upstream_variant`, and do not contort a design to avoid one.
 
 ## Naming convention (Convention C, locked in crate#4)
 
