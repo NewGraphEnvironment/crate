@@ -21,7 +21,7 @@ Facts about where a file sits in [LidarBC](https://lidar.gov.bc.ca)'s objectstor
 | `lidarbc:datetime_source` | string | `filename` or `path`: whether the item's datetime fields came from the file name's date token or from the year directory. |
 | `lidarbc:filename_date` | string | The file name's date token as written, present whenever the name has one, whether or not it was used. |
 
-All fields are optional.
+All fields are optional. They belong in item properties; the schema does not check assets.
 
 ## Collection summaries
 

@@ -123,6 +123,10 @@ Entries come in two kinds. `file` entries crate reads and normalizes; `schema_on
 - `nge` — field forms
   - `form_capture` — the envelope every captured field-form record carries (`project`, `form`, `record_id`, `source_version`, `schema_version`, `captured_at`), saying where a record came from and in what shape, and nothing about what any observation means. See the [decision entry](decisions/nge/20260901_form_capture_envelope.md).
 
+**STAC field schemas**
+
+- `lidarbc` and `las` — JSON Schemas for the custom fields NGE's STAC catalogues write, published by this site at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](decisions/nge/20261010_stac_field_schemas.md).
+
 More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a registry row, plus a handler when crate does the reading. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
 
 ## Sibling public packages

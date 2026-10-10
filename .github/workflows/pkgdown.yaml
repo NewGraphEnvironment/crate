@@ -49,6 +49,16 @@ jobs:
       # has to happen BEFORE the build. Deleting afterwards would still leave
       # the verbatim CLAUDE.md copy pkgdown makes and the entry it writes into
       # the full-text search.json index.
+      # crate has no test workflow, and this job is what publishes the STAC schemas,
+      # so their tests run here: a schema that fails them is never deployed. Each
+      # test skips without jsonvalidate, so its absence is an error, not a skip.
+      - name: Test the STAC schemas
+        run: |
+          stopifnot(requireNamespace("jsonvalidate", quietly = TRUE))
+          testthat::test_file("tests/testthat/test-stac_schemas.R", stop_on_failure = TRUE,
+                              reporter = testthat::ProgressReporter$new(show_praise = FALSE))
+        shell: Rscript {0}
+
       - name: Keep internal notes out of the published site
         run: rm -f CLAUDE.md
 

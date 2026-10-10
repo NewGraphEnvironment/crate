@@ -14,6 +14,20 @@ JSON Schemas for the custom field prefixes that New Graph Environment's STAC cat
 - **Each schema's `$id` is its URL**, so a same-named extension published elsewhere cannot be mistaken for this one.
 - **No field is required.** One prefix serves several catalogues that each write a subset; a catalogue's own build checks for the fields it always writes.
 
+## Validating offline
+
+pystac fetches each schema when it validates, so a test suite that calls `validate()` on items listing these URLs needs the network. Preload them instead:
+
+```python
+import json
+from pystac.validation import JsonSchemaSTACValidator, set_validator
+v = JsonSchemaSTACValidator()
+v.schema_cache["https://newgraphenvironment.github.io/crate/stac/las/v1.0.0/schema.json"] = json.load(open("las_v1.0.0.json"))
+set_validator(v)
+```
+
+The github.io URL answers with a 301 to the organisation's custom domain, which pystac and `requests` follow. `$id` stays the github.io URL, which keeps working if the custom domain is removed.
+
 ## Layout
 
 ```

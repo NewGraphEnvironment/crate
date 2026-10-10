@@ -37,11 +37,26 @@ stac_valid <- function(x, schema_path) {
   jsonvalidate::json_validate(json_text(x), schema_path, engine = "ajv", verbose = TRUE)
 }
 
-stac_schema_path <- function(pkg, prefix) {
-  rel <- stac_schemas(pkg)
-  rel <- rel[startsWith(rel, paste0(prefix, "/"))]
-  testthat::expect_length(rel, 1)
+# The local file of the schema version an example names in `stac_extensions`. Examples
+# are not versioned, so each is checked against the version it lists, and older versions
+# are left to the publishing guard in pkgdown.yaml.
+stac_schema_path <- function(pkg, prefix, x) {
+  urls <- unlist(x$stac_extensions)
+  url <- urls[grepl(paste0("/stac/", prefix, "/v[^/]+/schema\\.json$"), urls)]
+  testthat::expect_length(url, 1)
+  rel <- sub(".*/stac/", "", url)
+  testthat::expect_equal(stac_url(pkg, rel), url)
   file.path(pkg, "pkgdown", "assets", "stac", rel)
+}
+
+# Every object holding a `$ref`. Draft-07 ignores a `$ref`'s siblings, and the two
+# validators that read these schemas disagree about it: ajv (these tests) applies them,
+# Python jsonschema (pystac) does not. A sibling would be enforced here and skipped in
+# every catalogue build.
+ref_objects <- function(x) {
+  if (!is.list(x)) return(list())
+  here <- if (!is.null(names(x)) && "$ref" %in% names(x)) list(x) else list()
+  c(here, unlist(lapply(x, ref_objects), recursive = FALSE))
 }
 
 test_that("each released schema names its own published URL", {
@@ -55,6 +70,9 @@ test_that("each released schema names its own published URL", {
     expect_equal(s$`$schema`, "http://json-schema.org/draft-07/schema#", info = r)
     expect_equal(s$`$id`, url, info = r)
     expect_equal(s$properties$stac_extensions$contains$const, url, info = r)
+    refs <- ref_objects(s)
+    expect_gt(length(refs), 0)
+    for (o in refs) expect_equal(names(o), "$ref", info = r)
   }
 })
 
@@ -65,7 +83,8 @@ test_that("each prefix's examples validate against its schema", {
                      pattern = "\\.json$", full.names = TRUE)
     expect_gt(length(ex), 0)
     for (f in ex) {
-      ok <- stac_valid(json_read(f), stac_schema_path(pkg, prefix))
+      x <- json_read(f)
+      ok <- stac_valid(x, stac_schema_path(pkg, prefix, x))
       expect_true(ok, info = paste(f, paste(capture.output(print(attr(ok, "errors"))),
                                             collapse = "\n")))
     }
@@ -114,19 +133,28 @@ test_that("the schemas reject wrong values and unknown fields", {
   )
   for (cs in cases) {
     prefix <- cs[[1]]
-    expect_true(stac_valid(base(prefix), stac_schema_path(pkg, prefix)),
-                info = paste(prefix, "base example"))
-    expect_false(stac_valid(cs[[3]](base(prefix)), stac_schema_path(pkg, prefix)),
-                 info = paste(prefix, cs[[2]]))
+    path <- stac_schema_path(pkg, prefix, base(prefix))
+    expect_true(stac_valid(base(prefix), path), info = paste(prefix, "base example"))
+    expect_false(stac_valid(cs[[3]](base(prefix)), path), info = paste(prefix, cs[[2]]))
   }
 })
 
 test_that("a collection's summaries are checked against the field types", {
   pkg <- stac_root()
-  coll <- json_read(file.path(pkg, "pkgdown", "assets", "stac", "lidarbc", "examples",
+  base <- json_read(file.path(pkg, "pkgdown", "assets", "stac", "lidarbc", "examples",
                               "collection.json"))
-  path <- stac_schema_path(pkg, "lidarbc")
-  expect_true(stac_valid(coll, path))
-  coll$summaries$`lidarbc:datetime_source` <- list("guess")
-  expect_false(stac_valid(coll, path))
+  path <- stac_schema_path(pkg, "lidarbc", base)
+  expect_true(stac_valid(base, path))
+  x <- base
+  x$summaries$`lidarbc:datetime_source` <- list("guess")
+  expect_false(stac_valid(x, path), info = "summary value outside the enum")
+  x <- base
+  x$summaries$`lidarbc:bogus` <- list("x")
+  expect_false(stac_valid(x, path), info = "unknown lidarbc: summary")
+  x <- base
+  x$summaries$`lidarbc:product` <- "pointcloud"
+  expect_false(stac_valid(x, path), info = "summary not a list")
+  x <- base
+  x$stac_extensions <- list("https://stac-extensions.github.io/version/v1.2.0/schema.json")
+  expect_false(stac_valid(x, path), info = "extension URL not listed")
 })
