@@ -683,6 +683,9 @@ Set `python.reticulate = FALSE` on a Python chunk that only displays code, or de
 ### `readBin(size = 4)` returns NA for exactly 2^31, so it cannot read an unsigned 32-bit field
 Sum the bytes as doubles (`sum(as.numeric(raw[i + 1:4]) * 256^(0:3))`) to read a u32 or u64 from a binary header: R has no unsigned or 64-bit integer, and a signed read goes negative above 2^31 and returns `NA_integer_` at 2^31 itself, R's NA bit pattern.
 
+### ajv honours keywords beside a `$ref`; Python's jsonschema ignores them
+Keep every `$ref` alone in a draft-07 schema tested with jsonvalidate and read by pystac.
+
 # Code Check — Shell
 Tool-level traps in bash, sed, git and `gh`, and in the host toolchain those commands depend on.
 
@@ -771,6 +774,9 @@ An assertion around something that might hang can only pass or hang, never fail 
 
 ### `aws s3 cp` cannot tell a missing key from a missing bucket
 `aws s3 cp` gives one exit 1 and 404 text for a missing key and a missing bucket, so probe `s3api head-bucket` then `head-object`: only a 404 from a reachable bucket means absent; a 403 is permissions.
+
+### An S3 multipart ETag depends on the uploader's part size, so try every size that gives its part count
+Verify an upload by comparing each object's ETag with its file, and for a multipart ETag (`<md5 of the part md5s>-N`) try every part size whose `ceiling(size / part) == N`: the size is the uploading machine's `multipart_chunksize`, which differs between machines.
 
 ### A verification command can be shadowed by a shell function or alias
 - The shell is initialized from the user's profile, so `diff`, `grep`, `ls`, `cat` and friends may resolve to a wrapper rather than the binary you assume.
@@ -871,6 +877,9 @@ Take the reason from the `!` row's third tab field, falling back to the last lin
 ### In a Perl replacement, `$1` followed by a digit is a different group
 Write `${1}` whenever the text after a backreference starts with a digit: Perl reads `$1281399` as group 1281399, which does not exist, so the replacement is empty and the run exits 0.
 
+### `for x in $(cmd | grep … || true)` hides a failing `cmd`
+Assign the command on its own line under `set -e` (`out=$(cmd)`), then filter `out` with `|| true`.
+
 # Code Check — Spatial
 terra, sf, bcdata, GDAL/OGR CLIs.
 
@@ -962,6 +971,9 @@ Two contracts inside `terra::app()` that read as the opposite of what they are, 
 
 ### terra `metags()`: the empty case is `NULL`, and the sidecar is half the artefact
 Three measured facts about raster **container** metadata, all of which fail quietly (floodplains#83, 2026-09-05, terra 1.9.34 / GDAL 3.8.5).
+
+### terra `metags<-` merges into the tags a raster already has, and its setters work only from 1.8-54
+To replace a raster's dataset tags, clear them first (`metags(x) <- NULL`, only when there are any) and then set, and require `terra (>= 1.8-54)`: `metags<-` merges, so a stale tag read from a published file survives a write that sets new ones.
 
 ### `ggmap`: a fixed `zoom` silently crops points off the basemap, and `calc_zoom()` does not fix it
 `ggmap::get_map()` fetches ONE fixed-size image at whatever `zoom` it is given.
@@ -1106,6 +1118,9 @@ Take per-feature cell membership from `terra::cells(r, terra::vect(x), touches =
 
 ### A Freshwater Atlas main stem's downstream end lies on the receiving river's centreline, not at the confluence
 Do not use the `DOWNSTREAM_ROUTE_MEASURE = 0` point of a tributary's main stem as its mouth on the ground: the atlas routes the stem through the receiving river's polygon to that river's centreline, so the point sits mid-river.
+
+### `terra::project()` given only a CRS lets GDAL choose the grid, and GDAL versions choose differently
+Pass `terra::project()` a template grid, not just a CRS, when the result must reproduce on another machine: GDAL picks the grid itself, and its pick changed between GDAL 3.8.5 and 3.13.0.
 
 # Code Check Conventions
 Structured checklist for reviewing diffs before commit.
