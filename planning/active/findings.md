@@ -89,3 +89,20 @@ Run in a scratch clone with the step's `run:` extracted from the YAML (`STAC_PUB
 | Error | Resolution |
 |---|---|
 | Guard passed with a nonexistent ref: `git ls-tree` failing inside `$(… \| grep … \|\| true)` in a `for` header reads as "nothing published" | `git rev-parse --verify "$ref^{commit}"` and the `ls-tree` on their own assignment lines, so `set -e` stops the step |
+
+## Enumeration: every route by which content reaches gh-pages (code-check round 2)
+
+Rounds 1 and 2 found the same defect twice (a non-main ref freezing schemas: dispatch, then release). The candidate set is every writer to gh-pages times every trigger:
+
+| writer | trigger | ref | deploys? |
+|---|---|---|---|
+| pkgdown.yaml deploy step | push main | refs/heads/main | yes (intended) |
+| pkgdown.yaml deploy step | push master | refs/heads/master | no |
+| pkgdown.yaml deploy step | pull_request | refs/pull/N/merge | no |
+| pkgdown.yaml deploy step | release | refs/tags/vX | no (removed round 2) |
+| pkgdown.yaml deploy step | workflow_dispatch | any | only if main |
+| update-citation-cff.yaml | — | writes main only (no gh-pages reference) | n/a |
+
+The deploy condition is `github.event_name != 'pull_request' && github.ref == 'refs/heads/main'`; nothing above it can publish from another ref.
+
+Accepted: Python `re` `$` matches before a trailing newline, so `"092/092g/2019\n"` passes `lidarbc:delivery` in pystac and fails in ajv. No writer can produce it.

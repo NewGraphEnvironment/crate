@@ -130,10 +130,12 @@ jobs:
           echo "no unexpected top-level pages"
 
       - name: Deploy to GitHub pages 🚀
-        # Only main and releases deploy. A schema version that reaches gh-pages is
-        # frozen by the check above, so a dispatched run on a feature branch must
-        # not publish that branch's schemas.
-        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.event_name == 'release')
+        # Only main deploys. A schema version that reaches gh-pages is frozen by the
+        # check above, so no other ref may publish: not a dispatched run on a feature
+        # branch, and not a release, whose tag can point off main. A release adds
+        # nothing here anyway -- there is no development mode, and the push to main
+        # already published the same content.
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           # clean: true so the deployed site equals what the build produced.

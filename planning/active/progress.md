@@ -11,3 +11,4 @@
 - Phase 3: pkgdown.yaml step 'Check the STAC schemas against what is published'; guard fixed to fail closed on a bad ref; 8-case table in findings.md
 - Phase 4: README section, decision entry, NEWS. Plan review folded in (review-plan.md); full suite 343 pass; R CMD check 0E/0W, 2 pre-existing CITATION.cff NOTEs; pystac rejects all 16 value negatives
 - code-check round 1: 2 fragile (test/guard selector mismatch; feature-branch dispatch could freeze schemas) fixed + las summaries tests; each new guard mutation-proven
+- code-check round 2: release event could deploy an off-main tag (inside round 1's fix) — deploy now main-only; routes to gh-pages enumerated in findings.md
