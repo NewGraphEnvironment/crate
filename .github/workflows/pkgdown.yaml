@@ -4,8 +4,10 @@ on:
   push:
     branches: [main, master]
   pull_request:
-  release:
-    types: [published]
+  # No `release:` trigger. Only main deploys (see the deploy step), so a release run
+  # would build and skip the deploy. Worse, it shares this job's concurrency group, so
+  # it replaced the release commit's pending push run and the site stayed one commit
+  # behind (#25). The push to main already builds and deploys the release commit.
   workflow_dispatch:
 
 name: pkgdown.yaml
@@ -131,10 +133,8 @@ jobs:
 
       - name: Deploy to GitHub pages 🚀
         # Only main deploys. A schema version that reaches gh-pages is frozen by the
-        # check above, so no other ref may publish: not a dispatched run on a feature
-        # branch, and not a release, whose tag can point off main. A release adds
-        # nothing here anyway -- there is no development mode, and the push to main
-        # already published the same content.
+        # check above, so no other ref may publish, including a dispatched run on a
+        # feature branch.
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
