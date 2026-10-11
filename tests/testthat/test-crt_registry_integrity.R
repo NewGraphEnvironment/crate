@@ -125,7 +125,7 @@ test_that("decision entries referenced by a schema exist", {
   for (i in seq_len(nrow(reg))) {
     schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
     for (d in as.character(schema$decisions)) {
-      expect_true(file.exists(file.path(root, d)), info = d)
+      expect_true(FALSE, info = d)
     }
   }
 })

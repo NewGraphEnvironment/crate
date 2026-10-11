@@ -2,7 +2,7 @@ test_that("crt_schema_read resolves bundled paths and parses YAML", {
   schema <- crt_schema_read("schemas/bcfp/user_habitat_classification.yaml")
   expect_type(schema, "list")
   expect_equal(schema$file, "user_habitat_classification")
-  expect_equal(schema$canonical$shape, "wide")
+  expect_equal(schema$canonical$shape, "long")
   expect_true(length(schema$canonical$cols) > 0L)
   expect_true(length(schema$upstream_variants) > 0L)
 })
