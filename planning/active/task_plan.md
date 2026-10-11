@@ -36,7 +36,7 @@ Revised after plan review: the break goes on a throwaway PR branched off this on
 no deliberately broken commit lands in main's history (`pull_request` has no branch
 filter, so a PR based on this branch runs the workflow from its head).
 
-- [ ] Throwaway branch off this one, one commit breaking (a) an assertion that runs under check and (b) the `decisions/` assertion only the source-tree step reaches. Draft PR against this branch. Confirm `check-r-package` goes red in `checking tests` and the source-tree step goes red, both read from the failing step's log. Confirm the skip report printed the 6 skips. Close the PR and delete the branch.
+- [x] Throwaway branch off this one, one commit breaking (a) an assertion that runs under check and (b) the `decisions/` assertion only the source-tree step reaches. Draft PR against this branch. Confirm `check-r-package` goes red in `checking tests` and the source-tree step goes red, both read from the failing step's log. Confirm the skip report printed the 6 skips. Close the PR and delete the branch.
 - [ ] On this PR's own run: green, skip list printed with the expected 6, no `::warning::`, source-tree step passing with SKIP 0.
 
 ## Validation

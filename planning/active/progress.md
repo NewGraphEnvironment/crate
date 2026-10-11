@@ -30,3 +30,8 @@
   setup/teardown, top-level expect, failing withr::defer, top-level local(), new snapshot
   under CI: all exit 1. Out of reach by design: a block that returns early after an
   expectation (not a skip). Loop ended by enumeration.
+- Phase 3a: throwaway PR #29 (closed unmerged, branch deleted), run 38168115419 on e06dbae:
+  `check-r-package` failure in `checking tests` on test-crt_schema_read.R:5:3
+  (`[ FAIL 1 | WARN 0 | SKIP 6 | PASS 227 ]`); Report skipped tests succeeded and printed the
+  6 expected skips on the failing run, no annotation; source-tree step failure on
+  test-crt_registry_integrity.R:128:7 (decisions/ assertion) and schema_read:5.
