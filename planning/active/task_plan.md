@@ -40,8 +40,8 @@ filter, so a PR based on this branch runs the workflow from its head).
 - [ ] On this PR's own run: green, skip list printed with the expected 6, no `::warning::`, source-tree step passing with SKIP 0.
 
 ## Validation
-- [ ] Tests pass (local `rcmdcheck` 0/0, NOTE gone; `test_local` filter passes)
-- [ ] `/code-check` clean (once over the branch with `/code-check branch`)
+- [x] Tests pass (local `rcmdcheck` 0/0, NOTE gone; `test_local` filter passes)
+- [x] `/code-check` clean (once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 

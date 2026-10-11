@@ -23,3 +23,10 @@
   against the step: in-block skip, top-level skip, top-level skip_if_not_installed, empty
   test → exit 1 ("1 skip(s)"); top-level error, failing expectation → exit 1 (FAIL 1);
   clean tree → exit 0 (SKIP 0, PASS 386).
+- /code-check round 3: Clean. Mechanism named: the guard counted a narrower set than its
+  claim (a two-file filter; per-block rows). Reviewer enumerated a further 14 shapes against
+  the source-tree step in copies (CI=true): if(FALSE) test_that, top-level return(), skip
+  after an expectation, describe/it, skip_on_ci, warning-only block, skip/stop in helper/
+  setup/teardown, top-level expect, failing withr::defer, top-level local(), new snapshot
+  under CI: all exit 1. Out of reach by design: a block that returns early after an
+  expectation (not a skip). Loop ended by enumeration.
