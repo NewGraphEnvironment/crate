@@ -1,10 +1,10 @@
 # Task: lidarbc v1.1.0: add lidarbc:datetime_unknown (#26)
 
-**If we do it:** stac-elevation-bc's 2,245 albers items validate after NewGraphEnvironment/stac_dem_bc#2 renames their unprefixed `datetime_unknown` to `lidarbc:datetime_unknown`. **If we never do:** those items fail validation against `lidarbc` v1.0.0, so stac_dem_bc#2's rewrite cannot be published (its workflow validates every item it publishes).
+**If we do it:** stac-elevation-bc's 2,288 albers items (2,245 under `albers10k2m/` plus 43 still-published items under `albers10k2m_new/` whose source was deleted upstream) validate after NewGraphEnvironment/stac_dem_bc#2 renames their unprefixed `datetime_unknown` to `lidarbc:datetime_unknown`. **If we never do:** those items fail validation against `lidarbc` v1.0.0, so stac_dem_bc#2's rewrite cannot be published (its workflow validates every item it publishes).
 
 ## Context
 
-`lidarbc` v1.0.0 (crate#24) rejects any undeclared `lidarbc:` key. stac_dem_bc PR #58 (#2/#55) renames the 2,245 albers items' unprefixed `datetime_unknown` to `lidarbc:datetime_unknown` and pins `LIDARBC_EXT` to the v1.1.0 URL. Its workflow validates every item it publishes, so that PR cannot merge until v1.1.0 answers. v1.0.0 stays byte-identical, and the pkgdown guard enforces that.
+`lidarbc` v1.0.0 (crate#24) rejects any undeclared `lidarbc:` key. stac_dem_bc PR #58 (#2/#55) renames the 2,288 albers items (2,245 under `albers10k2m/` plus 43 still-published items under `albers10k2m_new/` whose source was deleted upstream)' unprefixed `datetime_unknown` to `lidarbc:datetime_unknown` and pins `LIDARBC_EXT` to the v1.1.0 URL. Its workflow validates every item it publishes, so that PR cannot merge until v1.1.0 answers. v1.0.0 stays byte-identical, and the pkgdown guard enforces that.
 
 What the writer emits (stac_dem_bc PR #58, `item_lidarbc_apply`): `props["lidarbc:datetime_unknown"] = True` only when the legacy flag was truthy. It never writes `false`, and albers items carry no `lidarbc:delivery`.
 
