@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,11 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="crate-060-2026-10-11">crate 0.6.0 (2026-10-11)<a class="anchor" aria-label="anchor" href="#crate-060-2026-10-11"></a></h2>
+<p><code>lidarbc</code> v1.1.0 adds <code>lidarbc:datetime_unknown</code>, a boolean that is <code>true</code> when neither LidarBC’s file name nor its path carries a date, so the item’s <code>datetime</code> is a placeholder. stac-elevation-bc’s 2,288 albers items will carry it once their rewrite (NewGraphEnvironment/stac_dem_bc#2) publishes. The schema is at <code>https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.1.0/schema.json</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/26" class="external-link">#26</a>).</p>
+<ul><li>v1.0.0 is unchanged and stays published for the items that name it. This is the first version added under the never-edit rule.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="crate-050-2026-10-10">crate 0.5.0 (2026-10-10)<a class="anchor" aria-label="anchor" href="#crate-050-2026-10-10"></a></h2>
 <p>crate now publishes JSON Schemas for the custom fields NGE’s STAC catalogues write, starting with <code>lidarbc:</code> (LidarBC’s objectstore paths and file names) and <code>las:</code> (the LAS format’s version and point format), at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v1.0.0/schema.json</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/23" class="external-link">#23</a>).</p>
