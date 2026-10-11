@@ -35,3 +35,7 @@
   (`[ FAIL 1 | WARN 0 | SKIP 6 | PASS 227 ]`); Report skipped tests succeeded and printed the
   6 expected skips on the failing run, no annotation; source-tree step failure on
   test-crt_registry_integrity.R:128:7 (decisions/ assertion) and schema_read:5.
+- Phase 3b: PR #30 run 38168426313 on a7f5e43 green. Skip report printed 6 skips
+  (`[ FAIL 0 | WARN 0 | SKIP 6 | PASS 228 ]`), no skip annotation (the run's two annotations
+  are GitHub's Node 20 deprecation and ubuntu-latest migration notices); source-tree step
+  `[ FAIL 0 | WARN 0 | SKIP 0 | PASS 386 ]`.
