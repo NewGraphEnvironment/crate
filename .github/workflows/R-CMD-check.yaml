@@ -124,8 +124,9 @@ jobs:
         shell: Rscript {0}
         run: |
           stopifnot(requireNamespace("jsonvalidate", quietly = TRUE))
-          r <- as.data.frame(testthat::test_local(
-            stop_on_failure = TRUE,
-            reporter = testthat::ProgressReporter$new(show_praise = FALSE)
-          ))
-          if (sum(r$skipped) > 0) stop(sum(r$skipped), " test(s) skipped in the source tree")
+          # The count comes from the reporter, the same number its SKIP line prints.
+          # The results data frame has one row per test_that() block, so a skip at a
+          # file's top level -- which skips the whole file -- never reaches it.
+          rep <- testthat::ProgressReporter$new(show_praise = FALSE)
+          testthat::test_local(stop_on_failure = TRUE, reporter = rep)
+          if (rep$n_skip > 0) stop(rep$n_skip, " skip(s) in the source tree")

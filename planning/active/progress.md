@@ -17,3 +17,9 @@
 - /code-check branch round 1: one fragile finding (a known-reason skip in a file outside the
   source-tree `filter` would run nowhere). Fixed by dropping the filter; mutation with a new
   `test-zz_new.R` skipping "not running in the source tree" now exits 1.
+- /code-check round 2: defect inside round 1's fix. `sum(as.data.frame(r)$skipped)` counts
+  one row per test_that() block, so a top-level skip (whole file) passed: reproduced, SKIP 1
+  printed, exit 0. Fixed by reading `ProgressReporter$n_skip`. Enumerated every non-run shape
+  against the step: in-block skip, top-level skip, top-level skip_if_not_installed, empty
+  test → exit 1 ("1 skip(s)"); top-level error, failing expectation → exit 1 (FAIL 1);
+  clean tree → exit 0 (SKIP 0, PASS 386).

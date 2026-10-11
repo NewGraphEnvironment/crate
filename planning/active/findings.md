@@ -67,3 +67,10 @@ No blockers. Acted on:
 Expected and harmless: gq's concurrency group evaluates to `check-true` for every non-PR
 run, so `/gh-pr-merge`'s release push cancels the merge commit's run (`cancelled`, not
 `failure`). Same as gq and fly today.
+
+## testthat results frame misses whole-file skips (code-check round 2)
+
+`as.data.frame(test_local(...))` has one row per `test_that()` block. A `skip*()` at a file's
+top level skips the whole file and contributes no row, so `sum(r$skipped)` reads 0 while the
+reporter prints `SKIP 1`. Count skips from the reporter (`ProgressReporter$n_skip`), the same
+number its summary line prints. Empty tests are counted there too.
