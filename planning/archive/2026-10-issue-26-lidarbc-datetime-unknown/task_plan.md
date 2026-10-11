@@ -43,7 +43,7 @@ Prefix rule check: `lidarbc` already has two writers (pointcloud and elevation),
 - [x] Tests pass
 - [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
 - [x] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] `/planning-archive` on completion
 
 ## Notes
 - NEWS and the version bump (crate 0.6.0, minor) are left to `/gh-pr-merge`. The PR closes #26.
