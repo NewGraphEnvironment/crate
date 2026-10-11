@@ -86,6 +86,9 @@ and must not publish them without a schema URL in `stac_extensions`.
   ajv (the R tests) applies them, so the tests require every `$ref` to stand alone.
 - A field added to an existing prefix is a new version (`v1.1.0`), and the
   catalogues move to it at their next rebuild.
+- First instance, 2026-10-11: `lidarbc` v1.1.0 adds `lidarbc:datetime_unknown` for
+  stac-elevation-bc's albers items (crate#26). It is v1.0.0 plus that one optional
+  field; v1.0.0 stays published unchanged.
 
 ## References
 

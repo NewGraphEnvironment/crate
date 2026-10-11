@@ -22,14 +22,14 @@ Prefix rule check: `lidarbc` already has two writers (pointcloud and elevation),
 - [x] Confirm these go red before v1.1.0 exists. The examples still name v1.0.0 at that point, so the new rows fail as "unknown field": the right red, for the wrong reason. Then confirm they go green once v1.1.0 exists.
 
 ## Phase 2: Schema, examples, docs
-- [ ] `pkgdown/assets/stac/lidarbc/v1.1.0/schema.json`, built as described above. Check that `diff` against v1.0.0 shows only those changes.
-- [ ] Point the examples at v1.1.0: `lidarbc/examples/item.json` and `collection.json`, and the lidarbc URL in `las/examples/item.json`. The tests require each prefix's examples to name the newest version.
-- [ ] Add a new example, `lidarbc/examples/item_undated.json`: a minimal stac-elevation-bc albers-shaped item. It carries `lidarbc:datetime_unknown: true` and `datetime: 2000-01-01T00:00:00Z`, and no delivery, product or datetime_source. It is validated by the existing loop over the examples.
-- [ ] `lidarbc/README.md`: the Identifier URL and schema link move to v1.1.0; add a field row; name stac-elevation-bc as a writer of `datetime_unknown`; add a "Versions" line saying v1.0.0 stays published.
-- [ ] `lidarbc/CHANGELOG.md`: a v1.1.0 entry.
-- [ ] `stac/README.md` index: the lidarbc row's URL moves to v1.1.0.
-- [ ] `decisions/nge/20261010_stac_field_schemas.md`: add one line recording v1.1.0 as the first additive version under the "never edit, add a version" rule.
-- [ ] Tests green. Lint is not needed, because no R/ code changes.
+- [x] `pkgdown/assets/stac/lidarbc/v1.1.0/schema.json`, built as described above. Check that `diff` against v1.0.0 shows only those changes.
+- [x] Point the examples at v1.1.0: `lidarbc/examples/item.json` and `collection.json`, and the lidarbc URL in `las/examples/item.json`. The tests require each prefix's examples to name the newest version.
+- [x] Add a new example, `lidarbc/examples/item_undated.json`: a minimal stac-elevation-bc albers-shaped item. It carries `lidarbc:datetime_unknown: true` and `datetime: 2000-01-01T00:00:00Z`, and no delivery, product or datetime_source. It is validated by the existing loop over the examples.
+- [x] `lidarbc/README.md`: the Identifier URL and schema link move to v1.1.0; add a field row; name stac-elevation-bc as a writer of `datetime_unknown`; add a "Versions" line saying v1.0.0 stays published.
+- [x] `lidarbc/CHANGELOG.md`: a v1.1.0 entry.
+- [x] `stac/README.md` index: the lidarbc row's URL moves to v1.1.0.
+- [x] `decisions/nge/20261010_stac_field_schemas.md`: add one line recording v1.1.0 as the first additive version under the "never edit, add a version" rule.
+- [x] Tests green. Lint is not needed, because no R/ code changes.
 
 ## Phase 3: Interop check
 - [ ] Run pystac in stac_pointcloud_bc's uv env, with the local v1.1.0 schema preloaded into `schema_cache`:
