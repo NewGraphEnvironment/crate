@@ -142,6 +142,10 @@ test_that("the schemas reject wrong values and unknown fields", {
          function(x) set_prop(x, "lidarbc:delivery", "092/092G/2019")),
     list("lidarbc", "empty product", function(x) set_prop(x, "lidarbc:product", "")),
     list("lidarbc", "empty filename_date", function(x) set_prop(x, "lidarbc:filename_date", "")),
+    list("lidarbc", "datetime_unknown as a string",
+         function(x) set_prop(x, "lidarbc:datetime_unknown", "true")),
+    list("lidarbc", "datetime_unknown as a number",
+         function(x) set_prop(x, "lidarbc:datetime_unknown", 1L)),
     list("lidarbc", "unknown lidarbc: field", function(x) set_prop(x, "lidarbc:bogus", "x")),
     list("lidarbc", "extension URL not listed", function(x) {
       x$stac_extensions <- Filter(function(u) !grepl("/stac/lidarbc/", u), x$stac_extensions)
@@ -165,6 +169,11 @@ test_that("a collection's summaries are checked against the field types", {
   x <- base
   x$summaries$`lidarbc:datetime_source` <- list("guess")
   expect_false(stac_valid(x, path), info = "summary value outside the enum")
+  x <- base
+  x$summaries$`lidarbc:datetime_unknown` <- list(TRUE)
+  expect_true(stac_valid(x, path), info = "boolean summary")
+  x$summaries$`lidarbc:datetime_unknown` <- list("yes")
+  expect_false(stac_valid(x, path), info = "summary value not a boolean")
   x <- base
   x$summaries$`lidarbc:bogus` <- list("x")
   expect_false(stac_valid(x, path), info = "unknown lidarbc: summary")

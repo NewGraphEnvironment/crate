@@ -4,7 +4,7 @@ JSON Schemas for the custom field prefixes that New Graph Environment's STAC cat
 
 | prefix | describes | schema |
 |---|---|---|
-| [`lidarbc`](lidarbc/README.md) | LidarBC's objectstore paths and file names | `https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.0.0/schema.json` |
+| [`lidarbc`](lidarbc/README.md) | LidarBC's objectstore paths and file names | `https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.1.0/schema.json` |
 | [`las`](las/README.md) | a file in the ASPRS LAS format | `https://newgraphenvironment.github.io/crate/stac/las/v1.0.0/schema.json` |
 
 ## Rules

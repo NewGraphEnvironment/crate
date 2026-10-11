@@ -42,9 +42,10 @@ and must not publish them without a schema URL in `stac_extensions`.
   custom domain is ever removed. What it depends on is that the custom domain, while
   set, is served by GitHub Pages.
 - **No required fields**, because one prefix serves several catalogues that write
-  different subsets. stac-elevation-bc will carry only `lidarbc:delivery`
-  (NewGraphEnvironment/stac_dem_bc#55); requiring `lidarbc:product` would reject
-  its items. Each catalogue's own build checks for the fields it always writes.
+  different subsets. stac-elevation-bc carries `lidarbc:delivery`
+  (NewGraphEnvironment/stac_dem_bc#55) and, from v1.1.0, `lidarbc:datetime_unknown`
+  on its albers items, and no other lidarbc field; requiring `lidarbc:product` would
+  reject its items. Each catalogue's own build checks for the fields it always writes.
 - **`las:version` takes all five spec versions**, not the two LidarBC has shown
   (`1.2`, `1.4`). The prefix describes the LAS format, not LidarBC; a narrower enum
   would fail a future `1.3` file on a fact that is true of it.
@@ -86,6 +87,9 @@ and must not publish them without a schema URL in `stac_extensions`.
   ajv (the R tests) applies them, so the tests require every `$ref` to stand alone.
 - A field added to an existing prefix is a new version (`v1.1.0`), and the
   catalogues move to it at their next rebuild.
+- First instance, 2026-10-11: `lidarbc` v1.1.0 adds `lidarbc:datetime_unknown` for
+  stac-elevation-bc's albers items (crate#26). It is v1.0.0 plus that one optional
+  field; v1.0.0 stays published unchanged.
 
 ## References
 
