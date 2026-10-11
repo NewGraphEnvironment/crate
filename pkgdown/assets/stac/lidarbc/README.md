@@ -6,7 +6,7 @@
 - **Scope:** Item, Collection
 - **Owner:** New Graph Environment
 
-Facts about where a file sits in [LidarBC](https://lidar.gov.bc.ca)'s objectstore and what its name says. LidarBC keys are `<block>/<sheet>/<year>/<product>/<file>`, and these fields record the parts a catalogue reads from them. Written by [stac-pointcloud-bc](https://github.com/NewGraphEnvironment/stac_pointcloud_bc); `lidarbc:delivery` and `lidarbc:datetime_unknown` are written by [stac-elevation-bc](https://github.com/NewGraphEnvironment/stac_dem_bc) too.
+Facts about where a file sits in [LidarBC](https://lidar.gov.bc.ca)'s objectstore and what its name says. LidarBC keys are `<block>/<sheet>/<year>/<product>/<file>`, and these fields record the parts a catalogue reads from them. Written by [stac-pointcloud-bc](https://github.com/NewGraphEnvironment/stac_pointcloud_bc); `lidarbc:delivery` is shared with [stac-elevation-bc](https://github.com/NewGraphEnvironment/stac_dem_bc), which alone writes `lidarbc:datetime_unknown`.
 
 - [JSON Schema](v1.1.0/schema.json); [v1.0.0](v1.0.0/schema.json) stays published for items that name it
 - [Example item](examples/item.json), [undated example item](examples/item_undated.json), [example collection](examples/collection.json)

@@ -38,3 +38,4 @@ The examples `item.json`, `item_undated.json` and `collection.json` each pass fu
 
 | Error | Resolution |
 |-------|------------|
+| README said stac-pointcloud-bc also writes `lidarbc:datetime_unknown` (review round 1) | Reworded: stac-elevation-bc alone writes it. Point-cloud keys always carry a year directory. |
