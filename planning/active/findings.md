@@ -39,3 +39,4 @@ The examples `item.json`, `item_undated.json` and `collection.json` each pass fu
 | Error | Resolution |
 |-------|------------|
 | README said stac-pointcloud-bc also writes `lidarbc:datetime_unknown` (review round 1) | Reworded: stac-elevation-bc alone writes it. Point-cloud keys always carry a year directory. |
+| README said every LidarBC key is `<block>/<sheet>/<year>/<product>/<file>` (review round 2; pre-existing, contradicted by the albers example) | Now "mostly", naming the dateless `albers10k2m/_completed_dem/` tiles |
