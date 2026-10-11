@@ -11,3 +11,6 @@
   (exit 1), exits 0 with a message when there is no `tests/`. Source-tree step: clean
   FAIL 0 SKIP 0 PASS 197 (exit 0); mutation with a broken decisions assertion → FAIL 7, exit 1;
   mutation with `decisions/` removed → SKIP 1, exit 1 ("1 source-tree test(s) skipped").
+- Plan review folded in (see findings). `--as-cran` re-measure 0/0/0. Skip-report annotation
+  tested on real output (silent), injected reason (warns), no block (warns), no .Rout (exit 1).
+- Phase 2: `^CITATION\.cff$` in `.Rbuildignore`; pkgdown.yaml comment updated.

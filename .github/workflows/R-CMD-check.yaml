@@ -33,12 +33,15 @@ jobs:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
+        id: deps
         with:
           extra-packages: any::rcmdcheck
           needs: check
 
       # `error-on` stays at the action's default of "warning". main measured 0 errors,
-      # 0 warnings when this was added, so the stronger gate costs nothing today and
+      # 0 warnings, 0 notes under the action's own args (`--no-manual --as-cran`, with
+      # `_R_CHECK_CRAN_INCOMING_` and `_R_CHECK_FORCE_SUGGESTS_` false) when this was
+      # added, so the stronger gate costs nothing today and
       # catches the next warning rather than passing over it.
       - uses: r-lib/actions/check-r-package@v2
         with:
@@ -49,16 +52,21 @@ jobs:
       # because the test needs the source tree, which check does not have:
       #   - test-stac_schemas.R (5): "source tree not available (R CMD check)"
       #   - test-crt_registry_integrity.R (1): "not running in the source tree"
-      # Both run in full in the next step. Any other reason in this list is new and
-      # was chosen by nobody.
+      # Both run in full in the next step. Any other reason is new and was chosen by
+      # nobody, so it gets a warning annotation on the run summary: visible without
+      # reading the log, and not red, because a skip is not a failure.
       #
       # The action's own "Show testthat output" step ends in `|| true`, so finding
       # nothing and skipping nothing look the same there. This fails instead when
-      # tests/ was reached but holds no output to read.
+      # tests/ was reached but holds no output to read. A failing run still prints
+      # the skip block: testthat writes it before the failures.
       - name: Report skipped tests
         if: ${{ !cancelled() }}
         shell: Rscript {0}
         run: |
+          known <- c("not running in the source tree",
+                     "source tree not available (R CMD check)")
+
           tdirs <- file.path(list.dirs("check", recursive = FALSE), "tests")
           tdirs <- tdirs[dir.exists(tdirs)]
 
@@ -75,27 +83,41 @@ jobs:
                  "see the test output and is reporting nothing about nothing")
           }
 
-          hit <- FALSE
+          reasons <- character()
           for (f in outs) {
             x <- readLines(f, warn = FALSE)
             i <- grep("Skipped tests", x, fixed = TRUE)
             if (length(i)) {
-              hit <- TRUE
               cat("==", f, "\n")
               cat(x[i[1]:length(x)], sep = "\n")
               cat("\n")
+              # One bullet per reason, up to the blank line ending the block; wrapped
+              # file lists are indented. Strip the bullet and the "(n): files" tail.
+              blk <- x[-seq_len(i[1])]
+              end <- which(!nzchar(trimws(blk)))
+              if (length(end)) blk <- blk[seq_len(end[1] - 1)]
+              blk <- grep("^\\S", blk, value = TRUE)
+              reasons <- c(reasons, sub(" [(][0-9]+[)]:.*$", "", sub("^\\S+ ", "", blk)))
             }
           }
-          if (!hit) {
-            cat("No skip block in", length(outs), ".Rout file(s). Six source-tree skips",
-                "are expected, so zero is surprising -- read the check log above.\n")
+          if (!length(reasons)) {
+            cat("::warning::No skip block in", length(outs), ".Rout file(s); six",
+                "source-tree skips are expected. Read the check log.\n")
+          }
+          for (r in setdiff(reasons, known)) {
+            cat("::warning::New skip reason under R CMD check:", r, "\n")
           }
 
       # The tests R CMD check skips for want of the source tree. The STAC schema tests
       # also run in pkgdown.yaml, which publishes the schemas; the decisions/ check in
       # test-crt_registry_integrity.R runs nowhere else. Every one of these skips when
       # its prerequisite is missing, so a skip here is an error, not a pass.
+      #
+      # Runs whenever the dependencies installed, so a failing check does not hide a
+      # failure here. `filter` is matched against each test file's full path, so it is
+      # a substring match: an anchored pattern such as "^stac_schemas$" selects nothing.
       - name: Run the tests that need the source tree
+        if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
         shell: Rscript {0}
         run: |
           stopifnot(requireNamespace("jsonvalidate", quietly = TRUE))

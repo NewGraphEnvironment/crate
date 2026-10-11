@@ -46,3 +46,24 @@ without adding devtools.
 
 | Error | Resolution |
 |-------|------------|
+
+## Plan review (Plan agent, 2026-10-11)
+
+No blockers. Acted on:
+- Baseline had been measured without `--as-cran` (the action's default args). Re-measured
+  with `--no-manual --as-cran` and the two env vars, after the `.Rbuildignore` line:
+  **0 errors | 0 warnings | 0 notes**. The earlier NOTE also appears twice under
+  `--as-cran` in sibling CI; both are gone.
+- The source-tree step could pass with the `decisions/` test skipped: now fails on any
+  skip (`sum(r$skipped) > 0`), mutation-tested.
+- Source-tree step runs on `!cancelled() && steps.deps.outcome == 'success'`, so a failing
+  check does not hide it.
+- Skip report emits `::warning::` on a reason outside the two known ones, or no skip
+  block at all, so a new skip shows on the run summary without reading the log.
+- `test_local(filter =)` matches the full path (substring); commented in the YAML.
+- Phase 3 moved to a throwaway PR off this branch, to keep the deliberate break out of
+  main's history.
+
+Expected and harmless: gq's concurrency group evaluates to `check-true` for every non-PR
+run, so `/gh-pr-merge`'s release push cancels the merge commit's run (`cancelled`, not
+`failure`). Same as gq and fly today.

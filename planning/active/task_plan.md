@@ -27,12 +27,17 @@ The templates are gq's `R-CMD-check.yaml` (single ubuntu job, job-level concurre
 - [x] Add a "Run the tests that need the source tree" step: `testthat::test_local(filter = "crt_registry_integrity|stac_schemas", stop_on_failure = TRUE)` from the checkout, after an assertion that `jsonvalidate` is installed (as `pkgdown.yaml` does). This is the one item beyond the issue's literal proposal. Without it the `decisions/` guard never runs in CI. Strike it if you would rather leave that to a follow-up.
 
 ## Phase 2: Clean-up the workflow makes necessary
-- [ ] Add `^CITATION\.cff$` to `.Rbuildignore`, which clears the only NOTE.
-- [ ] Update the `pkgdown.yaml` comment "crate has no test workflow…". It now reads: the STAC tests stay there because that job is the one that publishes, so a failing schema is never deployed, whatever R-CMD-check says.
+- [x] Add `^CITATION\.cff$` to `.Rbuildignore`, which clears the only NOTE.
+- [x] Update the `pkgdown.yaml` comment "crate has no test workflow…". It now reads: the STAC tests stay there because that job is the one that publishes, so a failing schema is never deployed, whatever R-CMD-check says.
 
 ## Phase 3: Prove the gate fires (acceptance)
-- [ ] Once the PR is open, push a commit that breaks one test assertion. Confirm R-CMD-check goes **red** in `checking tests`, read from the failing step, not the status column. Confirm the skip report still printed.
-- [ ] Revert with a new commit (no force-push). Confirm green on that SHA, the skip list printed with the expected 6, and the source-tree step passing.
+
+Revised after plan review: the break goes on a throwaway PR branched off this one, so
+no deliberately broken commit lands in main's history (`pull_request` has no branch
+filter, so a PR based on this branch runs the workflow from its head).
+
+- [ ] Throwaway branch off this one, one commit breaking (a) an assertion that runs under check and (b) the `decisions/` assertion only the source-tree step reaches. Draft PR against this branch. Confirm `check-r-package` goes red in `checking tests` and the source-tree step goes red, both read from the failing step's log. Confirm the skip report printed the 6 skips. Close the PR and delete the branch.
+- [ ] On this PR's own run: green, skip list printed with the expected 6, no `::warning::`, source-tree step passing with SKIP 0.
 
 ## Validation
 - [ ] Tests pass (local `rcmdcheck` 0/0, NOTE gone; `test_local` filter passes)
