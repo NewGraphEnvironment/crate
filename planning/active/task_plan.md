@@ -17,9 +17,9 @@ Prefix rule check: `lidarbc` already has two writers (pointcloud and elevation),
 - **No field is required,** as before.
 
 ## Phase 1: Tests first
-- [ ] `test-stac_schemas.R`: add mutation rows that must be rejected: `lidarbc:datetime_unknown` given as the string `"true"`, and as `1`.
-- [ ] A collection summary test: `lidarbc:datetime_unknown: [true]` validates, and `["yes"]` is rejected.
-- [ ] Confirm these go red before v1.1.0 exists. The examples still name v1.0.0 at that point, so the new rows fail as "unknown field": the right red, for the wrong reason. Then confirm they go green once v1.1.0 exists.
+- [x] `test-stac_schemas.R`: add mutation rows that must be rejected: `lidarbc:datetime_unknown` given as the string `"true"`, and as `1`.
+- [x] A collection summary test: `lidarbc:datetime_unknown: [true]` validates, and `["yes"]` is rejected.
+- [x] Confirm these go red before v1.1.0 exists. The examples still name v1.0.0 at that point, so the new rows fail as "unknown field": the right red, for the wrong reason. Then confirm they go green once v1.1.0 exists.
 
 ## Phase 2: Schema, examples, docs
 - [ ] `pkgdown/assets/stac/lidarbc/v1.1.0/schema.json`, built as described above. Check that `diff` against v1.0.0 shows only those changes.
