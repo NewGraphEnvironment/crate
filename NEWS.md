@@ -1,3 +1,9 @@
+# crate 0.6.0 (2026-10-11)
+
+`lidarbc` v1.1.0 adds `lidarbc:datetime_unknown`, a boolean that is `true` when neither LidarBC's file name nor its path carries a date, so the item's `datetime` is a placeholder. stac-elevation-bc's 2,288 albers items will carry it once their rewrite (NewGraphEnvironment/stac_dem_bc#2) publishes. The schema is at `https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.1.0/schema.json` ([#26](https://github.com/NewGraphEnvironment/crate/issues/26)).
+
+- v1.0.0 is unchanged and stays published for the items that name it. This is the first version added under the never-edit rule.
+
 # crate 0.5.0 (2026-10-10)
 
 crate now publishes JSON Schemas for the custom fields NGE's STAC catalogues write, starting with `lidarbc:` (LidarBC's objectstore paths and file names) and `las:` (the LAS format's version and point format), at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v1.0.0/schema.json` ([#23](https://github.com/NewGraphEnvironment/crate/issues/23)).
