@@ -52,6 +52,16 @@ and must not publish them without a schema URL in `stac_extensions`.
   declared fields (`additionalProperties: false` beside `^(?!<prefix>:)`), so
   `lidarbc:filenam_date` fails validation rather than publishing.
 
+- **Few prefixes, on purpose** (added 2026-10-10, after the first release). A
+  prefix earns a schema only when more than one catalogue writes it, or something
+  outside NGE reads it. Each schema is permanent, and each field change means a new
+  version plus a rebuild of every catalogue that uses it. Five or more new prefixes
+  for single-catalogue provenance would be a growing set of frozen files, not an
+  inventory. Standard fields (`processing:*`, `derived_from`) take that provenance
+  instead. Catalogue builds also validate against copies of the schemas in their own
+  repo, so the published URL is a dependency for outside readers only, not for every
+  build.
+
 ## Alternatives considered
 
 - **A tagged `raw.githubusercontent.com` URL.** It couples a schema version to a

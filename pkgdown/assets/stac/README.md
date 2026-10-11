@@ -10,6 +10,8 @@ JSON Schemas for the custom field prefixes that New Graph Environment's STAC cat
 ## Rules
 
 - **A field with a standard STAC home uses it.** A prefix here is for a field that no published extension covers, and its name says what the field describes, not who built the catalogue.
+- **A prefix earns a schema here only when more than one catalogue writes it, or something outside NGE reads it.** Every schema is permanent and every field change is a new version, so provenance that only one catalogue writes goes in the standard fields instead (`processing:lineage`, `processing:software`, a `derived_from` link).
+- **Catalogue builds validate against copies of the schemas in their own repo** (see "Validating offline" below), so a Pages or DNS outage cannot fail a build. The published URL is for readers outside the build.
 - **A released version is never edited.** A change is a new version directory (`v1.1.0/schema.json`) beside the old one, and the old one stays, because items already published name it. The pkgdown workflow fails a build whose copy of a live version differs from what is served.
 - **Add one version at a time, and point the examples at it.** The tests compile every version but validate the examples only against the newest, and the examples must name it. A version is frozen the moment it deploys.
 - **Each schema's `$id` is its URL**, so a same-named extension published elsewhere cannot be mistaken for this one.
