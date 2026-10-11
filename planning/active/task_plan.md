@@ -32,12 +32,12 @@ Prefix rule check: `lidarbc` already has two writers (pointcloud and elevation),
 - [x] Tests green. Lint is not needed, because no R/ code changes.
 
 ## Phase 3: Interop check
-- [ ] Run pystac in stac_pointcloud_bc's uv env, with the local v1.1.0 schema preloaded into `schema_cache`:
+- [x] Run pystac in stac_pointcloud_bc's uv env, with the local v1.1.0 schema preloaded into `schema_cache`:
   - validate the published albers item `albers10k2m-_completed_dem-dem_055_154` after renaming its field: it must pass;
   - validate the same item against v1.0.0: it must still fail with the error quoted in the issue.
 
   These two runs reproduce the issue's measurement in both directions.
-- [ ] Record the result in `findings.md`.
+- [x] Record the result in `findings.md`.
 
 ## Validation
 - [ ] Tests pass

@@ -25,6 +25,15 @@ v1.0.0 stays as published. stac_dem_bc#2 points its items at the v1.1.0 URL, so 
 
 `item_lidarbc_apply` writes `lidarbc:datetime_unknown = True` only when the legacy unprefixed flag was truthy; never `false`. Albers items carry no `lidarbc:delivery`.
 
+## Interop: pystac 1.15.2 (stac_pointcloud_bc's uv env), 2026-10-11
+
+The published item `https://stac-dem-bc.s3.amazonaws.com/albers10k2m-_completed_dem-dem_055_154.json` was fetched, `datetime_unknown` renamed to `lidarbc:datetime_unknown`, and validated with both schemas preloaded into `JsonSchemaSTACValidator().schema_cache`; the two runs differ only in the lidarbc URL listed:
+
+- naming v1.0.0: INVALID (pystac reports the outer `oneOf`; the inner cause is the `additionalProperties` rejection the issue quotes)
+- naming v1.1.0: VALID
+
+The examples `item.json`, `item_undated.json` and `collection.json` each pass full pystac validation (core STAC plus every extension they list).
+
 ## Errors Encountered
 
 | Error | Resolution |
