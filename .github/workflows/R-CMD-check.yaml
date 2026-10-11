@@ -1,0 +1,106 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# Until this existed, nothing ran the test suite (#11). The guards that matter most
+# are the ones that only pay off once something has gone wrong: the registry
+# integrity walk, the datetime epoch assertions. A guard nobody runs is a comment.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+name: R-CMD-check.yaml
+
+permissions: read-all
+
+jobs:
+  R-CMD-check:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: check-${{ github.event_name != 'pull_request' || github.run_id }}
+      cancel-in-progress: true
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      # `error-on` stays at the action's default of "warning". main measured 0 errors,
+      # 0 warnings when this was added, so the stronger gate costs nothing today and
+      # catches the next warning rather than passing over it.
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-manual")'
+
+      # A skip is invisible in a green tick. Six are expected under R CMD check, all
+      # because the test needs the source tree, which check does not have:
+      #   - test-stac_schemas.R (5): "source tree not available (R CMD check)"
+      #   - test-crt_registry_integrity.R (1): "not running in the source tree"
+      # Both run in full in the next step. Any other reason in this list is new and
+      # was chosen by nobody.
+      #
+      # The action's own "Show testthat output" step ends in `|| true`, so finding
+      # nothing and skipping nothing look the same there. This fails instead when
+      # tests/ was reached but holds no output to read.
+      - name: Report skipped tests
+        if: ${{ !cancelled() }}
+        shell: Rscript {0}
+        run: |
+          tdirs <- file.path(list.dirs("check", recursive = FALSE), "tests")
+          tdirs <- tdirs[dir.exists(tdirs)]
+
+          # No tests/ means the check failed before the test stage, and that is
+          # already red above.
+          if (!length(tdirs)) {
+            cat("no tests/ under check/ -- the check step did not reach the test stage\n")
+            quit(save = "no")
+          }
+
+          outs <- list.files(tdirs, pattern = "[.]Rout", full.names = TRUE, recursive = TRUE)
+          if (!length(outs)) {
+            stop("tests/ is present under check/ but holds no .Rout -- this step cannot ",
+                 "see the test output and is reporting nothing about nothing")
+          }
+
+          hit <- FALSE
+          for (f in outs) {
+            x <- readLines(f, warn = FALSE)
+            i <- grep("Skipped tests", x, fixed = TRUE)
+            if (length(i)) {
+              hit <- TRUE
+              cat("==", f, "\n")
+              cat(x[i[1]:length(x)], sep = "\n")
+              cat("\n")
+            }
+          }
+          if (!hit) {
+            cat("No skip block in", length(outs), ".Rout file(s). Six source-tree skips",
+                "are expected, so zero is surprising -- read the check log above.\n")
+          }
+
+      # The tests R CMD check skips for want of the source tree. The STAC schema tests
+      # also run in pkgdown.yaml, which publishes the schemas; the decisions/ check in
+      # test-crt_registry_integrity.R runs nowhere else. Every one of these skips when
+      # its prerequisite is missing, so a skip here is an error, not a pass.
+      - name: Run the tests that need the source tree
+        shell: Rscript {0}
+        run: |
+          stopifnot(requireNamespace("jsonvalidate", quietly = TRUE))
+          r <- as.data.frame(testthat::test_local(
+            filter = "crt_registry_integrity|stac_schemas", stop_on_failure = TRUE,
+            reporter = testthat::ProgressReporter$new(show_praise = FALSE)
+          ))
+          if (sum(r$skipped) > 0) stop(sum(r$skipped), " source-tree test(s) skipped")

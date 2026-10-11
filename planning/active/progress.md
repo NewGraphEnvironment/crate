@@ -6,3 +6,8 @@
 - Created branch `11-nothing-runs-the-test-suite-add-r-cmd-ch` off main
 - Scaffolded PWF baseline from issue #11 with approved phases
 - Next: start Phase 1
+- Phase 1: `R-CMD-check.yaml` written. Step scripts extracted from the YAML and run locally:
+  skip report prints the 6 expected skips (exit 0), fails on `tests/` without `.Rout`
+  (exit 1), exits 0 with a message when there is no `tests/`. Source-tree step: clean
+  FAIL 0 SKIP 0 PASS 197 (exit 0); mutation with a broken decisions assertion → FAIL 7, exit 1;
+  mutation with `decisions/` removed → SKIP 1, exit 1 ("1 source-tree test(s) skipped").
