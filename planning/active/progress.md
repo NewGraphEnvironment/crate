@@ -14,3 +14,6 @@
 - Plan review folded in (see findings). `--as-cran` re-measure 0/0/0. Skip-report annotation
   tested on real output (silent), injected reason (warns), no block (warns), no .Rout (exit 1).
 - Phase 2: `^CITATION\.cff$` in `.Rbuildignore`; pkgdown.yaml comment updated.
+- /code-check branch round 1: one fragile finding (a known-reason skip in a file outside the
+  source-tree `filter` would run nowhere). Fixed by dropping the filter; mutation with a new
+  `test-zz_new.R` skipping "not running in the source tree" now exits 1.

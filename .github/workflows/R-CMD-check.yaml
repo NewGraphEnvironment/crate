@@ -52,7 +52,7 @@ jobs:
       # because the test needs the source tree, which check does not have:
       #   - test-stac_schemas.R (5): "source tree not available (R CMD check)"
       #   - test-crt_registry_integrity.R (1): "not running in the source tree"
-      # Both run in full in the next step. Any other reason is new and was chosen by
+      # Both run in full in the last step. Any other reason is new and was chosen by
       # nobody, so it gets a warning annotation on the run summary: visible without
       # reading the log, and not red, because a skip is not a failure.
       #
@@ -108,21 +108,24 @@ jobs:
             cat("::warning::New skip reason under R CMD check:", r, "\n")
           }
 
-      # The tests R CMD check skips for want of the source tree. The STAC schema tests
-      # also run in pkgdown.yaml, which publishes the schemas; the decisions/ check in
-      # test-crt_registry_integrity.R runs nowhere else. Every one of these skips when
-      # its prerequisite is missing, so a skip here is an error, not a pass.
+      # The whole suite again, from the source tree. R CMD check runs the installed
+      # package with no source tree beside it, so the tests that need one skip there
+      # (above). Here every one of them runs, and a skip is an error, not a pass:
+      # with jsonvalidate installed and the checkout present, nothing in the suite
+      # has a reason to skip. That covers the STAC tests (also run by pkgdown.yaml,
+      # which publishes the schemas), the decisions/ check in
+      # test-crt_registry_integrity.R (which runs nowhere else), and any later test
+      # that copies their skip idiom, whatever file it lands in.
       #
       # Runs whenever the dependencies installed, so a failing check does not hide a
-      # failure here. `filter` is matched against each test file's full path, so it is
-      # a substring match: an anchored pattern such as "^stac_schemas$" selects nothing.
-      - name: Run the tests that need the source tree
+      # failure here.
+      - name: Run the suite against the source tree
         if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
         shell: Rscript {0}
         run: |
           stopifnot(requireNamespace("jsonvalidate", quietly = TRUE))
           r <- as.data.frame(testthat::test_local(
-            filter = "crt_registry_integrity|stac_schemas", stop_on_failure = TRUE,
+            stop_on_failure = TRUE,
             reporter = testthat::ProgressReporter$new(show_praise = FALSE)
           ))
-          if (sum(r$skipped) > 0) stop(sum(r$skipped), " source-tree test(s) skipped")
+          if (sum(r$skipped) > 0) stop(sum(r$skipped), " test(s) skipped in the source tree")
