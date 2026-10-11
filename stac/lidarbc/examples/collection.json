@@ -2,7 +2,7 @@
   "type": "Collection",
   "stac_version": "1.1.0",
   "stac_extensions": [
-    "https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.0.0/schema.json"
+    "https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.1.0/schema.json"
   ],
   "id": "stac-pointcloud-bc",
   "description": "Example collection: LidarBC point clouds, summarising the lidarbc: fields its items carry.",

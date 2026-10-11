@@ -1,0 +1,112 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/projection/v1.1.0/schema.json"
+  ],
+  "id": "albers10k2m-_completed_dem-dem_055_154",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -133.74024968766165,
+          58.53347549742692
+        ],
+        [
+          -133.56956689785684,
+          58.5431649628229
+        ],
+        [
+          -133.58793647428948,
+          58.6324387642305
+        ],
+        [
+          -133.75902689881678,
+          58.62272473491006
+        ],
+        [
+          -133.74024968766165,
+          58.53347549742692
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -133.75902689881678,
+    58.53347549742692,
+    -133.56956689785684,
+    58.6324387642305
+  ],
+  "properties": {
+    "proj:epsg": 3005,
+    "proj:geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            550000.0,
+            1530000.0
+          ],
+          [
+            560000.0,
+            1530000.0
+          ],
+          [
+            560000.0,
+            1540000.0
+          ],
+          [
+            550000.0,
+            1540000.0
+          ],
+          [
+            550000.0,
+            1530000.0
+          ]
+        ]
+      ]
+    },
+    "proj:bbox": [
+      550000.0,
+      1530000.0,
+      560000.0,
+      1540000.0
+    ],
+    "proj:shape": [
+      5000,
+      5000
+    ],
+    "proj:transform": [
+      2.0,
+      0.0,
+      550000.0,
+      0.0,
+      -2.0,
+      1540000.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "datetime": "2000-01-01T00:00:00Z",
+    "lidarbc:datetime_unknown": true
+  },
+  "links": [
+    {
+      "rel": "collection",
+      "href": "https://stac-dem-bc.s3.amazonaws.com/collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "dem": {
+      "href": "https://nrs.objectstore.gov.bc.ca/gdwuts/albers10k2m/_completed_dem/dem_055_154.tif",
+      "type": "image/tiff; application=geotiff",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "collection": "stac-elevation-bc"
+}
