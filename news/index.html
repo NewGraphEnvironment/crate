@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,11 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="crate-070-2026-10-12">crate 0.7.0 (2026-10-12)<a class="anchor" aria-label="anchor" href="#crate-070-2026-10-12"></a></h2>
+<p><code>nge/discharge/fwa/v1/segment_monthly</code> and <code>nge/discharge/fwa/v1/watershed_monthly</code> declare the columns of the per-segment and per-watershed discharge that wet publishes (NewGraphEnvironment/wet#7). They are the first entries keyed by a <strong>dataset ID</strong>, <code>&lt;variable&gt;/&lt;network&gt;/&lt;version&gt;/&lt;unit&gt;_&lt;timebase&gt;</code>, the same string that names the data’s S3 prefix and Postgres table (<a href="https://github.com/NewGraphEnvironment/crate/issues/31" class="external-link">#31</a>).</p>
+<ul><li>A registry row’s schema must now sit at <code>schemas/&lt;source&gt;/&lt;file_name&gt;.yaml</code>; every existing row already did. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261012_dataset_id_keys.md" class="external-link">decision entry</a>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.1" id="crate-061-2026-10-12">crate 0.6.1 (2026-10-12)<a class="anchor" aria-label="anchor" href="#crate-061-2026-10-12"></a></h2>
 <p>Every PR and every push to <code>main</code> now runs <code>R CMD check</code> and the whole test suite (<a href="https://github.com/NewGraphEnvironment/crate/issues/11" class="external-link">#11</a>). Before this, nothing ran the suite in CI.</p>
