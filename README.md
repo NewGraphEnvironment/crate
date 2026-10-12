@@ -23,7 +23,7 @@ library(crate)
 
 # What does crate know about?
 crt_files()
-#> # A tibble: 5 × 6
+#> # A tibble: 7 × 6
 #>   source file_name                   kind        handler_fn                schema_yaml
 #>   <chr>  <chr>                       <chr>       <chr>                     <chr>
 #> 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml
@@ -31,6 +31,8 @@ crt_files()
 #> 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml
 #> 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml
 #> 5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml
+#> 6 nge    discharge/fwa/v1/segment_m… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_monthly.yaml
+#> 7 nge    discharge/fwa/v1/watershed… schema_only NA                        schemas/nge/discharge/fwa/v1/watershed_monthly.yaml
 
 # Ingest a bundled wide-format example fixture (today's upstream shape)
 wide_path <- system.file(

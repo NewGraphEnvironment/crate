@@ -1,0 +1,51 @@
+file: discharge/fwa/v1/watershed_monthly
+description: >
+  Mean monthly and annual discharge at the outlet of each BC Freshwater Atlas
+  (FWA) fundamental watershed, published by wet (NewGraphEnvironment/wet#7) as
+  Hive-partitioned parquet at s3://fresh-bc/discharge/fwa/v1/watershed_monthly/.
+  The companion of discharge/fwa/v1/segment_monthly, keyed by
+  watershed_feature_id instead of linear_feature_id, which is why the two are
+  separate datasets. The path carries the same three Hive keys, `scenario`,
+  `forcing` and `source`, which are not columns in the files; today only
+  source=wet_balance is published here.
+
+canonical:
+  shape: long
+  cols:
+    - name: watershed_feature_id
+      type: integer
+      required: true
+      notes: FWA fundamental watershed (key, with month and the Hive keys).
+    - name: watershed_group_code
+      type: string
+      required: true
+      notes: The watershed's FWA watershed group, four letters.
+    - name: month
+      type: integer
+      required: true
+      notes: Calendar month 1-12, or 0 for the annual value (key).
+    - name: runoff_mm
+      type: double
+      required: true
+      notes: Runoff depth over the watershed's upstream area, mm.
+    - name: q_m3s
+      type: double
+      required: true
+      notes: Mean discharge at the watershed's outlet, m3/s.
+    - name: coverage
+      type: double
+      required: true
+      notes: Share of the upstream area the balance's inputs cover, 0-1.
+    - name: bc_fraction
+      type: double
+      required: true
+      notes: >
+        Share of the upstream area inside BC, 0-1. Below 1 where the upstream
+        area crosses the border.
+    - name: period
+      type: string
+      required: true
+      notes: Years the mean is over, "YYYY-YYYY".
+
+decisions:
+  - decisions/nge/20261012_dataset_id_keys.md

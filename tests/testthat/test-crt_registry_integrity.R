@@ -107,6 +107,24 @@ test_that("the registry's canonical_cols match the schema's canonical cols", {
   }
 })
 
+test_that("every schema YAML sits at schemas/<source>/<file_name>.yaml", {
+  # The rule that lets a dataset ID name its schema with no lookup: a published
+  # dataset's file_name is its path (discharge/fwa/v1/segment_monthly), and the
+  # YAML is found by appending it. A row that breaks it is a schema nobody can
+  # find from the ID.
+  expect_identical(
+    reg$schema_yaml,
+    paste0("schemas/", reg$source, "/", reg$file_name, ".yaml")
+  )
+})
+
+test_that("each schema's file field is its registry file_name", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    expect_identical(schema$file, reg$file_name[[i]], info = reg$schema_yaml[[i]])
+  }
+})
+
 test_that("every bundled schema YAML is registered", {
   # The direction that matters: a schema authored and then never given a row is
   # invisible to crt_files(), so nobody can discover it. The reverse direction
