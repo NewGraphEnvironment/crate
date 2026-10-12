@@ -38,8 +38,9 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
-      # crate has no test workflow, and this job is what publishes the STAC schemas,
-      # so their tests run here: a schema that fails them is never deployed. Each
+      # R-CMD-check.yaml runs these too, but this job is what publishes the STAC
+      # schemas and nothing makes it wait for that one, so their tests also run here:
+      # a schema that fails them is never deployed. Each
       # test skips without jsonvalidate, so its absence is an error, not a skip.
       - name: Test the STAC schemas
         run: |
