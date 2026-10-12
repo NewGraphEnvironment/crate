@@ -13,7 +13,7 @@
     source-tree step's filter never selects its file, so it runs in neither job.
   - The YAML comment says "Six are expected", but the code never checks that count. So the
     "a skip here is an error" guarantee covers only the files named in the filter. This is
-    the "enumerate the known states" shape from the checklist (rtj#259): an unlisted
+    the "enumerate the known states" shape from the checklist: an unlisted
     member defaults to pass.
   - Simplest fix: drop the `filter` from the source-tree step, so every test runs against
     the source tree. The suite is about 230 tests and cheap, and `sum(r$skipped) > 0` then
