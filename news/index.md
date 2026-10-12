@@ -1,5 +1,20 @@
 # Changelog
 
+## crate 0.6.1 (2026-10-12)
+
+Every PR and every push to `main` now runs `R CMD check` and the whole
+test suite
+([\#11](https://github.com/NewGraphEnvironment/crate/issues/11)). Before
+this, nothing ran the suite in CI.
+
+- The check fails on warnings. Every run prints its skipped tests, and a
+  skip for a reason other than the six expected ones adds a warning to
+  the run summary.
+- Those six tests need the source tree, which `R CMD check` does not
+  have, so a second pass runs the suite from the checkout, where any
+  skip fails the run.
+- `CITATION.cff` is no longer in the built package.
+
 ## crate 0.6.0 (2026-10-11)
 
 `lidarbc` v1.1.0 adds `lidarbc:datetime_unknown`, a boolean that is

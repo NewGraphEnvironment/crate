@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,14 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.1" id="crate-061-2026-10-12">crate 0.6.1 (2026-10-12)<a class="anchor" aria-label="anchor" href="#crate-061-2026-10-12"></a></h2>
+<p>Every PR and every push to <code>main</code> now runs <code>R CMD check</code> and the whole test suite (<a href="https://github.com/NewGraphEnvironment/crate/issues/11" class="external-link">#11</a>). Before this, nothing ran the suite in CI.</p>
+<ul><li>The check fails on warnings. Every run prints its skipped tests, and a skip for a reason other than the six expected ones adds a warning to the run summary.</li>
+<li>Those six tests need the source tree, which <code>R CMD check</code> does not have, so a second pass runs the suite from the checkout, where any skip fails the run.</li>
+<li>
+<code>CITATION.cff</code> is no longer in the built package.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="crate-060-2026-10-11">crate 0.6.0 (2026-10-11)<a class="anchor" aria-label="anchor" href="#crate-060-2026-10-11"></a></h2>
 <p><code>lidarbc</code> v1.1.0 adds <code>lidarbc:datetime_unknown</code>, a boolean that is <code>true</code> when neither LidarBC’s file name nor its path carries a date, so the item’s <code>datetime</code> is a placeholder. stac-elevation-bc’s 2,288 albers items will carry it once their rewrite (NewGraphEnvironment/stac_dem_bc#2) publishes. The schema is at <code>https://newgraphenvironment.github.io/crate/stac/lidarbc/v1.1.0/schema.json</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/26" class="external-link">#26</a>).</p>
