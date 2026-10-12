@@ -1,3 +1,9 @@
+# crate 0.7.0 (2026-10-12)
+
+`nge/discharge/fwa/v1/segment_monthly` and `nge/discharge/fwa/v1/watershed_monthly` declare the columns of the per-segment and per-watershed discharge that wet publishes (NewGraphEnvironment/wet#7). They are the first entries keyed by a **dataset ID**, `<variable>/<network>/<version>/<unit>_<timebase>`, the same string that names the data's S3 prefix and Postgres table ([#31](https://github.com/NewGraphEnvironment/crate/issues/31)).
+
+- A registry row's schema must now sit at `schemas/<source>/<file_name>.yaml`; every existing row already did. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261012_dataset_id_keys.md).
+
 # crate 0.6.1 (2026-10-12)
 
 Every PR and every push to `main` now runs `R CMD check` and the whole test suite ([#11](https://github.com/NewGraphEnvironment/crate/issues/11)). Before this, nothing ran the suite in CI.
