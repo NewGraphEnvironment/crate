@@ -19,6 +19,23 @@ authors:
   given-names: Allan
   email: al@newgraphenvironment.com
   orcid: https://orcid.org/0000-0002-3495-2128
+  affiliation: New Graph Environment Ltd.
+preferred-citation:
+  title: 'crate: Canonical Schema and Data Governance for New Graph Environment'
+  authors:
+  - family-names: Irvine
+    given-names: Allan
+    email: al@newgraphenvironment.com
+    orcid: https://orcid.org/0000-0002-3495-2128
+    affiliation: New Graph Environment Ltd.
+  version: 0.7.0
+  date-released: '2026-10-12'
+  url: https://newgraphenvironment.github.io/crate/
+  repository-code: https://github.com/NewGraphEnvironment/crate
+  license: MIT
+  type: software
+  publisher:
+    name: New Graph Environment Ltd.
 repository-code: https://github.com/NewGraphEnvironment/crate
 url: https://newgraphenvironment.github.io/crate/
 date-released: '2026-10-12'
@@ -27,4 +44,5 @@ contact:
   given-names: Allan
   email: al@newgraphenvironment.com
   orcid: https://orcid.org/0000-0002-3495-2128
+  affiliation: New Graph Environment Ltd.
 
