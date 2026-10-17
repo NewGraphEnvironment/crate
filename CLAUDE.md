@@ -50,7 +50,7 @@ Reserved future families: `crt_schema_version`, `crt_schema_migrate`, `crt_norma
 # Agent Operating Rules
 
 How an agent session works here: clocks and waiting, subagents, evidence, and when to come
-back to the user. Sections 5–8 of `karpathy.md` until 2026-10-11 (soul#366). Worked commands
+back to the user. Sections 5–8 of `karpathy.md` until 2026-10-11. Worked commands
 and background, under the same headings, are in
 `~/Projects/repo/soul/conventions/reference/agent-operations.md`, which no `CLAUDE.md` loads.
 
@@ -286,7 +286,7 @@ definition and report the spread beside it.** If the spread is material against 
 being made, the definition is a blocker, so schedule it first. A share is invariant to a
 filter only when the filter is uncorrelated with the thing being measured.
 
-*13 lines of evidence for this rule are in `conventions/agent-operations.md`.*
+*20 lines of evidence for this rule are in `conventions/agent-operations.md`.*
 
 ### Presence is not provenance
 
@@ -316,7 +316,7 @@ check is almost always to read the thing the prose describes.
   keeps finding them, list every quantified or inherited claim with a measured verdict
   (`code-check.md`, "A guard's scope, escape hatches, and remedies").
 
-*67 lines of evidence for this rule are in `conventions/agent-operations.md`.*
+*91 lines of evidence for this rule are in `conventions/agent-operations.md`.*
 
 ### "It can only be answered by testing" is a claim with an author
 
@@ -395,7 +395,7 @@ which indexes **default branches only**: a file on a feature branch needs
 `gh api repos/<owner>/<repo>/contents/<path>?ref=<branch>`. `s3cmd ls` and `aws s3 ls` each
 list only their own provider's buckets; the backup script names the rest.
 
-*12 lines of evidence for this rule are in `conventions/agent-operations.md`.*
+*17 lines of evidence for this rule are in `conventions/agent-operations.md`.*
 
 #### The temporal version: what you build against may be about to change
 
@@ -409,7 +409,7 @@ rewordings. A full 100 rows means the list was cut: narrow the words.
 gh search issues --include-prs --repo NewGraphEnvironment/<peer> --state open --limit 100 <artifact words>
 ```
 
-*6 lines of evidence for this rule are in `conventions/agent-operations.md`.*
+*12 lines of evidence for this rule are in `conventions/agent-operations.md`.*
 
 ## 4. Decisions Up Front, Then Run
 
@@ -491,7 +491,7 @@ It is not the secret-read clamp (`newgraph.md`, "Reading a secret clamps the res
 session"), which names *earlier conversation content* and needs a restart. This refusal
 names a **category** of action, such as "Production Deploy".
 
-*9 lines of evidence for this rule are in `conventions/agent-operations.md`.*
+*10 lines of evidence for this rule are in `conventions/agent-operations.md`.*
 
 ### Hand the user bare commands
 
@@ -513,16 +513,16 @@ granted separately, so probe each. If blocked, do not retry variants: ask for **
 into the repo, with absolute source and destination paths. Full Disk Access for the terminal
 app removes the block.
 
-*12 lines of evidence for this rule are in `conventions/agent-operations.md`.*
+*13 lines of evidence for this rule are in `conventions/agent-operations.md`.*
 
 ### Link every issue and PR you name to the user
 
 When a message to the user names an issue or a PR, make the number a link the user can
-click: `[soul#191](https://github.com/NewGraphEnvironment/soul/issues/191)`,
-`[soul PR #192](https://github.com/NewGraphEnvironment/soul/pull/192)`.
+click: `[repo#12](https://github.com/<owner>/<repo>/issues/12)`,
+`[repo PR #13](https://github.com/<owner>/<repo>/pull/13)`.
 
 - Issues under `/issues/N`, pull requests under `/pull/N`; when unsure, ask `gh` for the URL.
-- **Cross-repo references carry the repo** (`rfp#268`): a bare `#N` is a working link to the
+- **Cross-repo references carry the repo** (`other#12`): a bare `#N` is a working link to the
   wrong repo, and naming the collision in prose afterwards does not fix it; re-qualify the link.
 - Before sending a report with many numbers, spot-check two or three through `gh`: the ones
   typed from memory or whose type you inferred.
@@ -1205,6 +1205,9 @@ Sum the bytes as doubles (`sum(as.numeric(raw[i + 1:4]) * 256^(0:3))`) to read a
 ### ajv honours keywords beside a `$ref`; Python's jsonschema ignores them
 Keep every `$ref` alone in a draft-07 schema tested with jsonvalidate and read by pystac.
 
+### `load_all()` runs every `.R` file at the top of a package's `data/` as a data script
+Keep helper and ad hoc scripts out of `data/`, which pkgload treats as package data, so `load_all()` sources any `data/*.R` it finds there.
+
 # Code Check — Shell
 Tool-level traps in bash, sed, git and `gh`, and in the host toolchain those commands depend on.
 
@@ -1300,6 +1303,9 @@ Verify an upload by comparing each object's ETag with its file, and for a multip
 ### A verification command can be shadowed by a shell function or alias
 - The shell is initialized from the user's profile, so `diff`, `grep`, `ls`, `cat` and friends may resolve to a wrapper rather than the binary you assume.
 
+### `pwd` keeps typed case; key on `env pwd -P`
+Key on `env pwd -P`.
+
 ### psql does not interpolate `:'var'` inside a dollar-quoted string, and `\quit N` exits 0
 Two traps in the same file type, both of which read perfectly and fail at run time.
 
@@ -1313,7 +1319,7 @@ Two traps in the same file type, both of which read perfectly and fail at run ti
 The harness applies an isolation guard to a session that entered a worktree: *"a worktree-isolated session's git operations must target its own worktree."*
 
 ### A `git filter-repo` seed carries the source repo's tags, and a path sed misses the language's path constructor
-Two traps from seeding one repo out of another's history (fish_passage_template_reporting#236, 2026-09-02), both silent.
+Two traps from seeding one repo out of another's history (2026-09-02), both silent.
 
 ### `git check-ignore -v` prints the matching pattern, and its exit status is not a per-file verdict
 `-v` reports the **last matching pattern**, negations included.
@@ -1677,6 +1683,9 @@ Take a segment's top from the next segment's `downstream_route_measure`, and com
 ### FWA main flow is not edge type 1000 alone
 Select main flow with `edge_type IN (1000, 1050, 1200, 1250, 1450)`, and test what the layer is for rather than that it is non-empty: 1000 is single-line stream only, so a filter built on it draws no large river.
 
+### terra: `focal(na.rm = TRUE)` drops NA cells from the vote, so where you fill NA around a filter changes its output
+Fill NA with the value you mean (`ifel(is.na(x), 0L, x)`) **before** a `focal()` majority or min/max filter, not after it, whenever those cells should count.
+
 # Code Check Conventions
 Structured checklist for reviewing diffs before commit.
 
@@ -1854,6 +1863,10 @@ useful question, which is *which body of work survives*. Ask, then re-land the d
 top of what shipped; two independent attempts at one problem are usually complementary
 rather than redundant, and a mechanical resolution keeps whichever half git preferred.
 
+When main only moved under you, with other work and no duplicate, bring it in with
+`git merge origin/main`, not a rebase: `progress.md` and the archive README cite the
+branch's commit SHAs, and a rebase rewrites every one they name (2026-10-12).
+
 ## Re-read the issue body before the baseline
 
 Re-fetch it and diff against the copy you planned from. An edit made during plan mode
@@ -1873,7 +1886,7 @@ Nothing downstream checks that the issue it names has anything to do with the co
 beside it.
 
 Measured 2026-09-08 in rtj. Work with no issue was branched as `322-sern-thompson-2026`
-on a guess, and four `rtj#322` citations went into a `project.yml` header and two
+on a guess, and four citations of that number went into a `project.yml` header and two
 shared-library comments. A parallel session then filed #322 — about a STAC registration
 script. Every citation was wrong, all four looked fine, and the real issue for the work
 (#319) went uncited until the merge.
@@ -1927,13 +1940,13 @@ The skip covers the **workflow**, never the **review**. Two questions, answered 
 Three things are exempt, each for a stated reason:
 
 - **Whitespace, and spelling inside a single word.** Changing a word changes what a rule
-  says, and soul#214's wrong claims each read correctly on their own.
+  says, and one batch's wrong claims each read correctly on their own.
 - **Commits a skill writes itself and gates mechanically**: `/gh-pr-merge`'s release
   bookkeeping, CLAUDE.md syncs, `CITATION.cff` refreshes.
 - **Commits from the skills built to run unattended**: `/compact-prep`'s capture commit
   of the working tree and its convention appends, and `/claude-memory-audit`'s writes to
   CLAUDE.md and `research/`. They are exempt for now, not reviewed, and a capture commit
-  can carry code. Whether they should get review is soul#359.
+  can carry code. Whether they should get review is an open issue.
 
 The review is the cheap half. Scaffolding costs a plan, a branch and an archive; a review
 costs a few reviewer agents, and its three-round floor stays, because small edits are
@@ -2047,7 +2060,7 @@ We've hit snags repeatedly when half-doing this — branches that mix concerns, 
 <!-- Last synced: 2026-02-06 -->
 <!-- These principles are hardcoded locally. We do not curl at deploy time. -->
 <!-- Periodically check the source for meaningful updates. -->
-<!-- Only the upstream guidelines live here. NGE's own operating rules, once sections 5-8 of this file, are in agent-operations.md (soul#366). -->
+<!-- Only the upstream guidelines live here. NGE's own operating rules, once sections 5-8 of this file, are in agent-operations.md. -->
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
@@ -2275,7 +2288,7 @@ Skip planning for single-file edits, quick fixes, or tasks with obvious next ste
 
 ## The Workflow
 
-1. **Explore first** — Enter plan mode (read-only). Read code, trace paths, understand the problem before proposing anything. When the work codifies a pattern that already exists in multiple places (reference implementations across repos), read **every** reference in full, not just the canonical one — variation across references surfaces patches before v0.1 instead of as churn later (soul#52: reading all 4 references preempted 5 of the 7 fixes a dry-run would have found). Don't substitute Explore-agent summaries for direct reads; agents sometimes report existing files as absent.
+1. **Explore first** — Enter plan mode (read-only). Read code, trace paths, understand the problem before proposing anything. When the work codifies a pattern that already exists in multiple places (reference implementations across repos), read **every** reference in full, not just the canonical one — variation across references surfaces patches before v0.1 instead of as churn later (measured: reading all 4 references preempted 5 of the 7 fixes a dry-run would have found). Don't substitute Explore-agent summaries for direct reads; agents sometimes report existing files as absent.
 2. **Plan to files** — Write the plan into 3 files in `planning/active/`:
    - `task_plan.md` — Phases with checkbox tasks
    - `findings.md` — Research, discoveries, technical analysis
@@ -2330,7 +2343,7 @@ Skip planning for single-file edits, quick fixes, or tasks with obvious next ste
    **Review the fixes, not just the code.** The second pass is where the value concentrates, because a fix written under a wrong assumption reproduces the same defect. Measured on gq#52: pass 1 found 13 defects, pass 2 found 7 more — including a blocker sitting *inside the fix* for pass 1's blocker, the same class twice (`lty`, then `fill_alpha`) because completeness was reasoned about rather than computed. Pass 3, scoped narrowly to the file edited most, found no new instances; **convergence is the signal to stop, not a fixed number of rounds.**
 
    Convergence is measured, not felt — a quiet round and an exhausted reviewer look
-   identical. The rule that terminated trap#28 (five rounds; each of the first four
+   identical. The rule that terminated one package's review (five rounds; each of the first four
    found its best defect *inside the previous round's fix*) was to **enumerate the
    candidate set mechanically and show nothing sits above its source of truth**: parse
    the files and walk every `cli_abort`/`warning`/`stop` rather than recalling them, so
@@ -2344,7 +2357,7 @@ Skip planning for single-file edits, quick fixes, or tasks with obvious next ste
    Ask for the **mechanism**, not more instances. Pass 3's best finding was that an invariant was enforced by two lists happening to agree — which is what had produced instances two and three.
 
    The thing reviewers catch that self-probing does not is **interop**: 18 tests inspected a legend object and none handed it to the renderer, which rejected it outright. Ask the consumer.
-4. **Lock naming before the baseline** — If naming feedback surfaces during planning (legacy filename, inconsistency with an existing file family), fold the rename into the convention + task_plan BEFORE the baseline commit, not as a follow-up. Pre-baseline it's free; retrofitting after implementation cascades (soul#52: `build_exec_pdf.R` → `run_pagedown_exec_summary.R` locked in pre-baseline meant zero downstream rework).
+4. **Lock naming before the baseline** — If naming feedback surfaces during planning (legacy filename, inconsistency with an existing file family), fold the rename into the convention + task_plan BEFORE the baseline commit, not as a follow-up. Pre-baseline it's free; retrofitting after implementation cascades (measured: `build_exec_pdf.R` → `run_pagedown_exec_summary.R` locked in pre-baseline meant zero downstream rework).
 5. **Commit the plan** — After Plan-agent review + fixes. This is the baseline.
 6. **Work in atomic commits** — Each commit bundles code changes WITH checkbox updates in the planning files. The diff shows both what was done and the checkbox marking it done.
 7. **Code check before commit** — Run `/code-check` on staged diffs before committing, or once over the branch with `/code-check branch` before the PR (`feature-workflow.md`, "When to Skip"). Per commit, don't mark a task done until its diff passes review. In branch mode each commit still carries its own checkbox flip (Atomic Commits, below), the Validation box for `/code-check` is the one that waits for the branch review, and its fixes land as follow-up commits.
@@ -2655,7 +2668,7 @@ repeating itself.
 
 When a failure does generalize, it graduates to the convention that owns its
 class: the `code-check*.md` family for a bug class in a diff — `code-check.md` for a
-mechanism, `-shell`, `-r`, `-spatial` or `-infra` for a tool quirk — `ci-monitoring.md` for CI
+mechanism, `-shell`, `-r`, `-python`, `-spatial` or `-infra` for a tool quirk — `ci-monitoring.md` for CI
 behaviour, the domain convention otherwise.
 
 ## Skills
@@ -2674,8 +2687,8 @@ Based on [R Packages (2e)](https://r-pkgs.org/) by Hadley Wickham and Jenny Brya
 
 **Reference packages:** When starting a new package, study these existing
 packages for patterns: `flooded`, `gq`. They demonstrate the conventions below
-in practice (DESCRIPTION fields, README layout, NEWS.md style, pkgdown setup,
-test structure, hex sticker, etc.).
+in practice (DESCRIPTION fields, NEWS.md style, pkgdown setup, test structure,
+hex sticker, etc.). README layout is `readme.md`, with `link` as its worked example.
 
 ## Style
 
@@ -2837,6 +2850,8 @@ At least one vignette showing the full pipeline on real data:
 - Uses bundled test data (committed to `inst/testdata/`)
 - Hosted on pkgdown so users can read it without installing
 
+What a vignette says, and in what order, is `writing.md`.
+
 **Output format:** Use `bookdown::html_vignette2` (not
 `rmarkdown::html_vignette`) for figure numbering. Requires `bookdown` in
 Suggests and chunks must have `fig.cap` / `caption =` for numbered
@@ -2861,7 +2876,7 @@ Instead, separate data generation from presentation:
 1. `data-raw/vignette_data.R` — runs the queries, saves results as `.rds`
    to `inst/testdata/` (or `inst/vignette-data/`)
 2. Vignette loads `.rds` files, all chunks run live during pkgdown build
-3. Note at top of vignette: "Data generated by `data-raw/script.R`"
+3. A comment in the vignette's setup chunk names the script: `# data from data-raw/script.R`
 4. bookdown controls all chunks — figure numbers, cross-refs work
 
 This is the same pattern as test data: `data-raw/` documents how the data
@@ -2947,13 +2962,13 @@ EOF
 ### Scaffold checklist
 
 - `usethis::create_package(".")`
-- `usethis::use_mit_license("New Graph Environment Ltd.")`
+- `usethis::use_mit_license("New Graph Environment Ltd.")`; `Authors@R` as in `/citation-cff`
 - `usethis::use_testthat(edition = 3)`
 - `usethis::use_pkgdown()`
-- `usethis::use_github_action("pkgdown")`
+- `usethis::use_github_action("pkgdown")`, then `timeout-minutes: 90` on its job
 - `usethis::use_directory("dev")` — reproducible setup script
 - `usethis::use_directory("data-raw")` — data generation scripts
-- Hex sticker via `hexSticker` (see `data-raw/make_hexsticker.R`)
+- Hex sticker: copy `~/Projects/repo/soul/templates/make_hexsticker.R` to `data-raw/`
 - Set GitHub Pages to serve from `gh-pages` branch
 
 ### dev/dev.R
@@ -2963,12 +2978,8 @@ run interactively. This is the reproducible recipe for the package scaffold.
 
 ## README
 
-Keep the README lean:
-- Hex sticker, one-line description, install, example showing *why* it's
-  useful
-- Link to pkgdown vignette and function reference — don't duplicate them
-- Don't maintain a function table — it's just another thing to keep updated
-  and pkgdown's reference page is the single source of truth
+What a README says, in what order, and what stays out of it is `readme.md`, which loads
+wherever this file does.
 
 ## LLM Workflow
 
@@ -2992,3 +3003,61 @@ When an LLM assistant modifies R package code:
    ```bash
    Rscript -e 'devtools::check()' 2>&1 | grep -E "(ERROR|WARNING|NOTE|errors|warnings|notes)" | tail -10
    ```
+
+# Writing a README
+A README tells a stranger what a package is, why it is worth their time, and how to try it, in that order and in the fewest words that stay true.
+
+*Index only: each rule's heading and first sentence. The full text is `~/Projects/repo/soul/conventions/readme.md`; read it before writing or reviewing code in its area.*
+
+### Open with what the package is and why it is valuable, not with a list of features
+Open with one to three sentences on what the package is, what data it works on, and why that is valuable, with the restoration planning, implementation or monitoring decision it informs where there is one.
+
+### Write the tagline, the description field, the GitHub About and the opening together
+Change the README tagline, the DESCRIPTION `Title` (or a Python package's pyproject `description`) and the GitHub About text together so they say the same thing, and keep the DESCRIPTION `Description` and the README opening in step with each other.
+
+### Show a little code and its real output, a figure of real output, or both
+Show the package working instead of listing what it can do: a figure of real output where the output is spatial or visual, a short example with the output it really prints, or both.
+
+### Describe nothing that is not fully built
+Leave out every capability that has not shipped, including partly built ones and those framed as a target, a next iteration or a roadmap; add each one when it ships.
+
+### Check each claim against the code path a run takes
+Before a README sentence is published, find the code path a real run takes for it, and check that every "every", "each", "both" or plural holds for every member of the set it names.
+
+### Sections run in a fixed order
+Order a README as: name, hex sticker, a lifecycle badge while unstable, and tagline; the opening; the figure; Installation; the example; Learn more; Ecosystem; Data and methods it builds on; Citation, License and NOTICE.
+
+### State development status with a lifecycle badge, not a warning in the prose
+Mark an unstable installable package with a lifecycle badge under the title, and after the install command say that functions change between releases, link NEWS, and show how to pin a release.
+
+### A README figure of output is made by committed code
+Make every README figure of the package's output from a committed script that runs on real data, check it at its published width, give it alt text and a short caption saying what it shows, and style a map through gq.
+
+### Leave out what another file already keeps
+Leave out roadmaps, changelogs, function tables, version strings in prose, counts of published things, and internal hosts or private repos, because each is kept somewhere else and goes stale in a README.
+
+# Writing for the Reader
+A vignette or a report is written for someone who wants to use what it describes, so it answers their questions in their order and carries nothing that served only its authors.
+
+*Index only: each rule's heading and first sentence. The full text is `~/Projects/repo/soul/conventions/writing.md`; read it before writing or reviewing code in its area.*
+
+### Headings are the reader's questions, in the order they ask them
+Make each heading a question the reader brings, in the order they ask it, within whatever sections a report template fixes; in a data product's article, limits and validation go last.
+
+### Define a term in its own place, before it is used
+Give a term the article depends on its own short section, ahead of its first use, with its rule, why it exists, and how many cases fall each way.
+
+### A figure must say something a sentence can't
+Keep a figure only when a sentence cannot carry its point; otherwise keep the sentence and drop the figure.
+
+### Cut what serves the authors
+Remove what the authors needed and the reader does not: parity with superseded products, paths to internal research, and the history of how a decision was reached.
+
+### State a weakness as what the product does, not what the reader should do
+Describe each of the product's weaknesses in one sentence about what it does, and attach no advice on working around it beyond the product's own rule.
+
+### State each claim by the code's definition
+Describe a set the code defines by that definition, never by its most familiar member or by a nearby proxy, because the sentence, and any guard written for it, then covers the proxy, not the set.
+
+### Measure the simplification
+Report word and line counts before and after a rewrite, against what was forecast, and name what set the floor.
