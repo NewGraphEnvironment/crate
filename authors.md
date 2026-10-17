@@ -14,15 +14,15 @@ Source:
 [`inst/CITATION`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/CITATION)
 
 Irvine A (2026). *crate: Canonical Schema and Data Governance for New
-Graph Environment*. New Graph Environment Ltd. R package version 0.7.0,
+Graph Environment*. New Graph Environment Ltd. Version 0.7.0,
 <https://github.com/NewGraphEnvironment/crate>.
 
-    @Manual{,
+    @Manual{crate,
       title = {crate: Canonical Schema and Data Governance for New Graph Environment},
       author = {Allan Irvine},
       organization = {New Graph Environment Ltd.},
       year = {2026},
       version = {0.7.0},
-      note = {R package version 0.7.0},
+      note = {Version 0.7.0},
       url = {https://github.com/NewGraphEnvironment/crate},
     }
