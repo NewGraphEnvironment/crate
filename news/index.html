@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,12 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="crate-080-2026-10-20">crate 0.8.0 (2026-10-20)<a class="anchor" aria-label="anchor" href="#crate-080-2026-10-20"></a></h2>
+<p><code>nge/discharge/fwa/v1/segment_daily</code> declares the columns of the daily discharge wet publishes beside <code>segment_monthly</code> (NewGraphEnvironment/wet#99): one row per FWA segment, source and day of a 365-day common year, keyed by <code>doy</code> in place of <code>month</code>. Its description says what the days are for each source, and how they relate to the published months (<a href="https://github.com/NewGraphEnvironment/crate/issues/33" class="external-link">#33</a>).</p>
+<ul><li>
+<code>segment_monthly</code>’s <code>period</code> note now says both sources are 1981-2010, as they have been since NewGraphEnvironment/wet#103.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="crate-070-2026-10-12">crate 0.7.0 (2026-10-12)<a class="anchor" aria-label="anchor" href="#crate-070-2026-10-12"></a></h2>
 <p><code>nge/discharge/fwa/v1/segment_monthly</code> and <code>nge/discharge/fwa/v1/watershed_monthly</code> declare the columns of the per-segment and per-watershed discharge that wet publishes (NewGraphEnvironment/wet#7). They are the first entries keyed by a <strong>dataset ID</strong>, <code>&lt;variable&gt;/&lt;network&gt;/&lt;version&gt;/&lt;unit&gt;_&lt;timebase&gt;</code>, the same string that names the data’s S3 prefix and Postgres table (<a href="https://github.com/NewGraphEnvironment/crate/issues/31" class="external-link">#31</a>).</p>
