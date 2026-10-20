@@ -1,3 +1,9 @@
+# crate 0.8.0 (2026-10-20)
+
+`nge/discharge/fwa/v1/segment_daily` declares the columns of the daily discharge wet publishes beside `segment_monthly` (NewGraphEnvironment/wet#99): one row per FWA segment, source and day of a 365-day common year, keyed by `doy` in place of `month`. Its description says what the days are for each source, and how they relate to the published months ([#33](https://github.com/NewGraphEnvironment/crate/issues/33)).
+
+- `segment_monthly`'s `period` note now says both sources are 1981-2010, as they have been since NewGraphEnvironment/wet#103.
+
 # crate 0.7.0 (2026-10-12)
 
 `nge/discharge/fwa/v1/segment_monthly` and `nge/discharge/fwa/v1/watershed_monthly` declare the columns of the per-segment and per-watershed discharge that wet publishes (NewGraphEnvironment/wet#7). They are the first entries keyed by a **dataset ID**, `<variable>/<network>/<version>/<unit>_<timebase>`, the same string that names the data's S3 prefix and Postgres table ([#31](https://github.com/NewGraphEnvironment/crate/issues/31)).
