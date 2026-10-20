@@ -12,7 +12,7 @@ segment <- function() {
     runoff_mm = c(512.3, NA),
     q_m3s = c(3.1, 0.8),
     coverage = c(NA, NA),
-    period = c("1951-2012", "1951-2012"),
+    period = c("1981-2010", "1981-2010"),
     pick = c(TRUE, TRUE),
     stringsAsFactors = FALSE
   )
@@ -47,10 +47,25 @@ test_that("a watershed part conforms", {
   expect_type(out$period, "character")
 })
 
+test_that("a daily segment part conforms, keyed by doy", {
+  x <- data.frame(
+    linear_feature_id = c(701234.0, 701234.0), watershed_group_code = "BULK", doy = c(1, 365),
+    runoff_mm = c(1.2, NA), q_m3s = c(0.8, 0.7), coverage = c(1, 1), period = "1981-2010", pick = TRUE
+  )
+  out <- crt_schema_conform(x, "nge", "discharge/fwa/v1/segment_daily")
+  expect_type(out$linear_feature_id, "integer")
+  expect_type(out$doy, "integer")
+  expect_type(out$runoff_mm, "double")
+  expect_type(out$pick, "logical")
+  x$doy <- NULL
+  expect_error(crt_schema_conform(x, "nge", "discharge/fwa/v1/segment_daily"), "doy")
+})
+
 test_that("the Hive keys are not declared as columns", {
   # They live in the path; declaring them would make every written part carry a
   # second copy that can disagree with the directory it sits in.
-  for (f in c("discharge/fwa/v1/segment_monthly", "discharge/fwa/v1/watershed_monthly")) {
+  for (f in c("discharge/fwa/v1/segment_monthly", "discharge/fwa/v1/watershed_monthly",
+              "discharge/fwa/v1/segment_daily")) {
     entry <- crate:::crt_registry_entry("nge", f)
     cols <- vapply(crt_schema_read(entry$schema_yaml)$canonical$cols, `[[`, character(1), "name")
     expect_length(intersect(cols, c("scenario", "forcing", "source")), 0L)
