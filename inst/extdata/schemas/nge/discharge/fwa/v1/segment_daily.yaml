@@ -10,7 +10,7 @@ description: >
   One row per segment, day and source with a value. The Hive keys `scenario`,
   `forcing` and `source` are in the path, as in segment_monthly. Each part file
   holds one FWA watershed group (part-<GROUP>.parquet), so a one-group read
-  opens one file.
+  opens one file per source.
 
   Each day is the mean flow on that day of the year over the period. 29
   February is folded into 28 February. For wet_balance the days are its
@@ -20,7 +20,7 @@ description: >
   each month is in segment_monthly, and both the days and the months are
   rounded to 5 decimals (wet_balance is not rounded), so a month's days need
   not average to its published value: where a clamp applied their mean is at
-  or above it, and 28 February also carries 29 February's flow, which the
+  or above it, to within the rounding, and 28 February also carries 29 February's flow, which the
   published month counts by how many times the period holds each day (28
   February's row stands for 37 of February's 847 day-years in 1981-2010, not 1
   of 28). There is no annual row: month 0 of segment_monthly is not the mean
