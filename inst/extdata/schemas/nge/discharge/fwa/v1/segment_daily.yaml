@@ -1,0 +1,80 @@
+file: discharge/fwa/v1/segment_daily
+description: >
+  Mean daily stream discharge per BC Freshwater Atlas (FWA) stream segment, on
+  each day of a 365-day common year, published by wet
+  (NewGraphEnvironment/wet#99) as Hive-partitioned parquet at
+  s3://fresh-bc/discharge/fwa/v1/segment_daily/, beside segment_monthly. The
+  file_name is the dataset ID, from which the S3 prefix and the Postgres table
+  (discharge.fwa_v1_segment_daily) also derive.
+
+  One row per segment, day and source with a value. The Hive keys `scenario`,
+  `forcing` and `source` are in the path, as in segment_monthly. Each part file
+  holds one FWA watershed group (part-<GROUP>.parquet), so a one-group read
+  opens one file per source.
+
+  Each day is the mean flow on that day of the year over the period. 29
+  February is folded into 28 February. For wet_balance the days are its
+  published months laid out with a within-month shape fitted at HYDAT gauges,
+  so the mean q_m3s of a calendar month's days is that month's segment_monthly
+  value. For pcic_routed each day is routed and clamped at zero on its own, as
+  each month is in segment_monthly, and both the days and the months are
+  rounded to 5 decimals (wet_balance is not rounded), so a month's days need
+  not average to its published value: where a clamp applied their mean is at
+  or above it, to within the rounding, and 28 February also carries 29 February's flow, which the
+  published month counts by how many times the period holds each day (28
+  February's row stands for 37 of February's 847 day-years in 1981-2010, not 1
+  of 28). There is no annual row: month 0 of segment_monthly is not the mean
+  of the 365 days.
+
+canonical:
+  shape: long
+  cols:
+    - name: linear_feature_id
+      type: integer
+      required: true
+      notes: FWA stream segment (key, with doy and the Hive keys).
+    - name: watershed_group_code
+      type: string
+      required: true
+      notes: The segment's FWA watershed group, four letters (e.g. BULK).
+    - name: doy
+      type: integer
+      required: true
+      notes: >
+        Day of a 365-day common year, 1-365 (key): 1 is 1 January, 59 is 28
+        February (with 29 February folded in), 365 is 31 December.
+    - name: runoff_mm
+      type: double
+      required: true
+      notes: >
+        Runoff depth over the segment's upstream area on the day, mm/day. For
+        wet_balance a month's days sum to its segment_monthly runoff_mm, except
+        in February, where they sum to 28/28.25 of it (the monthly depth is
+        over 28.25 days). NA for a routed row off its watershed's own line,
+        where the only area available is another line's.
+    - name: q_m3s
+      type: double
+      required: true
+      notes: Mean discharge on the day, m3/s.
+    - name: coverage
+      type: double
+      required: true
+      notes: >
+        Share of the upstream area the balance's inputs cover, 0-1. NA for
+        routed rows, which have no such share.
+    - name: period
+      type: string
+      required: true
+      notes: >
+        Years the mean is over, "YYYY-YYYY" (1981-2010 for both sources in
+        the historical scenario).
+    - name: pick
+      type: logical
+      required: true
+      notes: >
+        TRUE on the segment's default source, the same source as in
+        segment_monthly on every day; exactly one row per segment, day and
+        scenario is TRUE (wet's wet_source_pick(), NewGraphEnvironment/wet#57).
+
+decisions:
+  - decisions/nge/20261012_dataset_id_keys.md

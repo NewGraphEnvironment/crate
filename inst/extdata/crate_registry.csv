@@ -5,4 +5,5 @@ nge,track_vertices,schema_only,,schemas/nge/track_vertices.yaml,"project,session
 nge,track_annotations,schema_only,,schemas/nge/track_annotations.yaml,"project,session_id,time_start_m,track_name,track_type,track_description"
 nge,form_capture,schema_only,,schemas/nge/form_capture.yaml,"project,form,record_id,source_version,schema_version,captured_at"
 nge,discharge/fwa/v1/segment_monthly,schema_only,,schemas/nge/discharge/fwa/v1/segment_monthly.yaml,"linear_feature_id,watershed_group_code,month,runoff_mm,q_m3s,coverage,period,pick"
+nge,discharge/fwa/v1/segment_daily,schema_only,,schemas/nge/discharge/fwa/v1/segment_daily.yaml,"linear_feature_id,watershed_group_code,doy,runoff_mm,q_m3s,coverage,period,pick"
 nge,discharge/fwa/v1/watershed_monthly,schema_only,,schemas/nge/discharge/fwa/v1/watershed_monthly.yaml,"watershed_feature_id,watershed_group_code,month,runoff_mm,q_m3s,coverage,bc_fraction,period"
