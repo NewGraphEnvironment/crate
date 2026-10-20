@@ -8,7 +8,7 @@ message: 'To cite package "crate" in publications use:'
 type: software
 license: MIT
 title: 'crate: Canonical Schema and Data Governance for New Graph Environment'
-version: 0.7.0
+version: 0.8.0
 abstract: 'Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous
   data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas,
   decision logs, and adapter functions that insulate downstream consumers (link, fresh,
@@ -28,7 +28,7 @@ preferred-citation:
     email: al@newgraphenvironment.com
     orcid: https://orcid.org/0000-0002-3495-2128
     affiliation: New Graph Environment Ltd.
-  version: 0.7.0
+  version: 0.8.0
   date-released: '2026-10-12'
   url: https://newgraphenvironment.github.io/crate/
   repository-code: https://github.com/NewGraphEnvironment/crate
