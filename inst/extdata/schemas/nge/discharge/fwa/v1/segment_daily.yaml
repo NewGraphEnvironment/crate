@@ -17,11 +17,14 @@ description: >
   published months laid out with a within-month shape fitted at HYDAT gauges,
   so the mean q_m3s of a calendar month's days is that month's segment_monthly
   value. For pcic_routed each day is routed and clamped at zero on its own, as
-  each month is in segment_monthly, so a month's days need not average to its
-  published value: where a clamp applied their mean sits above it, and 28
-  February also carries 29 February's flow, which the published month weights
-  by its number of days. Both are rounded to 5 decimals. There is no annual
-  row: month 0 of segment_monthly is not the mean of the 365 days.
+  each month is in segment_monthly, and both the days and the months are
+  rounded to 5 decimals (wet_balance is not rounded), so a month's days need
+  not average to its published value: where a clamp applied their mean is at
+  or above it, and 28 February also carries 29 February's flow, which the
+  published month counts by how many times the period holds each day (28
+  February's row stands for 37 of February's 847 day-years in 1981-2010, not 1
+  of 28). There is no annual row: month 0 of segment_monthly is not the mean
+  of the 365 days.
 
 canonical:
   shape: long
@@ -47,8 +50,8 @@ canonical:
         Runoff depth over the segment's upstream area on the day, mm/day. For
         wet_balance a month's days sum to its segment_monthly runoff_mm, except
         in February, where they sum to 28/28.25 of it (the monthly depth is
-        over 28.25 days). NA for a routed row off its
-        watershed's own line, where the only area available is another line's.
+        over 28.25 days). NA for a routed row off its watershed's own line,
+        where the only area available is another line's.
     - name: q_m3s
       type: double
       required: true
@@ -62,7 +65,9 @@ canonical:
     - name: period
       type: string
       required: true
-      notes: Years the mean is over, "YYYY-YYYY" (1981-2010 for both sources in the historical scenario).
+      notes: >
+        Years the mean is over, "YYYY-YYYY" (1981-2010 for both sources in
+        the historical scenario).
     - name: pick
       type: logical
       required: true
