@@ -4,11 +4,12 @@
 # ------------------------------------------------
  
 cff-version: 1.2.0
-message: 'To cite package "crate" in publications use:'
+message: If you use crate, please cite it by its DOI, 10.5281/zenodo.23289273.
 type: software
 license: MIT
 title: 'crate: Canonical Schema and Data Governance for New Graph Environment'
 version: 0.8.0
+doi: 10.5281/zenodo.23289273
 abstract: 'Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous
   data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas,
   decision logs, and adapter functions that insulate downstream consumers (link, fresh,
@@ -33,6 +34,7 @@ preferred-citation:
   url: https://newgraphenvironment.github.io/crate/
   repository-code: https://github.com/NewGraphEnvironment/crate
   license: MIT
+  doi: 10.5281/zenodo.23289273
   type: software
   publisher:
     name: New Graph Environment Ltd.

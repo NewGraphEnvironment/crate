@@ -41,4 +41,5 @@ Suggests:
     hexSticker,
     jsonlite,
     jsonvalidate
+Config/DOI: 10.5281/zenodo.23289273
 Config/testthat/edition: 3
