@@ -54,8 +54,8 @@ canonical:
       type: string
       required: true
       notes: >
-        Years the mean is over, "YYYY-YYYY" (routed 1951-2012 and the balance
-        1981-2010 in the historical scenario). A projection partition holds
+        Years the mean is over, "YYYY-YYYY" (1981-2010 for both sources in
+        the historical scenario). A projection partition holds
         several periods.
     - name: pick
       type: logical
