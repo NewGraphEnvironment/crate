@@ -6,9 +6,9 @@ Data governance repo for New Graph Environment — canonical schemas, data dicti
 
 ## Ecosystem placement
 
-- **Consumer of** `rtj` (S3 storage, postgres instances)
-- **Publisher for** reporting repos (via snapshot-parquet pattern — see db_newgraph#stamps umbrella)
-- **Cross-references** `db_newgraph` (schema contract), `link` / `fresh` (custom model producers), `compass` (values), `soul` (conventions)
+- **Consumer of** the internal infrastructure repo (S3 storage, postgres instances)
+- **Publisher for** reporting repos (via snapshot-parquet pattern)
+- **Cross-references** the internal database repo (schema contract), `link` / `fresh` (custom model producers), `compass` (values), `soul` (conventions)
 
 ## Boundary with rfp (load-bearing)
 
@@ -18,7 +18,7 @@ Data governance repo for New Graph Environment — canonical schemas, data dicti
 - crate owns the schemas, dictionary, QC rules, normalization, dedup, cross-reference, canonical PostGIS load, export contracts, lookup tables, and lineage. Applies to ALL domains, not just field forms (lab returns, benthic, historical pre-Mergin data also flow through crate).
 - fpr stays as the fish-passage domain compute called by `crt_normalize()` / `crt_validate()` dispatch.
 - Dependency direction: `rfp → crate ← fpr ← link/fresh ← reporting`. No cycles.
-- Concretely: `rfp_form_wrangle/validate/export/db_load` (rfp #30, #33, #34, #35) move to `crt_normalize/validate/export/load`. rfp keeps `_source_*`, `_mergin_*`, `_qgs_*`, `_project_*`, `_form_create`, `_form_backup`, `_gpx_import`, `_photo_*`. Form templates: schema source-of-truth lives in crate; rfp's QML overlays decorate that schema for QGIS rendering.
+- Concretely: `rfp_form_wrangle/validate/export/db_load` move to `crt_normalize/validate/export/load`. rfp keeps `_source_*`, `_mergin_*`, `_qgs_*`, `_project_*`, `_form_create`, `_form_backup`, `_gpx_import`, `_photo_*`. Form templates: schema source-of-truth lives in crate; rfp's QML overlays decorate that schema for QGIS rendering.
 
 ## Status
 
