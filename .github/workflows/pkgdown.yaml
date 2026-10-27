@@ -1,3 +1,5 @@
+# Not New Graph Environment's shared workflow (NewGraphEnvironment/flows): it tests the STAC schemas and checks them against the published site.
+# Its runner is pinned like the shared ones; move it by hand when they move.
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
@@ -16,7 +18,7 @@ permissions: read-all
 
 jobs:
   pkgdown:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     # Only restrict concurrency for non-PR jobs
     concurrency:
