@@ -116,12 +116,12 @@ no versioned upstream. `crew_attributed` on `form_monitoring` also needs
 `surveyor_1`, which the 2025 variant does not have; it records its crew only in
 free text, so it cannot say who did the assessment in a structured form.
 
-Other domain grades belong to the QC rules (#1), not to this entry.
+Other domain grades belong to the QC rules (#38), not to this entry.
 
 ## What this does not decide
 
 - `captured_by`: still in `form_capture`'s `forward_compat`.
-- How a QC rule reports a value outside `values` or `range`: #1. This entry
+- How a QC rule reports a value outside `values` or `range`: #38. This entry
   only declares them, and `crt_schema_cols()` exposes them.
 - The 2023–2025 versions, as above.
 
@@ -130,4 +130,4 @@ Other domain grades belong to the QC rules (#1), not to this entry.
 - #13 — this entry
 - #14 and `20260901_form_capture_envelope.md` — the envelope these repeat
 - #6 — the same reconciliation problem for another dataset family
-- #1 — QC rules that read `values` and `range`
+- #38 — QC rules that read `values` and `range`

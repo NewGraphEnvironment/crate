@@ -146,7 +146,7 @@ test_that("a registered form reports a fingerprint it does not list", {
 })
 
 test_that("allowed values let a QC rule flag a near-miss and a label stored as a code", {
-  # The check itself is #1's; this shows the declaration is enough to write it.
+  # The check itself is #38's; this shows the declaration is enough to write it.
   flag <- function(x, allowed) !is.na(x) & !x %in% allowed
 
   pscis <- crt_schema_cols("nge", "form_pscis")

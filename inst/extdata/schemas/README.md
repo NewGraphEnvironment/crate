@@ -34,7 +34,7 @@ A column declaration needs only `name`, `type` and `required`. These optional ke
 | `'null'` | what a null means here, when it means something other than "not recorded". Quote the key: bare, YAML reads `null:` as an empty key and the declaration is lost |
 | `notes` | prose |
 
-`values` and `range` are declarations, not checks: `crt_schema_conform()` does not refuse a value outside them. A value outside the vocabulary is a record to flag (#1), not one to drop.
+`values` and `range` are declarations, not checks: `crt_schema_conform()` does not refuse a value outside them. A value outside the vocabulary is a record to flag (#38), not one to drop.
 
 Two schema-level keys:
 
