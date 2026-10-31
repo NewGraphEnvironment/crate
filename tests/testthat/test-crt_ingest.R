@@ -102,3 +102,44 @@ test_that("non-string args throw chk validation errors", {
   expect_error(crt_ingest("bcfp", 1, wide_fixture()))
   expect_error(crt_ingest("bcfp", "user_habitat_classification", 1))
 })
+
+# ---- nge/fish_data: three file shapes, one canonical set (#6) ---------------
+
+nge_fish_fixture <- function(name) {
+  system.file("extdata/examples/nge", name, package = "crate")
+}
+
+nge_fish_all <- function() {
+  files <- c(
+    "2023" = "fish_data_2023_peace.csv",
+    "2023" = "fish_data_2023_skeena.csv",
+    "2024" = "fish_data_2024.csv"
+  )
+  lapply(files, function(f) crt_ingest("nge", "fish_data", nge_fish_fixture(f)))
+}
+
+test_that("every fish_data shape ingests to the same names and types", {
+  outs <- nge_fish_all()
+  classes <- lapply(outs, function(x) vapply(x, function(col) class(col)[[1]], character(1)))
+  expect_identical(classes[[2]], classes[[1]])
+  expect_identical(classes[[3]], classes[[1]])
+  expect_identical(classes[[1]][["length_mm"]], "numeric")
+  expect_identical(classes[[1]][["haul_number_pass_number"]], "integer")
+  expect_identical(classes[[1]][["date"]], "character")
+})
+
+test_that("fish_data seasons bind, and a tag recaptured from a 2023 comment is found", {
+  outs <- nge_fish_all()
+  fish <- dplyr::bind_rows(outs, .id = "season")
+  expect_identical(nrow(fish), 11L)
+  # The recapture query the schema exists for. 3DD.003E190001 is written only in
+  # a 2023 comment and in the 2024 pit_tag_id column; the fixtures plant it, as
+  # no real 2023 tag recurs in a later season.
+  recaptured <- fish |>
+    dplyr::filter(!is.na(pit_tag_id)) |>
+    dplyr::group_by(pit_tag_id) |>
+    dplyr::filter(dplyr::n_distinct(season) > 1L) |>
+    dplyr::ungroup()
+  expect_identical(unique(recaptured$pit_tag_id), "3DD.003E190001")
+  expect_identical(sort(recaptured$length_mm), c(157, 201))
+})
