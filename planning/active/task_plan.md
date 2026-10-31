@@ -125,7 +125,7 @@ Defaults taken (not questions — say so in the PR):
       `crt_schema_validate()` reserved slot renamed `cols[].values`
 
 ## Phase 3: Derive the meaning from rfp, not restate it
-- [ ] `data-raw/forms_derive-schemas.R`: reads the four CSVs + `monitoring`'s QML/GPKG at a pinned
+- [x] `data-raw/forms_derive-schemas.R`: reads the four CSVs + `monitoring`'s QML/GPKG at a pinned
       rfp SHA via `gh api`; maps types (`text→string, integer, real→double, datetime, boolean→logical`);
       units from an allow-list of unit tokens in the label's trailing parentheses, falling back
       to the name suffix (`_m`, `_c`, `_percent`...); a dropdown with non-numeric choices is
@@ -134,8 +134,8 @@ Defaults taken (not questions — say so in the PR):
       `values` from valuemap/checkbox options; `range` from range options; photo cols
       `relative_to: project root` (`ignore_mobile/photos/...`); blank-`group` cols get a `null` note
       (office/computed, null until filled); help → notes
-- [ ] Writes the column fixtures for Phase 1 from the shipped GPKGs' declared types
-- [ ] Idempotent: a second run leaves every YAML byte-identical (checked)
+- [x] Writes the column fixtures for Phase 1 from the shipped GPKGs' declared types
+- [x] Idempotent: a second run leaves every YAML byte-identical (checked)
 
 ## Phase 4: Register the five schemas
 - [ ] `nge/form_pscis`, `form_fiss_site`, `form_monitoring_fish_passage`, `form_monitoring_general`,

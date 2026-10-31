@@ -11,3 +11,5 @@
   and rfp's private visibility; its "help names a person" claim was wrong (CHRIS = MoTI system).
 - Phase 2: `crt_schema_cols()`, `crt_schema_grade()`, `crt_schema_variant()`, unknown-fingerprint
   warning in conform, integrity guards (four are empty until Phase 4 registers form schemas).
+- Phase 3: derive script runs at rfp@a901caa; second run byte-identical (md5 over 5 YAMLs + fixtures).
+  Units: allow-list + ordered name patterns (`_m_s_cm` first, it is mS/cm); YAML booleans as true/false.

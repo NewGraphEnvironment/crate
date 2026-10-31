@@ -8,7 +8,7 @@
 
 pscis_types <- function() {
   x <- utils::read.csv(
-    testthat::test_path("fixtures", "forms", "form_pscis_cols.csv"),
+    testthat::test_path("fixtures", "forms", "form_pscis__rfp-build-2026-08.csv"),
     colClasses = "character"
   )
   stats::setNames(x$type, x$name)
