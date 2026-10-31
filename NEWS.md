@@ -1,3 +1,7 @@
+# crate 0.11.0 (2026-10-31)
+
+`nge/fish_data` reads NGE individual fish data from any season to one set of 29 columns with the same types, so seasons stack and a PIT-tagged fish can be followed between them ([#6](https://github.com/NewGraphEnvironment/crate/issues/6)). It is the first `nge` entry `crt_ingest()` reads: `crt_ingest("nge", "fish_data", path)` takes the 2023 individual fish files and the 2024 onward field sheet. Names follow the provincial FISS individual fish template and the field form (`species`, `length_mm`, `weight_g`, `haul_number_pass_number`), 2023 PIT tags written into `comments` are read into `pit_tag_id`, and `date` is an ISO day. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261031_fish_data_canonical.md).
+
 # crate 0.10.0 (2026-10-31)
 
 - The schemas README now names the data consolidation umbrella ([#38](https://github.com/NewGraphEnvironment/crate/issues/38)) as the home of the QC rules that will read `values` and `range`, in place of the issue it replaced. No code change.
