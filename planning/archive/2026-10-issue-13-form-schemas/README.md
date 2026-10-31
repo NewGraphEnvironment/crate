@@ -36,7 +36,7 @@ MoTI's system). Decision: `decisions/nge/20261030_form_schemas_fish_passage.md`.
 
 ## Owed
 
-- trap switches to `crate::crt_schema_fingerprint()` (trap#53)
-- rfp#24 builder reads meaning via `crt_schema_cols()` (rfp's work, unblocked by this PR)
+- trap switches to `crate::crt_schema_fingerprint()` (trap follow-up issue)
+- rfp's builder reads meaning via `crt_schema_cols()` (rfp's work, unblocked by this PR)
 
 Closed by: PR (opened next)

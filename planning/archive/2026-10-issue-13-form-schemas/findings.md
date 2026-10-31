@@ -149,7 +149,7 @@ serialized `36743b027ac0c93f`, plain `c084e87fbf17e20e`. Published XXH64 vectors
 No trap code or test pins a value (`git grep '[0-9]+-[0-9a-f]{16}'` over R/tests/data-raw/inst: 0);
 stored values live in five restricted form tables. User chose the plain string.
 
-Declared types in rfp's shipped GPKGs include `MEDIUMINT` for integer fields (rfp#249), so the
+Declared types in rfp's shipped GPKGs include `MEDIUMINT` for integer fields (a known rfp issue), so the
 fingerprint is over declared SQLite types, not crate types: pscis = 51 TEXT, 27 REAL,
 19 MEDIUMINT, 2 DATETIME.
 

@@ -17,7 +17,7 @@ Written by the parent from the agent's reply (Plan agents cannot write). Verdict
 | 11 | Acceptance | grade "envelope" undefined (source_version may be NA) | Accept: harvestable = project, form, record_id, x, y non-NA |
 | 12 | Gap | `form_pscis_newgraph` has no schema under the flat key | Accept: document that the `form` value maps to the base schema by the reader; note in trap issue |
 | 13 | Blocker | rfp is PRIVATE, crate PUBLIC: derived help text republishes private content (a person's name, internal link, citation keys) | **Visibility confirmed; content claim wrong.** `moti_chris_culvert_id` = MoTI's CHRIS system, not a person; links are public gov.bc.ca PDFs; `*citation_key*` are column names with no keys. Nothing to scrub; meaning published as the issue intends (user asked, 2026-10-30, answered) |
-| 14 | Scope | derive script is a one-off bootstrap once rfp#24 lands | Accept: say so in script header + decision |
+| 14 | Scope | derive script is a one-off bootstrap once rfp's builder reads from crate | Accept: say so in script header + decision |
 | 15 | Acceptance | `_pkgdown.yml` has no reference section | No change: none needed |
 | 16 | Acceptance | `crt_schema_validate.R` names reserved `cols[].enum`; rename to `values` | Accept |
 | 17 | Ordering | land "values character / on string cols" integrity tests before Phase 3 | Accept (Phase 2) |

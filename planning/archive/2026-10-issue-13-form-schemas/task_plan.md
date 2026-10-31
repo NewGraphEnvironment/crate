@@ -33,7 +33,7 @@ logical table. `nge/form_capture` (#14) shipped the envelope (`project, form, re
 source_version, schema_version, captured_at`) and deliberately said nothing about what form columns
 mean. This issue registers per-form schemas for the fish passage family — `pscis`, `fiss_site`,
 `monitoring_fish_passage`, `monitoring_general`, `monitoring` — whose 2026 season is about to be
-harvested (trap#47), and which rfp#24 is blocked on ("read the schema from crate").
+harvested (trap's 2026 harvest issue), and which rfp's form builder is blocked on ("read the schema from crate").
 
 ### What exploration found (2026-10-30, crate at 1b8837f, rfp at a901caaa)
 
@@ -52,7 +52,7 @@ harvested (trap#47), and which rfp#24 is blocked on ("read the schema from crate
   `rowid, utm_zone, easting, northing`. So the "narrower vintage is a subset" assumption (#14's
   measurement) fails for monitoring — the #6 rename class, now measured.
 - `form_pscis_newgraph` and `form_fiss_site_newgraph` carry the base forms' fingerprints: same
-  vintage, different form name (answers trap#47 Proposed item 2).
+  vintage, different form name (answers an open question in trap's harvest issue).
 - 2023–2025 local files show ~15 more pscis and ~10 fiss_site fingerprints, many of them
   post-processed copies (a `_raw` file and its processed twin differ). Deferred (gate decision 3).
 - Runtime today: `crt_schema_conform()` = validate required presence + `crt_schema_apply()` typing
@@ -114,7 +114,7 @@ Defaults taken (not questions — say so in the PR):
       (string or `{value, label}`), `cols[].range`, `cols[].relative_to` (photo paths),
       `cols[].null`, top-level `grades:` (`name`, `requires`), `upstream_variants[].fingerprint`
 - [x] `crt_schema_cols(source, file_name)` — exported tibble of declarations (name, type, required,
-      units, values list-col, range, relative_to, null, notes); the accessor rfp#24 and #1's QC read
+      units, values list-col, range, relative_to, null, notes); the accessor rfp's builder and #1's QC read
 - [x] `crt_schema_grade(df, source, file_name)` — exported, one logical column per declared grade
 - [x] `crt_schema_variant(df, source, file_name)` — exported, fingerprint → variant id, `NA` unknown;
       `crt_schema_conform()` warns on unknown fingerprints when the schema lists any
@@ -130,7 +130,7 @@ Defaults taken (not questions — say so in the PR):
       units from an allow-list of unit tokens in the label's trailing parentheses, falling back
       to the name suffix (`_m`, `_c`, `_percent`...); a dropdown with non-numeric choices is
       `string`; drop QGIS `<NULL>` sentinels and int32 sentinel ranges; monitoring's photo root
-      read from its QML; header says it is a one-off bootstrap until rfp#24;
+      read from its QML; header says it is a one-off bootstrap until rfp's builder reads from crate;
       `values` from valuemap/checkbox options; `range` from range options; photo cols
       `relative_to: project root` (`ignore_mobile/photos/...`); blank-`group` cols get a `null` note
       (office/computed, null until filled); help → notes
@@ -160,16 +160,16 @@ Defaults taken (not questions — say so in the PR):
 - [x] Decision entry `decisions/nge/20261030_form_schemas_fish_passage.md` (why derived from rfp,
       fingerprint ownership, variants-as-versions, grades, the measured non-subset)
 - [x] README (registry output, public `crt_schema_*` list), CLAUDE.md Status line; `pkgdown::check_pkgdown()` clean (no reference index to update). NEWS is written by `/gh-pr-merge` at release, as for every prior version
-- [x] Filed: crate#36 back-catalogue; trap#53 (fingerprint from crate, re-harvest, per-form conform, `_newgraph` mapping, non-nested stack); rfp#414 type bug; rfp#24 body edited. Was: crate issue for the 2023–2025 back-catalogue; trap issue to call
+- [x] Filed: crate#36 back-catalogue; trap follow-up (fingerprint from crate, re-harvest, per-form conform, `_newgraph` mapping, non-nested stack); rfp type-bug issue; rfp builder issue's body edited. Was: crate issue for the 2023–2025 back-catalogue; trap issue to call
       `crt_schema_fingerprint()` (re-harvest replaces serialized values, which warn until then;
       `trp_form_stack()` must accept non-nested vintages; `_newgraph` forms share base
       fingerprints and map to the base schema); rfp issue for fiss_site's 7 `real` text columns;
-      edit rfp#24's body: crate side available via `crt_schema_cols()`
+      edit the rfp builder issue's body: crate side available via `crt_schema_cols()`
 
 ## Owed at the end (reported, done after merge)
 
-- [ ] trap switches to `crate::crt_schema_fingerprint()` (trap#53)
-- [ ] rfp#24 builder reads meaning via `crt_schema_cols()` (rfp's work, unblocked by this PR)
+- [ ] trap switches to `crate::crt_schema_fingerprint()` (trap follow-up issue)
+- [ ] rfp's builder reads meaning via `crt_schema_cols()` (rfp's work, unblocked by this PR)
 
 ## Validation
 - [x] Tests pass (`devtools::test()`, single-file reruns with `NOT_CRAN=true`)
