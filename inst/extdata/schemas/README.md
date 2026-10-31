@@ -31,14 +31,14 @@ A column declaration needs only `name`, `type` and `required`. These optional ke
 | `values` | the values the column may store. A bare string where a form shows what it stores; `{value: "4", label: "Coniferous Trees"}` where the stored code differs from what is shown. Only on `string` or `integer` columns, and every value quoted |
 | `range` | `[low, high]`, on a numeric column |
 | `relative_to` | for a column of file paths, what they are relative to |
-| `null` | what a null means here, when it means something other than "not recorded" |
+| `'null'` | what a null means here, when it means something other than "not recorded". Quote the key: bare, YAML reads `null:` as an empty key and the declaration is lost |
 | `notes` | prose |
 
 `values` and `range` are declarations, not checks: `crt_schema_conform()` does not refuse a value outside them. A value outside the vocabulary is a record to flag (#1), not one to drop.
 
 Two schema-level keys:
 
-- **`grades`** — named predicates over a row: `{name: harvestable, requires: [record_id, x, y]}`. A row meets a grade when every listed column is present and non-missing. `crt_schema_grade()` evaluates them. A grade is how a schema stays permissive (a column added mid-season is `required: false`, so an earlier vintage conforms) without counting an earlier record as something it is not.
+- **`grades`** — named predicates over a row: `{name: harvestable, requires: [record_id, "x", "y"]}` (quote `y` and `n`, as for column names). A row meets a grade when every listed column is present and non-missing. `crt_schema_grade()` evaluates them. A grade is how a schema stays permissive (a column added mid-season is `required: false`, so an earlier vintage conforms) without counting an earlier record as something it is not.
 - **`upstream_variants[].fingerprint`** — the `schema_version` a capture of that variant produces (`crt_schema_fingerprint()`). Listing them names the known versions of a form; `crt_schema_variant()` maps a fingerprint to its variant, and `crt_schema_conform()` warns (class `crate_unknown_fingerprint`) on one the schema does not list.
 
 ## Adding a new schema

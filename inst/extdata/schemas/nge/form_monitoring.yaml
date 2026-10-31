@@ -670,11 +670,11 @@ canonical:
       'null': 'Not on the form a crew fills in: an office or computed field, null
         until filled after the visit.'
     - name: rowid
-      type: integer
+      type: double
       required: false
       notes: A row number carried by the 2025 capture variant only.
     - name: utm_zone
-      type: integer
+      type: double
       required: false
       notes: UTM zone of `easting` and `northing`. 2025 capture variant only.
     - name: easting
@@ -710,9 +710,6 @@ upstream_variants:
       fish passage projects on 2026-10-30 carried this column set, except the variant
       below.
     fingerprint: 124-54160527d93360ae
-    cols:
-      - fid
-      - geom
     normalize_fn: reader-supplied
     first_seen: 2026-08
   - id: capture-utm-columns-2025
@@ -724,11 +721,6 @@ upstream_variants:
       vintages of this form therefore rename rather than nest: a null in either set
       of columns means the form did not have it.'
     fingerprint: 122-795b55de0708d6bf
-    cols:
-      - rowid
-      - utm_zone
-      - easting
-      - northing
     normalize_fn: reader-supplied
     first_seen: '2025'
 decisions:

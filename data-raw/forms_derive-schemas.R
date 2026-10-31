@@ -28,6 +28,9 @@
 #
 #   inst/extdata/schemas/nge/form_<form>.yaml          one per form
 #   tests/testthat/fixtures/forms/form_<form>__<variant>.csv
+#       (a variant's full column set lives here, not in the YAML's
+#       `upstream_variants[].cols`, which elsewhere in crate means the whole
+#       set a reader matches against; the fingerprint identifies the shape)
 #       name,type of the rfp build's capture columns, as the GeoPackage declares
 #       them. test-crt_form_schemas.R recomputes each listed fingerprint from it.
 #
@@ -105,18 +108,19 @@ extra_variants <- list(
       "rename rather than nest: a null in either set of columns means the form",
       "did not have it."
     ),
-    cols = c("rowid", "utm_zone", "easting", "northing"),
     first_seen = "2025"
   ))
 )
 
 # Columns the measured variant carries and the build does not. Declared so a
-# record from it conforms with its own columns typed, not passed through.
+# record from it conforms with its own columns typed, not passed through. Types
+# follow the capture's declarations (all four REAL), as every derived column's
+# do.
 extra_cols <- list(
   monitoring = list(
-    list(name = "rowid", type = "integer", required = FALSE,
+    list(name = "rowid", type = "double", required = FALSE,
          notes = "A row number carried by the 2025 capture variant only."),
-    list(name = "utm_zone", type = "integer", required = FALSE,
+    list(name = "utm_zone", type = "double", required = FALSE,
          notes = "UTM zone of `easting` and `northing`. 2025 capture variant only."),
     list(name = "easting", type = "double", required = FALSE, units = "m",
          notes = "UTM easting. 2025 capture variant only."),
@@ -280,6 +284,9 @@ cols_from_qml <- function(path, decl) {
       # Option named `map`; the wrapper has a name and no value, so take only
       # options that carry both.
       o <- xml2::xml_find_all(f, ".//Option[@name='map']//Option[@name and @value]")
+      # QGIS's empty-choice placeholder, as the CSV branch drops it: its value
+      # is a GUID, which would make a coded vocabulary read as text.
+      o <- o[xml2::xml_attr(o, "name") != "<NULL>"]
       v <- lapply(seq_along(o), function(i) {
         label <- xml2::xml_attr(o[i], "name")
         value <- xml2::xml_attr(o[i], "value")
@@ -380,7 +387,6 @@ write_schema <- function(form) {
         "."
       ),
       fingerprint = crt_schema_fingerprint(decl),
-      cols = list("fid", "geom"),
       normalize_fn = "reader-supplied",
       first_seen = month
     )),
@@ -389,7 +395,7 @@ write_schema <- function(form) {
       t <- utils::read.csv(fx, colClasses = "character")
       c(v[c("id", "description")],
         list(fingerprint = crt_schema_fingerprint(stats::setNames(t$type, t$name)),
-             cols = as.list(v$cols), normalize_fn = "reader-supplied",
+             normalize_fn = "reader-supplied",
              first_seen = v$first_seen))
     })
   )

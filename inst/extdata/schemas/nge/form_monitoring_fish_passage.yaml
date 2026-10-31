@@ -243,9 +243,6 @@ upstream_variants:
       last changed 2026-07). Every 2026 capture of this form measured in the four
       fish passage projects on 2026-10-30 carried this column set.
     fingerprint: 35-5138296c897d34b4
-    cols:
-      - fid
-      - geom
     normalize_fn: reader-supplied
     first_seen: 2026-07
 decisions:
