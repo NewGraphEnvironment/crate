@@ -138,12 +138,12 @@ Defaults taken (not questions — say so in the PR):
 - [x] Idempotent: a second run leaves every YAML byte-identical (checked)
 
 ## Phase 4: Register the five schemas
-- [ ] `nge/form_pscis`, `form_fiss_site`, `form_monitoring_fish_passage`, `form_monitoring_general`,
+- [x] `nge/form_pscis`, `form_fiss_site`, `form_monitoring_fish_passage`, `form_monitoring_general`,
       `form_monitoring` YAMLs generated; registry rows (`schema_only`, `canonical_cols` = required
       envelope cols)
-- [ ] `upstream_variants` per form: the rfp build (fingerprint tested against the Phase 1 fixture);
+- [x] `upstream_variants` per form: the rfp build (fingerprint tested against the Phase 1 fixture);
       `form_monitoring` also the measured 122-column 2026 vintage with its non-subset columns listed
-- [ ] Description per schema states what a null means (not answered vs. not on this vintage, read
+- [x] Description per schema states what a null means (not answered vs. not on this vintage, read
       from `schema_version`) and that monitoring vintages rename rather than nest
 
 ## Phase 5: Acceptance tests over the registered forms

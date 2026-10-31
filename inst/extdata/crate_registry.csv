@@ -7,3 +7,8 @@ nge,form_capture,schema_only,,schemas/nge/form_capture.yaml,"project,form,record
 nge,discharge/fwa/v1/segment_monthly,schema_only,,schemas/nge/discharge/fwa/v1/segment_monthly.yaml,"linear_feature_id,watershed_group_code,month,runoff_mm,q_m3s,coverage,period,pick"
 nge,discharge/fwa/v1/segment_daily,schema_only,,schemas/nge/discharge/fwa/v1/segment_daily.yaml,"linear_feature_id,watershed_group_code,doy,runoff_mm,q_m3s,coverage,period,pick"
 nge,discharge/fwa/v1/watershed_monthly,schema_only,,schemas/nge/discharge/fwa/v1/watershed_monthly.yaml,"watershed_feature_id,watershed_group_code,month,runoff_mm,q_m3s,coverage,bc_fraction,period"
+nge,form_pscis,schema_only,,schemas/nge/form_pscis.yaml,"project,form,record_id,source_version,schema_version,captured_at,x,y,source_epsg"
+nge,form_fiss_site,schema_only,,schemas/nge/form_fiss_site.yaml,"project,form,record_id,source_version,schema_version,captured_at,x,y,source_epsg"
+nge,form_monitoring_fish_passage,schema_only,,schemas/nge/form_monitoring_fish_passage.yaml,"project,form,record_id,source_version,schema_version,captured_at,x,y,source_epsg"
+nge,form_monitoring_general,schema_only,,schemas/nge/form_monitoring_general.yaml,"project,form,record_id,source_version,schema_version,captured_at,x,y,source_epsg"
+nge,form_monitoring,schema_only,,schemas/nge/form_monitoring.yaml,"project,form,record_id,source_version,schema_version,captured_at,x,y,source_epsg"
