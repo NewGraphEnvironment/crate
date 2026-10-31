@@ -39,6 +39,28 @@ test_that("rfp's shipped form_pscis has a pinned fingerprint", {
   expect_identical(crt_schema_fingerprint(types), "99-c084e87fbf17e20e")
 })
 
+test_that("the pscis fixture is the column set measured on live captures", {
+  # Before crate owned the definition, trap hashed R's serialization of the same
+  # string, and wrote 99-36743b027ac0c93f for every 2026 pscis capture measured
+  # (2026-10-30). Reproducing that value from the fixture shows the fixture is
+  # that column set, not one crate made up, so the new value above describes
+  # the forms in the field.
+  types <- pscis_types()
+  cols <- sort(names(types), method = "radix")
+  pairs <- paste0(cols, ":", toupper(types[cols]), collapse = ",")
+  expect_identical(
+    digest::digest(pairs, algo = "xxhash64", serializeVersion = 2),
+    "36743b027ac0c93f"
+  )
+})
+
+test_that("a name in another encoding gives the same value", {
+  utf8 <- stats::setNames("TEXT", enc2utf8("d\u00e9bit"))
+  latin1 <- stats::setNames("TEXT", iconv(names(utf8), "UTF-8", "latin1"))
+  expect_identical(Encoding(names(latin1)), "latin1")
+  expect_identical(crt_schema_fingerprint(latin1), crt_schema_fingerprint(utf8))
+})
+
 test_that("column order does not move it", {
   types <- pscis_types()
   set.seed(1)

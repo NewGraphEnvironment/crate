@@ -30,6 +30,11 @@
 #' Throws on an unknown `(source, file_name)` pair, on a missing required
 #' column, and on a schema declaring a type crate does not support.
 #'
+#' Warns, with class `crate_unknown_fingerprint`, when the schema lists the
+#' fingerprints of its known versions and a row's `schema_version` is not
+#' among them; [crt_schema_variant()] says which rows. Allowed values and
+#' ranges ([crt_schema_cols()]) are not checked here.
+#'
 #' @examples
 #' # A frame that is already in canonical shape passes through, typed.
 #' path <- system.file(
@@ -58,5 +63,7 @@ crt_schema_conform <- function(df, source, file_name) {
   schema <- crt_schema_read(entry$schema_yaml[[1L]])
 
   crt_schema_validate(df, schema)
-  crt_schema_apply(df, schema)
+  out <- crt_schema_apply(df, schema)
+  crt_schema_fingerprint_check(out, schema)
+  out
 }

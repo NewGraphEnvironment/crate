@@ -33,7 +33,8 @@ Lives in the \verb{crt_schema_*} family alongside \code{\link[=crt_schema_apply]
 Future extensions (reserved family slots; NOT in v0.0.2):
 \itemize{
 \item \verb{cols[].range} numeric range checks
-\item \verb{cols[].enum} value-membership checks
+\item \verb{cols[].values} value-membership checks (declared now, read by
+\code{\link[=crt_schema_cols]{crt_schema_cols()}}; a QC rule flags rather than this function failing)
 \item \verb{cols[].predicate} custom predicate function refs
 }
 

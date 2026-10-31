@@ -18,3 +18,16 @@ crt_schema_read <- function(yaml_path) {
   }
   yaml::read_yaml(full_path)
 }
+
+# Internal: the parsed schema for one registered (source, file_name) pair.
+#
+# The accessors that answer questions about a registered schema --
+# crt_schema_cols(), crt_schema_grade(), crt_schema_variant() -- all start from
+# here, so the "unknown pair" error is the registry's own.
+
+crt_schema_get <- function(source, file_name) {
+  chk::chk_string(source)
+  chk::chk_string(file_name)
+  entry <- crt_registry_entry(source, file_name)
+  crt_schema_read(entry$schema_yaml[[1L]])
+}

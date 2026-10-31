@@ -67,7 +67,7 @@ harvested (trap#47), and which rfp#24 is blocked on ("read the schema from crate
 ## Decided at the gate (user, 2026-10-30, via AskUserQuestion in plan mode)
 
 1. **Key:** `nge/form_<name>` (flat), so a record's `form` value is its schema's `file_name`.
-2. **Fingerprint moves into crate:** exported `crt_schema_fingerprint()`, byte-identical to trap's;
+2. **Fingerprint moves into crate:** exported `crt_schema_fingerprint()` (definition per decision 4);
    `digest` joins Imports; trap switches in a follow-up trap issue.
 3. **Versions listed now:** rfp's shipped builds and the measured live 2026 vintages (incl. both
    monitoring shapes). The 2023–2025 back-catalogue, read from Mergin server history, becomes a new
@@ -79,6 +79,12 @@ harvested (trap#47), and which rfp#24 is blocked on ("read the schema from crate
    (`serialize = FALSE`); every fingerprint in this plan is recomputed that way (pscis
    `99-c084e87fbf17e20e`, was `99-36743b027ac0c93f`), and trap's five form tables get new
    `schema_version` values once, on their next harvest.
+
+5. **Canonical type follows the values** (user, 2026-10-30, from plan review): a dropdown whose
+   choices are not numeric is `string` whatever rfp declares (fiss_site's 7 `real` method
+   columns); an rfp issue is filed for the declared type.
+6. **Meaning is published unscrubbed** (user query 2026-10-30): the review's "names a person"
+   claim was wrong (CHRIS is MoTI's system); the CSV meaning columns carry nothing private.
 
 Defaults taken (not questions — say so in the PR):
 - Known versions are recorded as **`upstream_variants` entries gaining a `fingerprint:` key**, reusing
@@ -95,30 +101,36 @@ Defaults taken (not questions — say so in the PR):
 - `captured_by` stays in `form_capture`'s `forward_compat` — not decided by this PR.
 
 ## Phase 1: Fingerprint lives in crate
-- [x] Tests first: `test-crt_schema_fingerprint.R` — equals trap's values for rfp's shipped
+- [x] Tests first: `test-crt_schema_fingerprint.R` — fixture tied to trap's measured value for rfp's shipped
       pscis/fiss_site name:type sets (fixtures `tests/testthat/fixtures/forms/<form>_cols.csv`);
       order-invariant; type-sensitive; aborts on a missing type; locale-independent (radix sort)
 - [x] `R/crt_schema_fingerprint.R` (exported, runnable example); `digest` to Imports
 - [x] `form_capture.yaml` `schema_version` notes name the algorithm and the function
 
 ## Phase 2: Schema keys and runtime
-- [ ] Tests first: `test-crt_schema_cols.R`, `test-crt_schema_grade.R`, `test-crt_schema_variant.R`
+- [x] Tests first: `test-crt_schema_meaning.R` (cols, grade, variant on an inline schema)
       (grade fixture has rows that fail as well as pass; unknown fingerprint warns with its class)
-- [ ] YAML keys, documented in `inst/extdata/schemas/README.md`: `cols[].units`, `cols[].values`
+- [x] YAML keys, documented in `inst/extdata/schemas/README.md`: `cols[].units`, `cols[].values`
       (string or `{value, label}`), `cols[].range`, `cols[].relative_to` (photo paths),
       `cols[].null`, top-level `grades:` (`name`, `requires`), `upstream_variants[].fingerprint`
-- [ ] `crt_schema_cols(source, file_name)` — exported tibble of declarations (name, type, required,
+- [x] `crt_schema_cols(source, file_name)` — exported tibble of declarations (name, type, required,
       units, values list-col, range, relative_to, null, notes); the accessor rfp#24 and #1's QC read
-- [ ] `crt_schema_grade(df, source, file_name)` — exported, one logical column per declared grade
-- [ ] `crt_schema_variant(df, source, file_name)` — exported, fingerprint → variant id, `NA` unknown;
+- [x] `crt_schema_grade(df, source, file_name)` — exported, one logical column per declared grade
+- [x] `crt_schema_variant(df, source, file_name)` — exported, fingerprint → variant id, `NA` unknown;
       `crt_schema_conform()` warns on unknown fingerprints when the schema lists any
-- [ ] Integrity tests: grades name declared cols; fingerprints well-formed and unique per schema;
-      `values` only on string/integer cols; every `form_*` schema carries the envelope verbatim
+- [x] Integrity tests: grades name declared cols; fingerprints well-formed and unique per schema;
+      `values` only on string/integer cols and every value a character (Yes/No!); every `form_*`
+      schema carries the envelope verbatim
+- [x] Review fixes: pscis fixture tied to the measured serialized value; `enc2utf8()` names;
+      `crt_schema_validate()` reserved slot renamed `cols[].values`
 
 ## Phase 3: Derive the meaning from rfp, not restate it
 - [ ] `data-raw/forms_derive-schemas.R`: reads the four CSVs + `monitoring`'s QML/GPKG at a pinned
       rfp SHA via `gh api`; maps types (`text→string, integer, real→double, datetime, boolean→logical`);
-      units from the label's trailing parentheses (measure false positives, list exclusions);
+      units from an allow-list of unit tokens in the label's trailing parentheses, falling back
+      to the name suffix (`_m`, `_c`, `_percent`...); a dropdown with non-numeric choices is
+      `string`; drop QGIS `<NULL>` sentinels and int32 sentinel ranges; monitoring's photo root
+      read from its QML; header says it is a one-off bootstrap until rfp#24;
       `values` from valuemap/checkbox options; `range` from range options; photo cols
       `relative_to: project root` (`ignore_mobile/photos/...`); blank-`group` cols get a `null` note
       (office/computed, null until filled); help → notes
@@ -139,14 +151,19 @@ Defaults taken (not questions — say so in the PR):
       `schema_version`, each mapped to its variant by `crt_schema_variant()`
 - [ ] The narrower vintage validates and is excluded by `crew_attributed`; `harvestable` fails a
       row with no fix
-- [ ] Allowed values for a pscis/fiss_site dropdown come back from `crt_schema_cols()`
+- [ ] Allowed values for a pscis/fiss_site dropdown come back from `crt_schema_cols()`, and a
+      QC-style check over them flags a near-miss and a label stored where a code belongs
+- [ ] An unlisted fingerprint on a registered form warns; every listed variant's fingerprint is
+      recomputed from its column fixture
 
 ## Phase 6: Docs and cross-repo
 - [ ] Decision entry `decisions/nge/20261030_form_schemas_fish_passage.md` (why derived from rfp,
       fingerprint ownership, variants-as-versions, grades, the measured non-subset)
 - [ ] `_pkgdown.yml` reference, NEWS entry, CLAUDE.md Status line; `pkgdown::check_pkgdown()`
 - [ ] File: crate issue for the 2023–2025 back-catalogue; trap issue to call
-      `crt_schema_fingerprint()` (and note `_newgraph` forms share base fingerprints, for trap#47);
+      `crt_schema_fingerprint()` (re-harvest replaces serialized values, which warn until then;
+      `trp_form_stack()` must accept non-nested vintages; `_newgraph` forms share base
+      fingerprints and map to the base schema); rfp issue for fiss_site's 7 `real` text columns;
       edit rfp#24's body: crate side available via `crt_schema_cols()`
 
 ## Owed at the end (reported, done after merge)

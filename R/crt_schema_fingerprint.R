@@ -71,7 +71,10 @@ crt_schema_fingerprint <- function(types) {
     ))
   }
 
-  cols <- sort(cols, method = "radix")
-  pairs <- paste0(cols, ":", toupper(unname(types[cols])), collapse = ",")
+  # The digest is over bytes, so the same name in two encodings would give two
+  # values. UTF-8 is the one every other producer will use.
+  names(types) <- enc2utf8(cols)
+  cols <- sort(names(types), method = "radix")
+  pairs <- enc2utf8(paste0(cols, ":", toupper(unname(types[cols])), collapse = ","))
   paste0(length(cols), "-", digest::digest(pairs, algo = "xxhash64", serialize = FALSE))
 }

@@ -2,8 +2,11 @@
 
 export(crt_files)
 export(crt_ingest)
+export(crt_schema_cols)
 export(crt_schema_conform)
 export(crt_schema_fingerprint)
+export(crt_schema_grade)
+export(crt_schema_variant)
 importFrom(chk,chk_file)
 importFrom(chk,chk_flag)
 importFrom(chk,chk_null_or)

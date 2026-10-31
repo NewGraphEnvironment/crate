@@ -147,3 +147,90 @@ test_that("decision entries referenced by a schema exist", {
     }
   }
 })
+
+# ---- the keys that say what a column means (#13) ---------------------------
+
+read_schema <- function(i) yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+declared_names <- function(schema) {
+  vapply(schema$canonical$cols, function(col) as.character(col$name), character(1))
+}
+
+test_that("every grade requires only columns the schema declares", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    for (g in schema$grades) {
+      expect_true(is.character(g$name) && nzchar(g$name), info = reg$file_name[[i]])
+      req <- unlist(g$requires)
+      expect_true(length(req) > 0L, info = paste(reg$file_name[[i]], g$name))
+      expect_identical(
+        setdiff(req, declared_names(schema)), character(0),
+        info = paste(reg$file_name[[i]], g$name)
+      )
+    }
+  }
+})
+
+test_that("variant fingerprints are well-formed and name one variant each", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    fps <- unlist(lapply(schema$upstream_variants, function(v) v$fingerprint))
+    if (!length(fps)) next
+    expect_true(
+      all(grepl("^[0-9]+-[0-9a-f]{16}$", fps)),
+      info = paste(reg$file_name[[i]], paste(fps, collapse = ", "))
+    )
+    expect_identical(anyDuplicated(fps), 0L, info = reg$file_name[[i]])
+  }
+})
+
+test_that("allowed values sit on string or integer columns and read back as text", {
+  # YAML 1.1 reads a bare Yes or No as a boolean and a bare 4 as a number, so a
+  # vocabulary written unquoted stops being the stored values. Every value, and
+  # every label of a coded one, must come back as a string.
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    for (col in schema$canonical$cols) {
+      if (is.null(col$values)) next
+      where <- paste(reg$file_name[[i]], col$name)
+      expect_true(col$type %in% c("string", "integer"), info = where)
+      for (e in as.list(col$values)) {
+        if (is.list(e)) {
+          expect_true(is.character(e$value) && is.character(e$label), info = where)
+        } else {
+          expect_true(is.character(e), info = paste(where, format(e)))
+        }
+      }
+    }
+  }
+})
+
+test_that("a range is two numbers, low then high", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    for (col in schema$canonical$cols) {
+      if (is.null(col$range)) next
+      r <- unlist(col$range)
+      where <- paste(reg$file_name[[i]], col$name)
+      expect_true(is.numeric(r) && length(r) == 2L && r[[1]] <= r[[2]], info = where)
+      expect_true(col$type %in% c("integer", "double"), info = where)
+    }
+  }
+})
+
+test_that("every form schema carries the form_capture envelope verbatim", {
+  # The envelope is declared once, in nge/form_capture, and repeated by each
+  # per-form schema so one conform call checks both. Repeated text drifts; this
+  # is what stops it.
+  envelope <- yaml::read_yaml(schema_path("schemas/nge/form_capture.yaml"))$canonical$cols
+  strip <- function(col) col[c("name", "type", "required")]
+  forms <- which(reg$source == "nge" & startsWith(reg$file_name, "form_") &
+                   reg$file_name != "form_capture")
+  for (i in forms) {
+    schema <- read_schema(i)
+    by_name <- stats::setNames(schema$canonical$cols, declared_names(schema))
+    for (col in envelope) {
+      expect_identical(strip(by_name[[col$name]]), strip(col),
+                       info = paste(reg$file_name[[i]], col$name))
+    }
+  }
+})

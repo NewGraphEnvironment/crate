@@ -40,6 +40,11 @@ a ceiling.
 
 Throws on an unknown \verb{(source, file_name)} pair, on a missing required
 column, and on a schema declaring a type crate does not support.
+
+Warns, with class \code{crate_unknown_fingerprint}, when the schema lists the
+fingerprints of its known versions and a row's \code{schema_version} is not
+among them; \code{\link[=crt_schema_variant]{crt_schema_variant()}} says which rows. Allowed values and
+ranges (\code{\link[=crt_schema_cols]{crt_schema_cols()}}) are not checked here.
 }
 \examples{
 # A frame that is already in canonical shape passes through, typed.
