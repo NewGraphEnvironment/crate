@@ -193,11 +193,14 @@ test_that("allowed values sit on string or integer columns and read back as text
       if (is.null(col$values)) next
       where <- paste(reg$file_name[[i]], col$name)
       expect_true(col$type %in% c("string", "integer"), info = where)
+      # NA is a character too once yaml has read `.na.character`, so a missing
+      # value would pass a type check alone: a value must be a real string.
+      text <- function(v) is.character(v) && length(v) == 1L && !is.na(v) && nzchar(v)
       for (e in as.list(col$values)) {
         if (is.list(e)) {
-          expect_true(is.character(e$value) && is.character(e$label), info = where)
+          expect_true(text(e$value) && text(e$label), info = where)
         } else {
-          expect_true(is.character(e), info = paste(where, format(e)))
+          expect_true(text(e), info = paste(where, format(e)))
         }
       }
     }

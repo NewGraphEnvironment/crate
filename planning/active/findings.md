@@ -153,7 +153,22 @@ Declared types in rfp's shipped GPKGs include `MEDIUMINT` for integer fields (rf
 fingerprint is over declared SQLite types, not crate types: pscis = 51 TEXT, 27 REAL,
 19 MEDIUMINT, 2 DATETIME.
 
+## Mutation table (2026-10-31, in a scratch copy of the tree)
+
+Each new guard, with its defect restored, fails its tests:
+
+| defect restored | filter | result |
+|---|---|---|
+| a form schema's envelope `schema_version` made optional | registry_integrity | FAIL 1 |
+| a listed fingerprint off by one hex digit | form_schemas | FAIL 3 |
+| a grade requiring an undeclared column | registry_integrity | FAIL 1 |
+| grades checking column presence only | schema_meaning | FAIL 3 |
+| conform not checking fingerprints | form_schemas | FAIL 1 |
+| fingerprint hashing R's serialization again | schema_fingerprint | FAIL 3 |
+| an unquoted `Yes` in `values` | registry_integrity | FAIL 1 |
+
 ## Errors Encountered
 
 | Error | Resolution |
 |-------|------------|
+| monitoring dropdowns carried QGIS's `map` wrapper as a choice, `value: .na.character` | Found by the Phase 5 QC test. xpath now takes descendant Options with both `name` and `value`; integrity guard tightened, since yaml reads `.na.character` back as a character NA and `is.character()` passed it |

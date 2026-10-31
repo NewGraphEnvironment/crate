@@ -128,8 +128,6 @@ canonical:
       type: string
       required: false
       values:
-        - value: .na.character
-          label: map
         - value: CBS
           label: Closed Bottom Structure
         - value: OBS
@@ -140,8 +138,6 @@ canonical:
       type: string
       required: false
       values:
-        - value: .na.character
-          label: map
         - BRIDGE
         - CRTBOX
         - FORD
@@ -243,8 +239,6 @@ canonical:
       type: string
       required: false
       values:
-        - value: .na.character
-          label: map
         - Bedrock
         - Deep Fill
         - Shallow Fill
@@ -252,8 +246,6 @@ canonical:
       type: string
       required: false
       values:
-        - value: .na.character
-          label: map
         - HIGH
         - LOW
         - MEDIUM

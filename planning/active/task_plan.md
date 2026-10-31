@@ -147,13 +147,13 @@ Defaults taken (not questions — say so in the PR):
       from `schema_version`) and that monitoring vintages rename rather than nest
 
 ## Phase 5: Acceptance tests over the registered forms
-- [ ] Two monitoring vintages (124 / 122 shapes) conform to one table, distinguishable by
+- [x] Two monitoring vintages (124 / 122 shapes) conform to one table, distinguishable by
       `schema_version`, each mapped to its variant by `crt_schema_variant()`
-- [ ] The narrower vintage validates and is excluded by `crew_attributed`; `harvestable` fails a
+- [x] The narrower vintage validates and is excluded by `crew_attributed`; `harvestable` fails a
       row with no fix
-- [ ] Allowed values for a pscis/fiss_site dropdown come back from `crt_schema_cols()`, and a
+- [x] Allowed values for a pscis/fiss_site dropdown come back from `crt_schema_cols()`, and a
       QC-style check over them flags a near-miss and a label stored where a code belongs
-- [ ] An unlisted fingerprint on a registered form warns; every listed variant's fingerprint is
+- [x] An unlisted fingerprint on a registered form warns; every listed variant's fingerprint is
       recomputed from its column fixture
 
 ## Phase 6: Docs and cross-repo

@@ -276,7 +276,10 @@ cols_from_qml <- function(path, decl) {
     widget <- xml2::xml_attr(xml2::xml_find_first(f, "editWidget"), "type")
     out <- list(name = name, type = unname(decl_map[[decl[[name]]]]), required = FALSE)
     if (widget == "ValueMap") {
-      o <- xml2::xml_find_all(f, ".//Option[@type='Map']/Option")
+      # QGIS nests each choice, as name (label) and value (code), under a list
+      # Option named `map`; the wrapper has a name and no value, so take only
+      # options that carry both.
+      o <- xml2::xml_find_all(f, ".//Option[@name='map']//Option[@name and @value]")
       v <- lapply(seq_along(o), function(i) {
         label <- xml2::xml_attr(o[i], "name")
         value <- xml2::xml_attr(o[i], "value")
