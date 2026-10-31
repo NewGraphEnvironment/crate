@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,10 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.0" id="crate-0100-2026-10-31">crate 0.10.0 (2026-10-31)<a class="anchor" aria-label="anchor" href="#crate-0100-2026-10-31"></a></h2>
+<ul><li>The schemas README now names the data consolidation umbrella (<a href="https://github.com/NewGraphEnvironment/crate/issues/38" class="external-link">#38</a>) as the home of the QC rules that will read <code>values</code> and <code>range</code>, in place of the issue it replaced. No code change.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="crate-090-2026-10-31">crate 0.9.0 (2026-10-31)<a class="anchor" aria-label="anchor" href="#crate-090-2026-10-31"></a></h2>
 <p>The five fish passage field forms have canonical schemas: <code>nge/form_pscis</code>, <code>form_fiss_site</code>, <code>form_monitoring_fish_passage</code>, <code>form_monitoring_general</code> and <code>form_monitoring</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/13" class="external-link">#13</a>). Each says what every form column means: its type, units, allowed values, range, what a photo path is relative to, and what a null means. The meaning is taken from the field definitions the forms are built from, by <code>data-raw/forms_derive-schemas.R</code>. Each schema also lists the form’s known versions with the fingerprint a capture of each produces. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261030_form_schemas_fish_passage.md" class="external-link">decision entry</a>.</p>

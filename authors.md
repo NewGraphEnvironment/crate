@@ -16,15 +16,15 @@ Source:
 Irvine A (2026). *crate: Canonical Schema and Data Governance for New
 Graph Environment*. New Graph Environment Ltd.
 [doi:10.5281/zenodo.23289273](https://doi.org/10.5281/zenodo.23289273).
-Version 0.9.0, <https://github.com/NewGraphEnvironment/crate>.
+Version 0.10.0, <https://github.com/NewGraphEnvironment/crate>.
 
     @Manual{crate,
       title = {crate: Canonical Schema and Data Governance for New Graph Environment},
       author = {Allan Irvine},
       organization = {New Graph Environment Ltd.},
       year = {2026},
-      version = {0.9.0},
-      note = {Version 0.9.0},
+      version = {0.10.0},
+      note = {Version 0.10.0},
       url = {https://github.com/NewGraphEnvironment/crate},
       doi = {10.5281/zenodo.23289273},
     }
