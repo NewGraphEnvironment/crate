@@ -3,6 +3,7 @@
 export(crt_files)
 export(crt_ingest)
 export(crt_schema_conform)
+export(crt_schema_fingerprint)
 importFrom(chk,chk_file)
 importFrom(chk,chk_flag)
 importFrom(chk,chk_null_or)

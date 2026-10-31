@@ -139,6 +139,20 @@ Consumers: the capture store's form harvests, the first done in 2026-09 and the 
 season next; and the form builder, which reads meaning from here once these land.
 
 
+## trap's fingerprint hashed R's serialization (2026-10-30)
+
+`trp_schema_version()` (trap `R/trp_form_read.R:348`) calls `digest::digest(pairs, algo = "xxhash64")`.
+digest's default `serialize = TRUE` hashes R's serialization of the length-1 string (format v2,
+header skipped by `skip = "auto"`), not the string. Measured on rfp's shipped form_pscis:
+serialized `36743b027ac0c93f`, plain `c084e87fbf17e20e`. Published XXH64 vectors
+(`""` -> `ef46db3751d8e999`, `"abc"` -> `44bc2cf5ad770999`) match digest with `serialize = FALSE`.
+No trap code or test pins a value (`git grep '[0-9]+-[0-9a-f]{16}'` over R/tests/data-raw/inst: 0);
+stored values live in five restricted form tables. User chose the plain string.
+
+Declared types in rfp's shipped GPKGs include `MEDIUMINT` for integer fields (rfp#249), so the
+fingerprint is over declared SQLite types, not crate types: pscis = 51 TEXT, 27 REAL,
+19 MEDIUMINT, 2 DATETIME.
+
 ## Errors Encountered
 
 | Error | Resolution |

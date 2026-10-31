@@ -26,6 +26,7 @@ Depends:
 Imports:
     chk,
     cli,
+    digest,
     dplyr,
     fs,
     readr,

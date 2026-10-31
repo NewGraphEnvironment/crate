@@ -86,20 +86,25 @@ canonical:
         different vintages the same version by accident:
 
         `<n>-<digest>`, where `n` is the count of capture columns and `digest`
-        is a short hash of `name:type` pairs, sorted by name and joined with
-        commas, over the capture's own columns only - excluding geometry, and
-        excluding any surrogate row id the reader supplies rather than the
-        capture carrying.
+        is the XXH64 (seed 0, 16 hex digits) of `name:TYPE` pairs - the type as
+        the file declares it, upper-cased - sorted by name in C collation and
+        joined with commas, over the capture's own columns only - excluding
+        geometry, and excluding any surrogate row id the reader supplies rather
+        than the capture carrying. `crt_schema_fingerprint()` computes it; call
+        it rather than reimplementing it.
 
         Types are in the pair because a set of names alone is blind to a column
         changing type between vintages, which is a real schema change that would
         otherwise report as no change and then either error or silently coerce
         when the two are stacked.
 
-        Hash a joined **string**, never a vector of names: a hash of an
-        in-memory object carries the language's serialization format, so a
+        Hash the joined string's own bytes, never an in-memory object: a hash
+        of a serialized object carries the language's serialization format, so a
         serialization change would move this column - and therefore the bytes of
-        any snapshot carrying it - with no schema change behind it.
+        any snapshot carrying it - with no schema change behind it. Values
+        written before this definition moved into crate (#13) hashed R's
+        serialization of the string, so they differ from this definition for the
+        same columns; a re-harvest replaces them.
     - name: "captured_at"
       type: datetime
       required: true

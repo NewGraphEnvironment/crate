@@ -73,6 +73,13 @@ harvested (trap#47), and which rfp#24 is blocked on ("read the schema from crate
    monitoring shapes). The 2023–2025 back-catalogue, read from Mergin server history, becomes a new
    crate issue.
 
+4. **Fingerprint hashes the plain string** (user, 2026-10-30, asked mid-Phase 1): trap's
+   `digest(pairs, "xxhash64")` hashed R's *serialization* (digest's `serialize = TRUE` default),
+   contradicting form_capture's own rule. crate defines it over the string's bytes
+   (`serialize = FALSE`); every fingerprint in this plan is recomputed that way (pscis
+   `99-c084e87fbf17e20e`, was `99-36743b027ac0c93f`), and trap's five form tables get new
+   `schema_version` values once, on their next harvest.
+
 Defaults taken (not questions — say so in the PR):
 - Known versions are recorded as **`upstream_variants` entries gaining a `fingerprint:` key**, reusing
   the existing concept (CLAUDE.md: "record each new shape as an `upstream_variant`") rather than a
@@ -88,11 +95,11 @@ Defaults taken (not questions — say so in the PR):
 - `captured_by` stays in `form_capture`'s `forward_compat` — not decided by this PR.
 
 ## Phase 1: Fingerprint lives in crate
-- [ ] Tests first: `test-crt_schema_fingerprint.R` — equals trap's values for rfp's shipped
+- [x] Tests first: `test-crt_schema_fingerprint.R` — equals trap's values for rfp's shipped
       pscis/fiss_site name:type sets (fixtures `tests/testthat/fixtures/forms/<form>_cols.csv`);
       order-invariant; type-sensitive; aborts on a missing type; locale-independent (radix sort)
-- [ ] `R/crt_schema_fingerprint.R` (exported, runnable example); `digest` to Imports
-- [ ] `form_capture.yaml` `schema_version` notes name the algorithm and the function
+- [x] `R/crt_schema_fingerprint.R` (exported, runnable example); `digest` to Imports
+- [x] `form_capture.yaml` `schema_version` notes name the algorithm and the function
 
 ## Phase 2: Schema keys and runtime
 - [ ] Tests first: `test-crt_schema_cols.R`, `test-crt_schema_grade.R`, `test-crt_schema_variant.R`
