@@ -160,7 +160,7 @@ Defaults taken (not questions — say so in the PR):
 - [x] Decision entry `decisions/nge/20261030_form_schemas_fish_passage.md` (why derived from rfp,
       fingerprint ownership, variants-as-versions, grades, the measured non-subset)
 - [x] README (registry output, public `crt_schema_*` list), CLAUDE.md Status line; `pkgdown::check_pkgdown()` clean (no reference index to update). NEWS is written by `/gh-pr-merge` at release, as for every prior version
-- [ ] File: crate issue for the 2023–2025 back-catalogue; trap issue to call
+- [x] Filed: crate#36 back-catalogue; trap#53 (fingerprint from crate, re-harvest, per-form conform, `_newgraph` mapping, non-nested stack); rfp#414 type bug; rfp#24 body edited. Was: crate issue for the 2023–2025 back-catalogue; trap issue to call
       `crt_schema_fingerprint()` (re-harvest replaces serialized values, which warn until then;
       `trp_form_stack()` must accept non-nested vintages; `_newgraph` forms share base
       fingerprints and map to the base schema); rfp issue for fiss_site's 7 `real` text columns;
@@ -168,7 +168,7 @@ Defaults taken (not questions — say so in the PR):
 
 ## Owed at the end (reported, done after merge)
 
-- [ ] trap switches to `crate::crt_schema_fingerprint()` (trap issue filed in Phase 6)
+- [ ] trap switches to `crate::crt_schema_fingerprint()` (trap#53)
 - [ ] rfp#24 builder reads meaning via `crt_schema_cols()` (rfp's work, unblocked by this PR)
 
 ## Validation
