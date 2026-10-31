@@ -18,7 +18,7 @@ test_that("every registered schema YAML is bundled and parses", {
   for (i in seq_len(nrow(reg))) {
     p <- schema_path(reg$schema_yaml[[i]])
     expect_true(nzchar(p), info = reg$schema_yaml[[i]])
-    expect_no_error(yaml::read_yaml(p))
+    expect_no_warning(expect_no_error(crt_schema_read(reg$schema_yaml[[i]])))
   }
 })
 
@@ -49,7 +49,7 @@ test_that("every declared column name is a string", {
   # column -- crt_schema_apply() would never match it and it would go untyped
   # with nothing reported. Caught exactly this way on track_vertices.
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     bad <- Filter(function(col) !is.character(col$name), schema$canonical$cols)
     expect_identical(
       length(bad), 0L,
@@ -65,7 +65,7 @@ test_that("every declared column name is a string", {
 
 test_that("upstream variant column lists are strings too", {
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     for (variant in schema$upstream_variants) {
       expect_true(
         all(vapply(variant$cols, is.character, logical(1))),
@@ -78,7 +78,7 @@ test_that("upstream variant column lists are strings too", {
 test_that("every declared type is one crt_schema_apply implements", {
   supported <- crt_schema_types()
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     types <- vapply(
       schema$canonical$cols,
       function(col) if (is.null(col$type)) NA_character_ else col$type,
@@ -94,7 +94,7 @@ test_that("every declared type is one crt_schema_apply implements", {
 
 test_that("the registry's canonical_cols match the schema's canonical cols", {
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     from_schema <- vapply(schema$canonical$cols, function(col) col$name, character(1))
     from_registry <- trimws(strsplit(reg$canonical_cols[[i]], ",")[[1]])
     # The registry list is informational, so it is allowed to name a subset of
@@ -120,7 +120,7 @@ test_that("every schema YAML sits at schemas/<source>/<file_name>.yaml", {
 
 test_that("each schema's file field is its registry file_name", {
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     expect_identical(schema$file, reg$file_name[[i]], info = reg$schema_yaml[[i]])
   }
 })
@@ -141,7 +141,7 @@ test_that("decision entries referenced by a schema exist", {
   root <- normalizePath(file.path(testthat::test_path(), "..", ".."), mustWork = FALSE)
   skip_if_not(dir.exists(file.path(root, "decisions")), "not running in the source tree")
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     for (d in as.character(schema$decisions)) {
       expect_true(file.exists(file.path(root, d)), info = d)
     }
@@ -150,7 +150,7 @@ test_that("decision entries referenced by a schema exist", {
 
 # ---- the keys that say what a column means (#13) ---------------------------
 
-read_schema <- function(i) yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+read_schema <- function(i) crt_schema_read(reg$schema_yaml[[i]])
 declared_names <- function(schema) {
   vapply(schema$canonical$cols, function(col) as.character(col$name), character(1))
 }
@@ -224,7 +224,7 @@ test_that("every form schema carries the form_capture envelope verbatim", {
   # The envelope is declared once, in nge/form_capture, and repeated by each
   # per-form schema so one conform call checks both. Repeated text drifts; this
   # is what stops it.
-  envelope <- yaml::read_yaml(schema_path("schemas/nge/form_capture.yaml"))$canonical$cols
+  envelope <- crt_schema_read("schemas/nge/form_capture.yaml")$canonical$cols
   strip <- function(col) col[c("name", "type", "required")]
   forms <- which(reg$source == "nge" & startsWith(reg$file_name, "form_") &
                    reg$file_name != "form_capture")

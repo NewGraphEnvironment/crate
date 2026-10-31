@@ -20,14 +20,16 @@ fixture_types <- function(form, variant) {
 # and every capture column filled with a value of its declared type.
 capture <- function(form, variant, n = 2, x = rep(1203451, n)) {
   types <- fixture_types(form, variant)
-  fill <- function(t) switch(
-    t,
-    TEXT = rep("text", n), REAL = rep(1.5, n),
-    INTEGER = , MEDIUMINT = rep(1L, n),
-    DATETIME = rep("2026-09-21T18:00:00Z", n),
-    BOOLEAN = rep(TRUE, n),
-    stop("no fill for ", t)
-  )
+  fill <- function(t) {
+    switch(
+      t,
+      TEXT = rep("text", n), REAL = rep(1.5, n),
+      INTEGER = , MEDIUMINT = rep(1L, n),
+      DATETIME = rep("2026-09-21T18:00:00Z", n),
+      BOOLEAN = rep(TRUE, n),
+      stop("no fill for ", t)
+    )
+  }
   cols <- lapply(types, fill)
   env <- data.frame(
     project = "example_2026", form = form, record_id = seq_len(n),
