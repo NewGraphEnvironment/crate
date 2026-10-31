@@ -8,7 +8,7 @@ message: If you use crate, please cite it by its DOI, 10.5281/zenodo.23289273.
 type: software
 license: MIT
 title: 'crate: Canonical Schema and Data Governance for New Graph Environment'
-version: 0.8.0
+version: 0.9.0
 doi: 10.5281/zenodo.23289273
 abstract: 'Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous
   data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas,
@@ -29,8 +29,8 @@ preferred-citation:
     email: al@newgraphenvironment.com
     orcid: https://orcid.org/0000-0002-3495-2128
     affiliation: New Graph Environment Ltd.
-  version: 0.8.0
-  date-released: '2026-10-12'
+  version: 0.9.0
+  date-released: '2026-10-31'
   url: https://newgraphenvironment.github.io/crate/
   repository-code: https://github.com/NewGraphEnvironment/crate
   license: MIT
@@ -40,7 +40,7 @@ preferred-citation:
     name: New Graph Environment Ltd.
 repository-code: https://github.com/NewGraphEnvironment/crate
 url: https://newgraphenvironment.github.io/crate/
-date-released: '2026-10-12'
+date-released: '2026-10-31'
 contact:
 - family-names: Irvine
   given-names: Allan
