@@ -45,18 +45,18 @@ Taken by default and stated here so they can be overruled:
 - The handler cannot infer a season. 2023 rows carry no `date` or `project_name`, so the caller tags the season when binding. The docs say so.
 
 ## Phase 1: Schema, registry, fixtures, tests first
-- [ ] `inst/extdata/schemas/nge/fish_data.yaml`: the canonical columns (28 field-sheet columns under their FISS/rfp names, plus `reference_number`), with `type`, `required`, `units` (`mm`, `g`, `s`, `V`, `Hz`) and notes. Three `upstream_variants` (`2023-peace-6col`, `2023-skeena-7col`, `2024-field-sheet`), each giving its `cols`, its `normalize_fn` and the pinned SHA it was last seen at. Plus `upstream_source` and `decisions:`
-- [ ] Add the registry row in `inst/extdata/crate_registry.csv` (`kind = file`, `handler_fn = crt_handler_nge_fish_data`, `canonical_cols = local_name,species`)
-- [ ] Hand-author synthetic fixtures in `inst/extdata/examples/nge/`: `fish_data_2023_peace.csv`, `fish_data_2023_skeena.csv` and `fish_data_2024.csv`, a few rows each. They cover a tag in the comments, a malformed tag, a blank comment, a missing weight, one tag recaptured from a 2023 fixture into the 2024 fixture, and a visual observation with no length
-- [ ] `data-raw/example_fixtures_nge_fish_data.R`: documents the fixtures and sanity-checks them, following the pattern of the bcfp fixture script
-- [ ] Write failing tests:
-  - [ ] `tests/testthat/test-crt_handler_nge_fish_data.R`: dispatch per variant; an unknown variant aborts; tag extraction cases (one tag, none, malformed, NA comment, a comment that reads as logical); `comments` stays verbatim
-  - [ ] Additions to `test-crt_ingest.R`: identical `names()` and column classes across the three fixtures; `dplyr::bind_rows()` of all three succeeds; the recapture query finds the planted cross-season tag
+- [x] `inst/extdata/schemas/nge/fish_data.yaml`: the canonical columns (28 field-sheet columns under their FISS/rfp names, plus `reference_number`), with `type`, `required`, `units` (`mm`, `g`, `s`, `V`, `Hz`) and notes. Three `upstream_variants` (`2023-peace-6col`, `2023-skeena-7col`, `2024-field-sheet`), each giving its `cols`, its `normalize_fn` and the pinned SHA it was last seen at. Plus `upstream_source` and `decisions:`
+- [x] Add the registry row in `inst/extdata/crate_registry.csv` (`kind = file`, `handler_fn = crt_handler_nge_fish_data`, `canonical_cols = local_name,species`)
+- [x] Hand-author synthetic fixtures in `inst/extdata/examples/nge/`: `fish_data_2023_peace.csv`, `fish_data_2023_skeena.csv` and `fish_data_2024.csv`, a few rows each. They cover a tag in the comments, a malformed tag, a blank comment, a missing weight, one tag recaptured from a 2023 fixture into the 2024 fixture, and a visual observation with no length
+- [x] `data-raw/example_fixtures_nge_fish_data.R`: documents the fixtures and sanity-checks them, following the pattern of the bcfp fixture script
+- [x] Write failing tests:
+  - [x] `tests/testthat/test-crt_handler_nge_fish_data.R`: dispatch per variant; an unknown variant aborts; tag extraction cases (one tag, none, malformed, NA comment, a comment that reads as logical); `comments` stays verbatim
+  - [x] Additions to `test-crt_ingest.R`: identical `names()` and column classes across the three fixtures; `dplyr::bind_rows()` of all three succeeds; the recapture query finds the planted cross-season tag
 
 ## Phase 2: Handler
-- [ ] `R/crt_handler_nge_fish_data.R`: a `switch` dispatcher on `variant_id`, mirroring `R/crt_handler_bcfp_user_habitat_classification.R`. Internal helpers rename each variant onto canonical names (`common_name→species`, `haul_pass`/`pass_number→haul_number_pass_number`, `length→length_mm`, `weight→weight_g`), extract the 2023 tags, normalise `date` and the time columns to strings, and fill and order the full canonical set. The canonical names are read from the schema (`crt_schema_get()`), not restated in the code
-- [ ] Wire nothing new into `crt_ingest()`. Variant matching by `setequal()` already distinguishes the three column sets
-- [ ] `devtools::document()`, `lintr::lint_package()`, `devtools::test()` green; `pkgdown::check_pkgdown()`
+- [x] `R/crt_handler_nge_fish_data.R`: a `switch` dispatcher on `variant_id`, mirroring `R/crt_handler_bcfp_user_habitat_classification.R`. Internal helpers rename each variant onto canonical names (`common_name→species`, `haul_pass`/`pass_number→haul_number_pass_number`, `length→length_mm`, `weight→weight_g`), extract the 2023 tags, normalise `date` and the time columns to strings, and fill and order the full canonical set. The canonical names are read from the schema (`crt_schema_get()`), not restated in the code
+- [x] Wire nothing new into `crt_ingest()`. Variant matching by `setequal()` already distinguishes the three column sets
+- [x] `devtools::document()`, `lintr::lint_package()`, `devtools::test()` green; `pkgdown::check_pkgdown()`
 
 ## Phase 3: Real-data check, decision entry, docs
 - [ ] `data-raw/fish_data_check-real.R`, not run in CI. It fetches the four real files at their pinned SHAs into `tempfile()`s, ingests each through `crt_ingest()` and binds them. It asserts the 171/417/674/97 row counts and identical columns, and reports the recapture table: the issue's 4 cross-year 2024→2025 tags reproduce, there is 0 overlap between 2023 and later seasons, and 2023 has 17 repeat tags within the season
@@ -67,7 +67,7 @@ Taken by default and stated here so they can be overruled:
 ## Validation
 - [ ] Tests pass (`devtools::test()`), and `devtools::check()` clean
 - [ ] `/code-check branch` clean (three-round floor)
-- [ ] Plan review (Plan agent, run concurrently), findings in `planning/active/review-plan.md`
+- [x] Plan review (Plan agent, run concurrently), findings in `planning/active/review-plan.md`
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion, then `/gh-pr-push`
 
