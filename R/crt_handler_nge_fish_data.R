@@ -38,7 +38,8 @@ crt_handler_nge_fish_rename_2023 <- function(raw) {
 }
 
 # 2024 onward: the field spreadsheet, with unitless `length` and `weight`, the
-# pass as `pass_number`, and the day as a midnight timestamp.
+# pass as `pass_number`, and the day as a midnight timestamp. Tags are upper
+# cased, as 2023's are, so a recapture joins whichever way a code was typed.
 crt_handler_nge_fish_rename_2024 <- function(raw) {
   renames <- c(
     pass_number = "haul_number_pass_number",
@@ -48,6 +49,7 @@ crt_handler_nge_fish_rename_2024 <- function(raw) {
   hit <- names(raw) %in% names(renames)
   names(raw)[hit] <- renames[names(raw)[hit]]
   raw$date <- crt_handler_nge_fish_day(raw$date)
+  raw$pit_tag_id <- toupper(as.character(raw$pit_tag_id))
   raw
 }
 

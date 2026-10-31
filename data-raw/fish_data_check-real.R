@@ -35,13 +35,19 @@ read_one <- function(i) {
   out$season <- files$season[[i]]
   out
 }
+# The pins here are the ones the schema's variants name, so the two cannot drift.
+pins <- unlist(lapply(crt_schema_read("schemas/nge/fish_data.yaml")$upstream_variants,
+                      function(v) c(v$first_seen, v$last_seen)))
+here <- paste0("NewGraphEnvironment/", files$repo, "@", substr(files$sha, 1, 7), " ", files$path)
+stopifnot(setequal(pins, here))
+
 seasons <- lapply(seq_len(nrow(files)), read_one)
 
 # One column set and one set of types for every file.
 classes <- lapply(seasons, function(x) vapply(x, function(col) class(col)[[1]], character(1)))
 stopifnot(all(vapply(classes, identical, logical(1), classes[[1]])))
 fish <- dplyr::bind_rows(seasons)
-stopifnot(nrow(fish) == 1359L)
+stopifnot(nrow(fish) == 1359L, ncol(fish) == 29L + 1L) # 29 canonical + season
 
 # Every time of day is HH:MM:SS: a column readr could not read as a time would
 # pass through as text in whatever form it was typed.
@@ -62,8 +68,13 @@ per_season <- dplyr::summarise(
 print(per_season)
 stopifnot(
   identical(per_season$rows[per_season$season == "2023"], 228L),
-  identical(per_season$tags[per_season$season == "2023"], 211L)
+  identical(per_season$tags[per_season$season == "2023"], 211L),
+  identical(per_season$tags[per_season$season == "2024"], 188L),
+  identical(per_season$tags[per_season$season == "2025"], 50L)
 )
+# 2023 tags seen more than once within the season: 17, each exactly twice.
+repeats_2023 <- table(tagged$pit_tag_id[tagged$season == "2023"])
+stopifnot(identical(as.vector(table(repeats_2023)), c(194L, 17L)))
 
 # Recaptures: a tag seen in more than one season.
 recaptures <- tagged |>

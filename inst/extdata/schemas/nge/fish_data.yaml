@@ -127,9 +127,9 @@ canonical:
       type: string
       required: false
       notes: >
-        PIT tag code, e.g. `3DD.003E192A2C`: the key for following one fish
-        across sites and seasons. 2023 files carry no tag column, so for 2023
-        it is read out of `comments`, which keeps the text as recorded.
+        PIT tag code, upper case, e.g. `3DD.003E192A2C`: the key for following
+        one fish across sites and seasons. 2023 files carry no tag column, so
+        for 2023 it is read out of `comments`, which keeps the text as recorded.
       'null': >
         Not tagged, or (2023 only) a tag written in `comments` in a form that
         is not a full code, which is left for review rather than guessed.

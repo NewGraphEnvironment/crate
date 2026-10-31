@@ -58,6 +58,15 @@ test_that("2024 names map onto the canonical ones, and the day is ISO", {
   expect_identical(as.double(out$length_mm[1:2]), c(201, 62))
   expect_identical(as.double(out$weight_g[[1]]), 92.4)
   expect_identical(as.integer(out$haul_number_pass_number), rep(1L, 4))
+  expect_identical(out$pit_tag_id[[1]], "3DD.003E190001")
+})
+
+test_that("a 2024 tag typed in lower case is stored upper case", {
+  raw <- read_nge_fixture("fish_data_2024.csv")
+  raw$pit_tag_id[[1]] <- "3dd.003e190001"
+  out <- crt_handler_nge_fish_data(raw, "2024-field-sheet")
+  expect_identical(out$pit_tag_id[[1]], "3DD.003E190001")
+  expect_true(all(is.na(out$pit_tag_id[2:4])))
   expect_identical(out$date, c("2024-09-06", "2024-09-06", "2024-09-07", "2024-09-07"))
   expect_true(all(is.na(out$reference_number)))
 })
