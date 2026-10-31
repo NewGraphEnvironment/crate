@@ -1,0 +1,231 @@
+file: fish_data
+description: >
+  Individual fish from NGE fish sampling: one row per fish caught or observed,
+  with the site, the sampling effort it came from, its length and weight, and
+  its PIT tag when it carries one. A pass that caught nothing is recorded
+  with `species` `NFC`.
+
+  Every season's file reads to the same columns, so seasons can be stacked and
+  a fish followed across years by `pit_tag_id`. A column a season did not
+  record is present and null. 2023 recorded no date, project or effort
+  columns, so a 2023 row cannot say which season it is from: the caller adds
+  that when stacking seasons.
+
+  Column names follow the provincial FISS individual fish data template and
+  the field form (`species`, `length_mm`, `weight_g`,
+  `haul_number_pass_number`), not the 2024 field spreadsheet's unitless
+  `length` and `weight`.
+
+canonical:
+  shape: long
+  cols:
+    - name: reference_number
+      type: integer
+      required: false
+      notes: >
+        The site's reference number in the habitat confirmation workbook.
+        Carried by the 2023 files only; later files join it after this stage.
+    - name: local_name
+      type: string
+      required: true
+      notes: >
+        Site the fish was sampled at, e.g. `125231_us_ef1`: the crossing's
+        stream crossing id, upstream (`us`) or downstream (`ds`), and the
+        sampling site.
+    - name: date
+      type: string
+      required: false
+      notes: Day sampled, ISO `YYYY-MM-DD`.
+    - name: project_name
+      type: string
+      required: false
+      notes: Project the sampling was done under, e.g. `2024-073-sern-peace-fish-passage`.
+    - name: crew
+      type: string
+      required: false
+      notes: Crew initials, space-separated.
+    - name: ef_id
+      type: string
+      required: false
+      notes: Initials recorded for the electrofisher.
+    - name: gps_id
+      type: string
+      required: false
+      notes: Initials recorded for the GPS that took `wp_top` and `wp_bottom`.
+    - name: sampling_method
+      type: string
+      required: false
+      notes: How the fish was sampled, e.g. `electrofishing`, `visual observation above water`.
+    - name: haul_number_pass_number
+      type: integer
+      required: false
+      notes: Electrofishing pass (or seine haul) the fish came from.
+    - name: ef_seconds
+      type: integer
+      required: false
+      units: s
+      notes: Electrofisher on-time for the pass.
+    - name: voltage
+      type: integer
+      required: false
+      units: V
+    - name: frequency
+      type: integer
+      required: false
+      units: Hz
+    - name: enclosure
+      type: string
+      required: false
+      notes: "`open`, `partial enclosure` or `closed`."
+    - name: wp_top
+      type: string
+      required: false
+      notes: GPS waypoint at the top of the site.
+    - name: wp_bottom
+      type: string
+      required: false
+      notes: GPS waypoint at the bottom of the site.
+    - name: site_start_time
+      type: string
+      required: false
+      notes: Time of day, `HH:MM:SS`.
+    - name: site_end_time
+      type: string
+      required: false
+      notes: Time of day, `HH:MM:SS`.
+    - name: segment_start_time
+      type: string
+      required: false
+      notes: Time of day, `HH:MM:SS`.
+    - name: segment_end_time
+      type: string
+      required: false
+      notes: Time of day, `HH:MM:SS`.
+    - name: species
+      type: string
+      required: true
+      notes: >
+        Common name, e.g. `Rainbow Trout`, `Fish Unidentified Species`; `NFC`
+        (no fish caught) for a pass that caught nothing.
+    - name: length_mm
+      type: double
+      required: false
+      units: mm
+      notes: Estimated by eye for a visual observation.
+      'null': Not measured.
+    - name: weight_g
+      type: double
+      required: false
+      units: g
+      'null': Not weighed.
+    - name: alive
+      type: logical
+      required: false
+      notes: Whether the fish was alive when recorded.
+    - name: pit_tag_id
+      type: string
+      required: false
+      notes: >
+        PIT tag code, e.g. `3DD.003E192A2C`: the key for following one fish
+        across sites and seasons. 2023 files carry no tag column, so for 2023
+        it is read out of `comments`, which keeps the text as recorded.
+      'null': >
+        Not tagged, or (2023 only) a tag written in `comments` in a form that
+        is not a full code, which is left for review rather than guessed.
+    - name: row_id
+      type: integer
+      required: false
+      notes: >
+        Row of the tag reader's export the tag was joined from. Provenance for
+        `pit_tag_id`; null where the fish was not tagged.
+    - name: camera_id
+      type: string
+      required: false
+      notes: Initials recorded for the camera that photographed the fish.
+    - name: photo_time_start
+      type: string
+      required: false
+      notes: Camera clock time of the first photo of the fish, `HH:MM:SS`.
+    - name: photo_time_end
+      type: string
+      required: false
+      notes: Camera clock time of the last photo of the fish, `HH:MM:SS`.
+    - name: comments
+      type: string
+      required: false
+      notes: Free text, as recorded.
+
+upstream_variants:
+  - id: 2023-peace-6col
+    description: >
+      Individual fish ready for the FISS template, as the 2023 Peace season
+      kept it: no effort, date or tag columns, species as `common_name`, tags
+      written into `comments`.
+    cols:
+      - reference_number
+      - local_name
+      - common_name
+      - length_mm
+      - weight_g
+      - comments
+    normalize_fn: rename_2023
+    last_seen: NewGraphEnvironment/fish_passage_peace_2023_reporting@92d50f7 data/inputs_raw/fish_data.csv
+
+  - id: 2023-skeena-7col
+    description: >
+      As `2023-peace-6col`, with the electrofishing pass as `haul_pass`, as
+      the 2023 Skeena season kept it.
+    cols:
+      - reference_number
+      - local_name
+      - haul_pass
+      - common_name
+      - length_mm
+      - weight_g
+      - comments
+    normalize_fn: rename_2023
+    last_seen: NewGraphEnvironment/fish_passage_skeena_2023_reporting@de68443 data/inputs_raw/fish_data.csv
+
+  - id: 2024-field-sheet
+    description: >
+      The field spreadsheet with PIT tags joined by `row_id`, 2024 onward:
+      every effort column, unitless `length` and `weight`, the pass as
+      `pass_number`, and `date` as a midnight timestamp.
+    cols:
+      - local_name
+      - date
+      - project_name
+      - crew
+      - ef_id
+      - gps_id
+      - sampling_method
+      - pass_number
+      - ef_seconds
+      - voltage
+      - frequency
+      - enclosure
+      - wp_top
+      - wp_bottom
+      - site_start_time
+      - site_end_time
+      - segment_start_time
+      - segment_end_time
+      - species
+      - length
+      - weight
+      - alive
+      - pit_tag_id
+      - row_id
+      - camera_id
+      - photo_time_start
+      - photo_time_end
+      - comments
+    normalize_fn: rename_2024
+    first_seen: NewGraphEnvironment/fish_passage_skeena_2024_reporting@f990ad2 data/fish_data_tags_joined.csv
+    last_seen: NewGraphEnvironment/fish_passage_peace_2025_reporting@e1ab377 data/fish_data_tags_joined_2025.csv
+
+upstream_source:
+  producer: New Graph Environment field crews
+  note: >
+    Kept per season in each fish passage reporting repo; the variants above
+    name the file each shape was last seen in.

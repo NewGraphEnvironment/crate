@@ -1,0 +1,5 @@
+local_name,date,project_name,crew,ef_id,gps_id,sampling_method,pass_number,ef_seconds,voltage,frequency,enclosure,wp_top,wp_bottom,site_start_time,site_end_time,segment_start_time,segment_end_time,species,length,weight,alive,pit_tag_id,row_id,camera_id,photo_time_start,photo_time_end,comments
+100001_us_ef1,2024-09-06T00:00:00Z,2024-000-example-fish-passage,AI LS,AI,AI,electrofishing,1,519,350,60,partial enclosure,18,13,13:20:00,13:50:50,13:20:00,13:43:34,Rainbow Trout,201,92.4,TRUE,3DD.003E190001,1,AI,14:45:33,14:46:02,
+100001_us_ef1,2024-09-06T00:00:00Z,2024-000-example-fish-passage,AI LS,AI,AI,electrofishing,1,519,350,60,partial enclosure,18,13,13:20:00,13:50:50,13:20:00,13:43:34,Rainbow Trout,62,2.5,TRUE,,,,,,
+100002_ds_ef1,2024-09-07T00:00:00Z,2024-000-example-fish-passage,AI LS,AI,AI,visual observation above water,1,,,,open,,,,,,,Fish Unidentified Species,110,,TRUE,,,,,,seen from bank
+100004_us_ef1,2024-09-07T00:00:00Z,2024-000-example-fish-passage,AI LS,LS,LS,electrofishing,1,402,300,60,closed,21,22,09:05:00,09:40:00,09:05:00,09:31:10,NFC,,,,,,,,,no fish caught
