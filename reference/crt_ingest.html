@@ -141,6 +141,24 @@ crate does not read. Conform your own data frame with
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wide</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">long</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># NGE fish data: a 2023 file, with PIT tags written into its comments, and</span></span></span>
+<span class="r-in"><span><span class="co"># a 2024 field sheet read to the same columns, so the seasons stack and a</span></span></span>
+<span class="r-in"><span><span class="co"># tagged fish can be followed between them.</span></span></span>
+<span class="r-in"><span><span class="va">fish_2023</span> <span class="op">&lt;-</span> <span class="fu">crt_ingest</span><span class="op">(</span><span class="st">"nge"</span>, <span class="st">"fish_data"</span>, <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"extdata/examples/nge/fish_data_2023_peace.csv"</span>, package <span class="op">=</span> <span class="st">"crate"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fish_2024</span> <span class="op">&lt;-</span> <span class="fu">crt_ingest</span><span class="op">(</span><span class="st">"nge"</span>, <span class="st">"fish_data"</span>, <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"extdata/examples/nge/fish_data_2024.csv"</span>, package <span class="op">=</span> <span class="st">"crate"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fish</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">fish_2023</span>, <span class="va">fish_2024</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fish</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">fish</span><span class="op">$</span><span class="va">pit_tag_id</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"local_name"</span>, <span class="st">"species"</span>, <span class="st">"length_mm"</span>, <span class="st">"pit_tag_id"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   local_name    species       length_mm pit_tag_id    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 100001_us_ef1 Rainbow Trout       157 3DD.003E190001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 100002_ds_ef1 Dolly Varden         92 3DD.003E190002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 100001_us_ef1 Rainbow Trout       201 3DD.003E190001</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

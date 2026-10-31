@@ -73,7 +73,7 @@
 <span></span>
 <span><span class="co"># What does crate know about?</span></span>
 <span><span class="fu"><a href="reference/crt_files.html">crt_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 13 × 6</span></span>
+<span><span class="co">#&gt; # A tibble: 14 × 6</span></span>
 <span><span class="co">#&gt;    source file_name                   kind        handler_fn                schema_yaml</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;       &lt;chr&gt;                     &lt;chr&gt;</span></span>
 <span><span class="co">#&gt;  1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml</span></span>
@@ -89,6 +89,7 @@
 <span><span class="co">#&gt; 11 nge    form_monitoring_fish_passa… schema_only NA                        schemas/nge/form_monitoring_fish_passage.yaml</span></span>
 <span><span class="co">#&gt; 12 nge    form_monitoring_general     schema_only NA                        schemas/nge/form_monitoring_general.yaml</span></span>
 <span><span class="co">#&gt; 13 nge    form_monitoring             schema_only NA                        schemas/nge/form_monitoring.yaml</span></span>
+<span><span class="co">#&gt; 14 nge    fish_data                   file        crt_handler_nge_fish_data schemas/nge/fish_data.yaml</span></span>
 <span></span>
 <span><span class="co"># Ingest a bundled wide-format example fixture (today's upstream shape)</span></span>
 <span><span class="va">wide_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
@@ -183,6 +184,13 @@
 <ul>
 <li>
 <code>user_habitat_classification</code> — handles both pre-2026-04-26 long and current 2026-04-26 wide upstream variants</li>
+</ul>
+</li>
+<li>
+<code>nge</code> — fish sampling
+<ul>
+<li>
+<code>fish_data</code> — one row per fish caught or observed; reads the 2023 individual fish files and the 2024+ field sheet to the same columns, with 2023 PIT tags read out of <code>comments</code>, so seasons stack and a tagged fish can be followed between them</li>
 </ul>
 </li>
 </ul>
