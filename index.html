@@ -73,17 +73,22 @@
 <span></span>
 <span><span class="co"># What does crate know about?</span></span>
 <span><span class="fu"><a href="reference/crt_files.html">crt_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 8 × 6</span></span>
-<span><span class="co">#&gt;   source file_name                   kind        handler_fn                schema_yaml</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;       &lt;chr&gt;                     &lt;chr&gt;</span></span>
-<span><span class="co">#&gt; 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml</span></span>
-<span><span class="co">#&gt; 2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml</span></span>
-<span><span class="co">#&gt; 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml</span></span>
-<span><span class="co">#&gt; 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml</span></span>
-<span><span class="co">#&gt; 5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml</span></span>
-<span><span class="co">#&gt; 6 nge    discharge/fwa/v1/segment_m… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_monthly.yaml</span></span>
-<span><span class="co">#&gt; 7 nge    discharge/fwa/v1/segment_d… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_daily.yaml</span></span>
-<span><span class="co">#&gt; 8 nge    discharge/fwa/v1/watershed… schema_only NA                        schemas/nge/discharge/fwa/v1/watershed_monthly.yaml</span></span>
+<span><span class="co">#&gt; # A tibble: 13 × 6</span></span>
+<span><span class="co">#&gt;    source file_name                   kind        handler_fn                schema_yaml</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;       &lt;chr&gt;                     &lt;chr&gt;</span></span>
+<span><span class="co">#&gt;  1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml</span></span>
+<span><span class="co">#&gt;  2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml</span></span>
+<span><span class="co">#&gt;  3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml</span></span>
+<span><span class="co">#&gt;  4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml</span></span>
+<span><span class="co">#&gt;  5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml</span></span>
+<span><span class="co">#&gt;  6 nge    discharge/fwa/v1/segment_m… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_monthly.yaml</span></span>
+<span><span class="co">#&gt;  7 nge    discharge/fwa/v1/segment_d… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_daily.yaml</span></span>
+<span><span class="co">#&gt;  8 nge    discharge/fwa/v1/watershed… schema_only NA                        schemas/nge/discharge/fwa/v1/watershed_monthly.yaml</span></span>
+<span><span class="co">#&gt;  9 nge    form_pscis                  schema_only NA                        schemas/nge/form_pscis.yaml</span></span>
+<span><span class="co">#&gt; 10 nge    form_fiss_site              schema_only NA                        schemas/nge/form_fiss_site.yaml</span></span>
+<span><span class="co">#&gt; 11 nge    form_monitoring_fish_passa… schema_only NA                        schemas/nge/form_monitoring_fish_passage.yaml</span></span>
+<span><span class="co">#&gt; 12 nge    form_monitoring_general     schema_only NA                        schemas/nge/form_monitoring_general.yaml</span></span>
+<span><span class="co">#&gt; 13 nge    form_monitoring             schema_only NA                        schemas/nge/form_monitoring.yaml</span></span>
 <span></span>
 <span><span class="co"># Ingest a bundled wide-format example fixture (today's upstream shape)</span></span>
 <span><span class="va">wide_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
@@ -136,13 +141,13 @@
 <li>
 <code>crt_&lt;verb&gt;</code> — public singletons (<code>crt_ingest</code>, <code>crt_files</code>)</li>
 <li>
-<code>crt_schema_conform</code> — public, and in the <code>crt_schema_*</code> family because that is what it belongs to</li>
+<code>crt_schema_conform</code>, <code>crt_schema_cols</code>, <code>crt_schema_grade</code>, <code>crt_schema_variant</code>, <code>crt_schema_fingerprint</code> — public, and in the <code>crt_schema_*</code> family because that is what they belong to</li>
 <li>
 <code>crt_handler_&lt;source&gt;_&lt;file_name&gt;</code> — per-(source, file) dispatchers</li>
 <li>
 <code>crt_&lt;family&gt;_&lt;verb&gt;</code> — internal helper families (<code>crt_registry_*</code>, <code>crt_schema_*</code>)</li>
 </ul>
-<p>Reserved future families (slots in the <code>crt_schema_*</code> family for the schema-as-contract roadmap): <code>crt_schema_version</code>, <code>crt_schema_migrate</code>, plus future <code>cols[].range</code>, <code>cols[].enum</code>, <code>cols[].predicate</code> extensions to <code>crt_schema_validate</code>.</p>
+<p>Reserved future families (slots in the <code>crt_schema_*</code> family for the schema-as-contract roadmap): <code>crt_schema_version</code>, <code>crt_schema_migrate</code>, plus a future <code>cols[].predicate</code> extension to <code>crt_schema_validate</code>. A schema already declares <code>cols[].values</code> and <code>cols[].range</code>, which <code><a href="reference/crt_schema_cols.html">crt_schema_cols()</a></code> returns for a QC rule to flag against; conforming does not enforce them.</p>
 </div>
 <div class="section level3">
 <h3 id="caveat-variant-matching-is-column-names-only">Caveat: variant matching is column-names only<a class="anchor" aria-label="anchor" href="#caveat-variant-matching-is-column-names-only"></a>

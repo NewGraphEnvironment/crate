@@ -74,7 +74,8 @@ the type-apply step; this surfaces the failure at the right layer.</p>
 <p>Lives in the <code>crt_schema_*</code> family alongside <code><a href="crt_schema_apply.html">crt_schema_apply()</a></code> and
 <code><a href="crt_schema_read.html">crt_schema_read()</a></code>.</p>
 <p>Future extensions (reserved family slots; NOT in v0.0.2):</p><ul><li><p><code>cols[].range</code> numeric range checks</p></li>
-<li><p><code>cols[].enum</code> value-membership checks</p></li>
+<li><p><code>cols[].values</code> value-membership checks (declared now, read by
+<code><a href="crt_schema_cols.html">crt_schema_cols()</a></code>; a QC rule flags rather than this function failing)</p></li>
 <li><p><code>cols[].predicate</code> custom predicate function refs</p></li>
 </ul><p>Each lands as additional <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort</a></code> branches in this function as
 the schema YAML grows the corresponding declaration keys. The function

@@ -81,6 +81,10 @@ to be exhaustive should assert that itself; the schema declares a floor, not
 a ceiling.</p>
 <p>Throws on an unknown <code>(source, file_name)</code> pair, on a missing required
 column, and on a schema declaring a type crate does not support.</p>
+<p>Warns, with class <code>crate_unknown_fingerprint</code>, when the schema lists the
+fingerprints of its known versions and a row's <code>schema_version</code> is not
+among them; <code><a href="crt_schema_variant.html">crt_schema_variant()</a></code> says which rows. Allowed values and
+ranges (<code><a href="crt_schema_cols.html">crt_schema_cols()</a></code>) are not checked here.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

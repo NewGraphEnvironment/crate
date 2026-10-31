@@ -55,6 +55,14 @@ declares a floor, not a ceiling.
 Throws on an unknown `(source, file_name)` pair, on a missing required
 column, and on a schema declaring a type crate does not support.
 
+Warns, with class `crate_unknown_fingerprint`, when the schema lists the
+fingerprints of its known versions and a row's `schema_version` is not
+among them;
+[`crt_schema_variant()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_variant.md)
+says which rows. Allowed values and ranges
+([`crt_schema_cols()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_cols.md))
+are not checked here.
+
 ## See also
 
 [`crt_ingest()`](https://newgraphenvironment.github.io/crate/reference/crt_ingest.md)

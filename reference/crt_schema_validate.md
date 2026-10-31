@@ -46,7 +46,9 @@ Future extensions (reserved family slots; NOT in v0.0.2):
 
 - `cols[].range` numeric range checks
 
-- `cols[].enum` value-membership checks
+- `cols[].values` value-membership checks (declared now, read by
+  [`crt_schema_cols()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_cols.md);
+  a QC rule flags rather than this function failing)
 
 - `cols[].predicate` custom predicate function refs
 
