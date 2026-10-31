@@ -175,8 +175,8 @@ Defaults taken (not questions — say so in the PR):
 - [x] Tests pass (`devtools::test()`, single-file reruns with `NOT_CRAN=true`)
 - [x] `lintr::lint_package()` clean; `devtools::document()`; `devtools::check()` clean
 - [x] `/code-check` clean (once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] PWF checkboxes match landed work
+- [x] `/planning-archive` on completion
 
 How each change is proved: fingerprint equality against values trap actually wrote; derive script
 re-run byte-identical; grade tests that fail on purpose; restore-the-bug checks on each new guard
