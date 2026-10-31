@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,20 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.9.0" id="crate-090-2026-10-31">crate 0.9.0 (2026-10-31)<a class="anchor" aria-label="anchor" href="#crate-090-2026-10-31"></a></h2>
+<p>The five fish passage field forms have canonical schemas: <code>nge/form_pscis</code>, <code>form_fiss_site</code>, <code>form_monitoring_fish_passage</code>, <code>form_monitoring_general</code> and <code>form_monitoring</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/13" class="external-link">#13</a>). Each says what every form column means: its type, units, allowed values, range, what a photo path is relative to, and what a null means. The meaning is taken from the field definitions the forms are built from, by <code>data-raw/forms_derive-schemas.R</code>. Each schema also lists the form’s known versions with the fingerprint a capture of each produces. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261030_form_schemas_fish_passage.md" class="external-link">decision entry</a>.</p>
+<ul><li>
+<code><a href="../reference/crt_schema_fingerprint.html">crt_schema_fingerprint()</a></code> is now the one definition of a capture’s <code>schema_version</code>. It hashes the joined string’s bytes rather than R’s serialization of it, so tables harvested before this release carry different values until they are harvested again.</li>
+<li>
+<code><a href="../reference/crt_schema_cols.html">crt_schema_cols()</a></code>, <code><a href="../reference/crt_schema_grade.html">crt_schema_grade()</a></code> and <code><a href="../reference/crt_schema_variant.html">crt_schema_variant()</a></code> return a schema’s column meanings, which records meet each of its grades, and which known version each record was captured with.</li>
+<li>
+<code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code> warns, with class <code>crate_unknown_fingerprint</code>, on a fingerprint the schema does not list.</li>
+<li>
+<code><a href="../reference/crt_schema_read.html">crt_schema_read()</a></code> no longer drops part of a schema that contains non-ASCII text when R runs in a C locale.</li>
+<li>
+<code>citation("crate")</code> and <code>CITATION.cff</code> carry the package’s Zenodo concept DOI, which resolves to every archived release.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="crate-080-2026-10-20">crate 0.8.0 (2026-10-20)<a class="anchor" aria-label="anchor" href="#crate-080-2026-10-20"></a></h2>
 <p><code>nge/discharge/fwa/v1/segment_daily</code> declares the columns of the daily discharge wet publishes beside <code>segment_monthly</code> (NewGraphEnvironment/wet#99): one row per FWA segment, source and day of a 365-day common year, keyed by <code>doy</code> in place of <code>month</code>. Its description says what the days are for each source, and how they relate to the published months (<a href="https://github.com/NewGraphEnvironment/crate/issues/33" class="external-link">#33</a>).</p>

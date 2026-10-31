@@ -1,5 +1,39 @@
 # Changelog
 
+## crate 0.9.0 (2026-10-31)
+
+The five fish passage field forms have canonical schemas:
+`nge/form_pscis`, `form_fiss_site`, `form_monitoring_fish_passage`,
+`form_monitoring_general` and `form_monitoring`
+([\#13](https://github.com/NewGraphEnvironment/crate/issues/13)). Each
+says what every form column means: its type, units, allowed values,
+range, what a photo path is relative to, and what a null means. The
+meaning is taken from the field definitions the forms are built from, by
+`data-raw/forms_derive-schemas.R`. Each schema also lists the form’s
+known versions with the fingerprint a capture of each produces. See the
+[decision
+entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261030_form_schemas_fish_passage.md).
+
+- [`crt_schema_fingerprint()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_fingerprint.md)
+  is now the one definition of a capture’s `schema_version`. It hashes
+  the joined string’s bytes rather than R’s serialization of it, so
+  tables harvested before this release carry different values until they
+  are harvested again.
+- [`crt_schema_cols()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_cols.md),
+  [`crt_schema_grade()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_grade.md)
+  and
+  [`crt_schema_variant()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_variant.md)
+  return a schema’s column meanings, which records meet each of its
+  grades, and which known version each record was captured with.
+- [`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md)
+  warns, with class `crate_unknown_fingerprint`, on a fingerprint the
+  schema does not list.
+- [`crt_schema_read()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_read.md)
+  no longer drops part of a schema that contains non-ASCII text when R
+  runs in a C locale.
+- `citation("crate")` and `CITATION.cff` carry the package’s Zenodo
+  concept DOI, which resolves to every archived release.
+
 ## crate 0.8.0 (2026-10-20)
 
 `nge/discharge/fwa/v1/segment_daily` declares the columns of the daily
