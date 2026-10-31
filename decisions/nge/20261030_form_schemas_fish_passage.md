@@ -83,6 +83,12 @@ Forms deployed under another name with the same columns (a project's
 `form_pscis_newgraph`, for instance) carry the base form's fingerprint, so a
 reader maps them to the base schema.
 
+`form_monitoring` is the earlier, combined monitoring form, retired for new
+work: `form_monitoring_fish_passage` and `form_monitoring_general` replaced it
+in 2026 (the first writes one statement per metric where the old form rated
+1 to 5). It is registered anyway, because projects still deploy it and earlier
+seasons' records are in its shape. Its schema's description says so.
+
 The 2023–2025 back-catalogue of earlier builds is not listed yet. Many of those
 files are processed copies, whose column sets are not a form's, so they are to
 be read from the sync service's version history instead.

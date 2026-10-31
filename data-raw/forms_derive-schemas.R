@@ -106,6 +106,20 @@ null_offform <- paste(
   "filled after the visit."
 )
 
+# Where a form stands relative to the others, for a form that has been
+# superseded. Appended to its description.
+form_status <- list(
+  monitoring = paste(
+    "`form_monitoring` is the earlier monitoring form, one form for crossing",
+    "assessment, effectiveness monitoring rated 1 to 5, and restoration sites.",
+    "It is retired for new work: fish passage effectiveness monitoring uses",
+    "`form_monitoring_fish_passage`, which records one written statement per",
+    "metric in place of the ratings, and restoration-site monitoring uses",
+    "`form_monitoring_general`. This schema is kept so that records from earlier",
+    "seasons, and from projects that still deploy the form, can be read."
+  )
+)
+
 # Forms whose capture shape in the field differs from rfp's build. Listed here,
 # not derived, because the evidence is a live capture (see header).
 extra_variants <- list(
@@ -359,7 +373,8 @@ describe <- function(form, n_build) {
     "record's `schema_version` belongs to. Whether a record can answer a given ",
     "question is a grade (`crt_schema_grade()`), not a property of the schema.\n\n",
     "Allowed values (`values`) and ranges are what a QC rule flags against; ",
-    "`crt_schema_conform()` does not refuse a value outside them."
+    "`crt_schema_conform()` does not refuse a value outside them.",
+    if (!is.null(form_status[[form]])) paste0("\n\n", form_status[[form]])
   )
 }
 

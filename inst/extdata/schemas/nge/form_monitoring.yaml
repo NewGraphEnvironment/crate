@@ -10,6 +10,8 @@ description: |-
   Every form column is optional, so a record from an earlier vintage that lacks one still conforms. A null then means one of two things, and `schema_version` says which: the observer left it blank, or the form did not have that column yet. `crt_schema_variant()` names the version a record's `schema_version` belongs to. Whether a record can answer a given question is a grade (`crt_schema_grade()`), not a property of the schema.
 
   Allowed values (`values`) and ranges are what a QC rule flags against; `crt_schema_conform()` does not refuse a value outside them.
+
+  `form_monitoring` is the earlier monitoring form, one form for crossing assessment, effectiveness monitoring rated 1 to 5, and restoration sites. It is retired for new work: fish passage effectiveness monitoring uses `form_monitoring_fish_passage`, which records one written statement per metric in place of the ratings, and restoration-site monitoring uses `form_monitoring_general`. This schema is kept so that records from earlier seasons, and from projects that still deploy the form, can be read.
 canonical:
   shape: long
   cols:
