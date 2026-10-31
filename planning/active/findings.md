@@ -167,6 +167,28 @@ Each new guard, with its defect restored, fails its tests:
 | fingerprint hashing R's serialization again | schema_fingerprint | FAIL 3 |
 | an unquoted `Yes` in `values` | registry_integrity | FAIL 1 |
 
+## Code-check convergence (2026-10-31)
+
+Round 2 found a defect inside round 1's fix (the NULL choice matched by its editable label),
+so the loop ended by enumeration, not by a quiet round. Round 3 named the mechanism: **a derived
+value depending on more than its input** — the session (locale, `digits`) or upstream's current
+spelling (a default label, a sentinel number, a column name standing for a primary key).
+
+Set (a), every "no value" representation the derive recognises or emits (27 rows, review-round3.md):
+one defect (YAML precision from `getOption("digits")`, fixed); four proxies closed after round 3
+(row id by `pk` not the name `fid`; `Label = code` trimmed as rfp trims; ±DBL_MAX as an unset
+range; ASCII upper-casing of declared types in the derive); one divergence recorded, not fixed:
+a blank checkbox state is dropped where rfp would store `""` (none occurs at the pinned SHA).
+
+Set (b), every point in the branch where text becomes bytes or is compared as bytes (enumerated by
+grep over `git diff base...HEAD -- R data-raw` for toupper/sort/digest/write*/read*/yaml/enc2/
+Encoding/match/%in%/regex): fingerprint names (marked, round 2), fingerprint types (chartr, round 3),
+radix sort (bytes in en_US and C, measured), YAML writes (UTF-8 locale enforced), schema reads
+(`crt_schema_read()` reads bytes as UTF-8, round 3 — predates the branch), derive `toupper` on
+declared types (chartr, after round 3), fixture CSV reads (ASCII, and names re-marked by the
+fingerprint), fingerprint `match()`/`%in%` (ASCII hex). All hold. Suite passes under `LC_ALL=C`
+and `en_US.UTF-8` (1201 each); derive re-run under `options(digits = 4)` changes no file.
+
 ## Errors Encountered
 
 | Error | Resolution |

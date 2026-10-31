@@ -58,8 +58,10 @@
 # - Values: a dropdown's choices, `Label=code` split on the last `=`; a
 #   checkbox's two stored values. QGIS's `<NULL>` placeholder and blank
 #   choices are dropped.
-# - Range: a spin box's `min|max`, unless it is the 32-bit integer limits QGIS
-#   writes when no range was set.
+# - Range: a spin box's `min|max`, unless it is what QGIS writes when no range
+#   was set (the 32-bit integer limits, or the largest double).
+# - A blank checkbox state is dropped, while rfp's builder would store "" for
+#   it. None occurs at rfp_sha; if one does, declare "" deliberately.
 # - A field with no form tab (blank `group`, or absent from the QML's tab
 #   layout) is not on the form a crew fills in, and is null until filled after
 #   the visit.
@@ -89,7 +91,11 @@ unit_tokens <- c("m", "cm", "mm", "km", "%", "m/m", "s", "epoch s")
 unit_suffix <- c(`_m_s_cm$` = "mS/cm", `_(meters|metres)$` = "m",
                  `_m(_[0-9]+)?$` = "m", `_cm$` = "cm", `_mm$` = "mm",
                  `_c$` = "degrees C", `_percent$` = "%")
-int32 <- c(-2147483648, 2147483647)
+# What QGIS writes for a spin box with no range set: the 32-bit integer limits
+# on an integer field, the largest double on a real one.
+unset_range <- function(b) {
+  identical(b, c(-2147483648, 2147483647)) || any(abs(b) >= .Machine$double.xmax / 2)
+}
 
 photo_note <- c(
   rfp = "Path of a photo taken in the form, relative to the project root, under `ignore_mobile/photos/`.",
@@ -185,8 +191,11 @@ gpkg_decl <- function(path, layer) {
     params = list(layer)
   )$column_name
   info <- DBI::dbGetQuery(con, sprintf('PRAGMA table_info("%s")', layer))
-  keep <- !info$name %in% c("fid", geom)
-  stats::setNames(toupper(info$type[keep]), info$name[keep])
+  # The surrogate row id is the primary key, whatever it is named; `fid` is
+  # only GDAL's default name for it.
+  keep <- info$pk == 0 & !info$name %in% geom
+  up <- chartr("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", info$type[keep])
+  stats::setNames(up, info$name[keep])
 }
 
 # ---- one column's meaning ---------------------------------------------------
@@ -206,8 +215,9 @@ vocab <- function(parts) {
   lapply(parts, function(p) {
     if (grepl("=", p, fixed = TRUE)) {
       at <- regexpr("=[^=]*$", p)
-      label <- substr(p, 1, at - 1)
-      value <- substr(p, at + 1, nchar(p))
+      # Trimmed both sides, as rfp's builder reads them.
+      label <- trimws(substr(p, 1, at - 1))
+      value <- trimws(substr(p, at + 1, nchar(p)))
       if (!identical(label, value)) return(list(value = value, label = label))
       return(value)
     }
@@ -251,7 +261,7 @@ col_from_csv <- function(r) {
     if (length(v)) out$values <- as.list(v)
   } else if (r$widget == "range" && nzchar(r$options)) {
     b <- as.numeric(strsplit(r$options, "|", fixed = TRUE)[[1]][1:2])
-    if (!anyNA(b) && !identical(b, int32)) out$range <- b
+    if (!anyNA(b) && !unset_range(b)) out$range <- b
   } else if (r$widget == "photo") {
     out$relative_to <- "project root"
   }
@@ -310,7 +320,7 @@ cols_from_qml <- function(path, decl) {
       if (length(v)) out$values <- as.list(v)
     } else if (widget == "Range") {
       b <- as.numeric(c(opt(f, "Min"), opt(f, "Max")))
-      if (!anyNA(b) && !identical(b, int32)) out$range <- b
+      if (!anyNA(b) && !unset_range(b)) out$range <- b
     } else if (widget == "ExternalResource") {
       out$relative_to <- "project root"
       out$notes <- photo_note[["qml"]]

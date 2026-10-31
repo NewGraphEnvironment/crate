@@ -172,9 +172,9 @@ Defaults taken (not questions — say so in the PR):
 - [ ] rfp#24 builder reads meaning via `crt_schema_cols()` (rfp's work, unblocked by this PR)
 
 ## Validation
-- [ ] Tests pass (`devtools::test()`, single-file reruns with `NOT_CRAN=true`)
-- [ ] `lintr::lint_package()` clean; `devtools::document()`; `devtools::check()` clean
-- [ ] `/code-check` clean (once over the branch with `/code-check branch`)
+- [x] Tests pass (`devtools::test()`, single-file reruns with `NOT_CRAN=true`)
+- [x] `lintr::lint_package()` clean; `devtools::document()`; `devtools::check()` clean
+- [x] `/code-check` clean (once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
