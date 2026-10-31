@@ -21,6 +21,26 @@ A schema is registered as one of two `kind`s in `crate_registry.csv`:
 
 A `schema_only` entry can still carry `upstream_variants`. They document the capture shape the reader is working against — useful precisely because that shape is usually owned upstream and cannot be changed.
 
+## Saying what a column means
+
+A column declaration needs only `name`, `type` and `required`. These optional keys say what the column *means*, and `crt_schema_cols()` returns them as a tibble so a form builder or a QC rule never parses the YAML:
+
+| key | holds |
+|---|---|
+| `units` | the unit of a measurement, e.g. `"m"` |
+| `values` | the values the column may store. A bare string where a form shows what it stores; `{value: "4", label: "Coniferous Trees"}` where the stored code differs from what is shown. Only on `string` or `integer` columns, and every value quoted |
+| `range` | `[low, high]`, on a numeric column |
+| `relative_to` | for a column of file paths, what they are relative to |
+| `'null'` | what a null means here, when it means something other than "not recorded". Quote the key: bare, YAML reads `null:` as an empty key and the declaration is lost |
+| `notes` | prose |
+
+`values` and `range` are declarations, not checks: `crt_schema_conform()` does not refuse a value outside them. A value outside the vocabulary is a record to flag (#1), not one to drop.
+
+Two schema-level keys:
+
+- **`grades`** — named predicates over a row: `{name: harvestable, requires: [record_id, "x", "y"]}` (quote `y` and `n`, as for column names). A row meets a grade when every listed column is present and non-missing. `crt_schema_grade()` evaluates them. A grade is how a schema stays permissive (a column added mid-season is `required: false`, so an earlier vintage conforms) without counting an earlier record as something it is not.
+- **`upstream_variants[].fingerprint`** — the `schema_version` a capture of that variant produces (`crt_schema_fingerprint()`). Listing them names the known versions of a form; `crt_schema_variant()` maps a fingerprint to its variant, and `crt_schema_conform()` warns (class `crate_unknown_fingerprint`) on one the schema does not list.
+
 ## Adding a new schema
 
 1. Identify the source family (e.g. `bcfp`, `nge`, `edna`). Use existing naming if present. The family is who the data belongs to, not which tool captured it — a tool is a variant.
@@ -36,7 +56,7 @@ The schema is the source of truth — crate's runtime validation reads it, and `
 
 YAML 1.1 resolves bare `y`, `Y`, `n`, `N`, `yes`, `no`, `on`, `off`, `true` and `false` to booleans. `- name: y` therefore parses as logical `TRUE`, the column silently stops being a column, and `crt_schema_apply()` never matches it — no error, just an untyped column. Write `- name: "y"`. The same applies inside a variant's `cols:` list.
 
-This is guarded in `test-crt_registry_integrity.R`, which is how it was found.
+This is guarded in `test-crt_registry_integrity.R`, which is how it was found. The same applies to `values`: a bare `Yes` reads back as `TRUE`, and a bare `4` as a number, so every value is quoted and the integrity test checks they come back as strings.
 
 ## Why under `inst/extdata/`
 

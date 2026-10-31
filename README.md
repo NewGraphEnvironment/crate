@@ -23,17 +23,22 @@ library(crate)
 
 # What does crate know about?
 crt_files()
-#> # A tibble: 8 × 6
-#>   source file_name                   kind        handler_fn                schema_yaml
-#>   <chr>  <chr>                       <chr>       <chr>                     <chr>
-#> 1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml
-#> 2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml
-#> 3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml
-#> 4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml
-#> 5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml
-#> 6 nge    discharge/fwa/v1/segment_m… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_monthly.yaml
-#> 7 nge    discharge/fwa/v1/segment_d… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_daily.yaml
-#> 8 nge    discharge/fwa/v1/watershed… schema_only NA                        schemas/nge/discharge/fwa/v1/watershed_monthly.yaml
+#> # A tibble: 13 × 6
+#>    source file_name                   kind        handler_fn                schema_yaml
+#>    <chr>  <chr>                       <chr>       <chr>                     <chr>
+#>  1 bcfp   user_habitat_classification file        crt_handler_bcfp_user_ha… schemas/bcfp/user_habitat_classification.yaml
+#>  2 nge    track_sessions              schema_only NA                        schemas/nge/track_sessions.yaml
+#>  3 nge    track_vertices              schema_only NA                        schemas/nge/track_vertices.yaml
+#>  4 nge    track_annotations           schema_only NA                        schemas/nge/track_annotations.yaml
+#>  5 nge    form_capture                schema_only NA                        schemas/nge/form_capture.yaml
+#>  6 nge    discharge/fwa/v1/segment_m… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_monthly.yaml
+#>  7 nge    discharge/fwa/v1/segment_d… schema_only NA                        schemas/nge/discharge/fwa/v1/segment_daily.yaml
+#>  8 nge    discharge/fwa/v1/watershed… schema_only NA                        schemas/nge/discharge/fwa/v1/watershed_monthly.yaml
+#>  9 nge    form_pscis                  schema_only NA                        schemas/nge/form_pscis.yaml
+#> 10 nge    form_fiss_site              schema_only NA                        schemas/nge/form_fiss_site.yaml
+#> 11 nge    form_monitoring_fish_passa… schema_only NA                        schemas/nge/form_monitoring_fish_passage.yaml
+#> 12 nge    form_monitoring_general     schema_only NA                        schemas/nge/form_monitoring_general.yaml
+#> 13 nge    form_monitoring             schema_only NA                        schemas/nge/form_monitoring.yaml
 
 # Ingest a bundled wide-format example fixture (today's upstream shape)
 wide_path <- system.file(
@@ -86,11 +91,11 @@ The handler made the type change transparent in our example. The wide canonical 
 Every function in crate's namespace starts with `crt_`, family-namespaced:
 
 - `crt_<verb>` — public singletons (`crt_ingest`, `crt_files`)
-- `crt_schema_conform` — public, and in the `crt_schema_*` family because that is what it belongs to
+- `crt_schema_conform`, `crt_schema_cols`, `crt_schema_grade`, `crt_schema_variant`, `crt_schema_fingerprint` — public, and in the `crt_schema_*` family because that is what they belong to
 - `crt_handler_<source>_<file_name>` — per-(source, file) dispatchers
 - `crt_<family>_<verb>` — internal helper families (`crt_registry_*`, `crt_schema_*`)
 
-Reserved future families (slots in the `crt_schema_*` family for the schema-as-contract roadmap): `crt_schema_version`, `crt_schema_migrate`, plus future `cols[].range`, `cols[].enum`, `cols[].predicate` extensions to `crt_schema_validate`.
+Reserved future families (slots in the `crt_schema_*` family for the schema-as-contract roadmap): `crt_schema_version`, `crt_schema_migrate`, plus a future `cols[].predicate` extension to `crt_schema_validate`. A schema already declares `cols[].values` and `cols[].range`, which `crt_schema_cols()` returns for a QC rule to flag against; conforming does not enforce them.
 
 ### Caveat: variant matching is column-names only
 

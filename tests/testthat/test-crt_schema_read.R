@@ -19,3 +19,13 @@ test_that("crt_schema_read rejects non-string args", {
   expect_error(crt_schema_read(NULL))
   expect_error(crt_schema_read(c("a", "b")))
 })
+
+test_that("crt_schema_read reads the whole schema whatever the session locale", {
+  # The bcfp schema has non-ASCII text in its second variant. Read in a C
+  # locale's encoding, the read stopped there and the variant was lost.
+  full <- crt_schema_read("schemas/bcfp/user_habitat_classification.yaml")
+  withr::local_locale(c(LC_CTYPE = "C"))
+  expect_no_warning(c_read <- crt_schema_read("schemas/bcfp/user_habitat_classification.yaml"))
+  expect_identical(length(c_read$upstream_variants), length(full$upstream_variants))
+  expect_identical(c_read, full)
+})

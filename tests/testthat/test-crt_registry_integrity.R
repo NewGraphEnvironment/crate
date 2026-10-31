@@ -18,7 +18,7 @@ test_that("every registered schema YAML is bundled and parses", {
   for (i in seq_len(nrow(reg))) {
     p <- schema_path(reg$schema_yaml[[i]])
     expect_true(nzchar(p), info = reg$schema_yaml[[i]])
-    expect_no_error(yaml::read_yaml(p))
+    expect_no_warning(expect_no_error(crt_schema_read(reg$schema_yaml[[i]])))
   }
 })
 
@@ -49,7 +49,7 @@ test_that("every declared column name is a string", {
   # column -- crt_schema_apply() would never match it and it would go untyped
   # with nothing reported. Caught exactly this way on track_vertices.
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     bad <- Filter(function(col) !is.character(col$name), schema$canonical$cols)
     expect_identical(
       length(bad), 0L,
@@ -65,7 +65,7 @@ test_that("every declared column name is a string", {
 
 test_that("upstream variant column lists are strings too", {
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     for (variant in schema$upstream_variants) {
       expect_true(
         all(vapply(variant$cols, is.character, logical(1))),
@@ -78,7 +78,7 @@ test_that("upstream variant column lists are strings too", {
 test_that("every declared type is one crt_schema_apply implements", {
   supported <- crt_schema_types()
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     types <- vapply(
       schema$canonical$cols,
       function(col) if (is.null(col$type)) NA_character_ else col$type,
@@ -94,7 +94,7 @@ test_that("every declared type is one crt_schema_apply implements", {
 
 test_that("the registry's canonical_cols match the schema's canonical cols", {
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     from_schema <- vapply(schema$canonical$cols, function(col) col$name, character(1))
     from_registry <- trimws(strsplit(reg$canonical_cols[[i]], ",")[[1]])
     # The registry list is informational, so it is allowed to name a subset of
@@ -120,7 +120,7 @@ test_that("every schema YAML sits at schemas/<source>/<file_name>.yaml", {
 
 test_that("each schema's file field is its registry file_name", {
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     expect_identical(schema$file, reg$file_name[[i]], info = reg$schema_yaml[[i]])
   }
 })
@@ -141,9 +141,99 @@ test_that("decision entries referenced by a schema exist", {
   root <- normalizePath(file.path(testthat::test_path(), "..", ".."), mustWork = FALSE)
   skip_if_not(dir.exists(file.path(root, "decisions")), "not running in the source tree")
   for (i in seq_len(nrow(reg))) {
-    schema <- yaml::read_yaml(schema_path(reg$schema_yaml[[i]]))
+    schema <- crt_schema_read(reg$schema_yaml[[i]])
     for (d in as.character(schema$decisions)) {
       expect_true(file.exists(file.path(root, d)), info = d)
+    }
+  }
+})
+
+# ---- the keys that say what a column means (#13) ---------------------------
+
+read_schema <- function(i) crt_schema_read(reg$schema_yaml[[i]])
+declared_names <- function(schema) {
+  vapply(schema$canonical$cols, function(col) as.character(col$name), character(1))
+}
+
+test_that("every grade requires only columns the schema declares", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    for (g in schema$grades) {
+      expect_true(is.character(g$name) && nzchar(g$name), info = reg$file_name[[i]])
+      req <- unlist(g$requires)
+      expect_true(length(req) > 0L, info = paste(reg$file_name[[i]], g$name))
+      expect_identical(
+        setdiff(req, declared_names(schema)), character(0),
+        info = paste(reg$file_name[[i]], g$name)
+      )
+    }
+  }
+})
+
+test_that("variant fingerprints are well-formed and name one variant each", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    fps <- unlist(lapply(schema$upstream_variants, function(v) v$fingerprint))
+    if (!length(fps)) next
+    expect_true(
+      all(grepl("^[0-9]+-[0-9a-f]{16}$", fps)),
+      info = paste(reg$file_name[[i]], paste(fps, collapse = ", "))
+    )
+    expect_identical(anyDuplicated(fps), 0L, info = reg$file_name[[i]])
+  }
+})
+
+test_that("allowed values sit on string or integer columns and read back as text", {
+  # YAML 1.1 reads a bare Yes or No as a boolean and a bare 4 as a number, so a
+  # vocabulary written unquoted stops being the stored values. Every value, and
+  # every label of a coded one, must come back as a string.
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    for (col in schema$canonical$cols) {
+      if (is.null(col$values)) next
+      where <- paste(reg$file_name[[i]], col$name)
+      expect_true(col$type %in% c("string", "integer"), info = where)
+      # NA is a character too once yaml has read `.na.character`, so a missing
+      # value would pass a type check alone: a value must be a real string.
+      text <- function(v) is.character(v) && length(v) == 1L && !is.na(v) && nzchar(v)
+      for (e in as.list(col$values)) {
+        if (is.list(e)) {
+          expect_true(text(e$value) && text(e$label), info = where)
+        } else {
+          expect_true(text(e), info = paste(where, format(e)))
+        }
+      }
+    }
+  }
+})
+
+test_that("a range is two numbers, low then high", {
+  for (i in seq_len(nrow(reg))) {
+    schema <- read_schema(i)
+    for (col in schema$canonical$cols) {
+      if (is.null(col$range)) next
+      r <- unlist(col$range)
+      where <- paste(reg$file_name[[i]], col$name)
+      expect_true(is.numeric(r) && length(r) == 2L && r[[1]] <= r[[2]], info = where)
+      expect_true(col$type %in% c("integer", "double"), info = where)
+    }
+  }
+})
+
+test_that("every form schema carries the form_capture envelope verbatim", {
+  # The envelope is declared once, in nge/form_capture, and repeated by each
+  # per-form schema so one conform call checks both. Repeated text drifts; this
+  # is what stops it.
+  envelope <- crt_schema_read("schemas/nge/form_capture.yaml")$canonical$cols
+  strip <- function(col) col[c("name", "type", "required")]
+  forms <- which(reg$source == "nge" & startsWith(reg$file_name, "form_") &
+                   reg$file_name != "form_capture")
+  for (i in forms) {
+    schema <- read_schema(i)
+    by_name <- stats::setNames(schema$canonical$cols, declared_names(schema))
+    for (col in envelope) {
+      expect_identical(strip(by_name[[col$name]]), strip(col),
+                       info = paste(reg$file_name[[i]], col$name))
     }
   }
 })

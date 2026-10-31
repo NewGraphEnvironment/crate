@@ -1,0 +1,60 @@
+#' Which records can answer which question
+#'
+#' Evaluates each grade a registered schema declares against every row of a
+#' data frame. A row meets a grade when every column the grade requires is
+#' present in the frame and non-missing in that row.
+#'
+#' A grade is a separate thing from the schema's `required` flag, on purpose.
+#' Columns added to a form mid-season are optional in the schema, so a record
+#' from an earlier vintage still conforms; whether that record can answer a
+#' given question is asked here. Making the new columns required would make the
+#' earlier records unharvestable, and having no grade would count them as
+#' equivalent to records that carry the extra fields.
+#'
+#' @inheritParams crt_schema_cols
+#' @param df A data frame, usually the output of [crt_schema_conform()].
+#'
+#' @return A tibble with one logical column per declared grade, in declaration
+#'   order, and one row per row of `df`.
+#'
+#' @details
+#' A column the frame does not have at all fails the grade for every row: an
+#' earlier vintage that never asked the question cannot answer it.
+#'
+#' Throws when the schema declares no grades.
+#'
+#' @examples
+#' records <- data.frame(
+#'   project = "example", form = "form_monitoring_fish_passage",
+#'   record_id = 1:2, source_version = "v1",
+#'   schema_version = "35-0000000000000000",
+#'   captured_at = "2026-09-21T18:00:00Z",
+#'   x = c(1203451, NA), y = c(1012345, 1012400), source_epsg = 3005L
+#' )
+#' crt_schema_grade(records, "nge", "form_monitoring_fish_passage")
+#'
+#' @seealso [crt_schema_cols()] for the columns themselves.
+#' @export
+crt_schema_grade <- function(df, source, file_name) {
+  if (!is.data.frame(df)) {
+    cli::cli_abort("{.arg df} must be a data frame, not {.cls {class(df)}}.")
+  }
+  crt_schema_grade_eval(df, crt_schema_get(source, file_name))
+}
+
+crt_schema_grade_eval <- function(df, schema) {
+  grades <- schema[["grades"]]
+  if (!length(grades)) {
+    cli::cli_abort("Schema {.val {schema$file}} declares no grades.")
+  }
+  out <- lapply(grades, function(g) {
+    req <- as.character(unlist(g[["requires"]]))
+    ok <- rep(TRUE, nrow(df))
+    for (col in req) {
+      ok <- ok & if (col %in% names(df)) !is.na(df[[col]]) else FALSE
+    }
+    ok
+  })
+  names(out) <- vapply(grades, function(g) g[["name"]], character(1))
+  tibble::as_tibble(out)
+}

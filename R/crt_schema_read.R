@@ -16,5 +16,24 @@ crt_schema_read <- function(yaml_path) {
   if (!nzchar(full_path)) {
     cli::cli_abort("Schema YAML not bundled at inst/extdata/{yaml_path}")
   }
-  yaml::read_yaml(full_path)
+  # The schemas are UTF-8. yaml::read_yaml() reads through a connection in the
+  # session's encoding, so under a C locale a non-ASCII byte ended the read and
+  # the rest of the schema was lost with only a warning; asking the connection
+  # to re-encode instead fails on the same byte. Read the bytes unconverted,
+  # marked as the UTF-8 they are.
+  txt <- readLines(full_path, encoding = "UTF-8", warn = FALSE)
+  yaml::yaml.load(paste(txt, collapse = "\n"))
+}
+
+# Internal: the parsed schema for one registered (source, file_name) pair.
+#
+# The accessors that answer questions about a registered schema --
+# crt_schema_cols(), crt_schema_grade(), crt_schema_variant() -- all start from
+# here, so the "unknown pair" error is the registry's own.
+
+crt_schema_get <- function(source, file_name) {
+  chk::chk_string(source)
+  chk::chk_string(file_name)
+  entry <- crt_registry_entry(source, file_name)
+  crt_schema_read(entry$schema_yaml[[1L]])
 }
