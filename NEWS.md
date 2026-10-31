@@ -1,3 +1,7 @@
+# crate 0.10.0 (2026-10-31)
+
+- The schemas README now names the data consolidation umbrella ([#38](https://github.com/NewGraphEnvironment/crate/issues/38)) as the home of the QC rules that will read `values` and `range`, in place of the issue it replaced. No code change.
+
 # crate 0.9.0 (2026-10-31)
 
 The five fish passage field forms have canonical schemas: `nge/form_pscis`, `form_fiss_site`, `form_monitoring_fish_passage`, `form_monitoring_general` and `form_monitoring` ([#13](https://github.com/NewGraphEnvironment/crate/issues/13)). Each says what every form column means: its type, units, allowed values, range, what a photo path is relative to, and what a null means. The meaning is taken from the field definitions the forms are built from, by `data-raw/forms_derive-schemas.R`. Each schema also lists the form's known versions with the fingerprint a capture of each produces. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261030_form_schemas_fish_passage.md).
