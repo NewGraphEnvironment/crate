@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,10 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.11.0" id="crate-0110-2026-10-31">crate 0.11.0 (2026-10-31)<a class="anchor" aria-label="anchor" href="#crate-0110-2026-10-31"></a></h2>
+<p><code>nge/fish_data</code> reads NGE individual fish data from any season to one set of 29 columns with the same types, so seasons stack and a PIT-tagged fish can be followed between them (<a href="https://github.com/NewGraphEnvironment/crate/issues/6" class="external-link">#6</a>). It is the first <code>nge</code> entry <code><a href="../reference/crt_ingest.html">crt_ingest()</a></code> reads: <code>crt_ingest("nge", "fish_data", path)</code> takes the 2023 individual fish files and the 2024 onward field sheet. Names follow the provincial FISS individual fish template and the field form (<code>species</code>, <code>length_mm</code>, <code>weight_g</code>, <code>haul_number_pass_number</code>), 2023 PIT tags written into <code>comments</code> are read into <code>pit_tag_id</code>, and <code>date</code> is an ISO day. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261031_fish_data_canonical.md" class="external-link">decision entry</a>.</p>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0" id="crate-0100-2026-10-31">crate 0.10.0 (2026-10-31)<a class="anchor" aria-label="anchor" href="#crate-0100-2026-10-31"></a></h2>
 <ul><li>The schemas README now names the data consolidation umbrella (<a href="https://github.com/NewGraphEnvironment/crate/issues/38" class="external-link">#38</a>) as the home of the QC rules that will read <code>values</code> and <code>range</code>, in place of the issue it replaced. No code change.</li>
