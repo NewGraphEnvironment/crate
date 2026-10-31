@@ -72,7 +72,12 @@ crt_schema_fingerprint <- function(types) {
   }
 
   # The digest is over bytes, so the same name in two encodings would give two
-  # values. UTF-8 is the one every other producer will use.
+  # values. UTF-8 is the one every other producer will use. A name whose bytes
+  # are already UTF-8 but carry no mark is marked first: enc2utf8() reads an
+  # unmarked string in the session's locale, so under C it would escape the
+  # bytes and one column set would get two fingerprints.
+  unmarked <- Encoding(cols) == "unknown" & validUTF8(cols)
+  Encoding(cols)[unmarked] <- "UTF-8"
   names(types) <- enc2utf8(cols)
   cols <- sort(names(types), method = "radix")
   pairs <- enc2utf8(paste0(cols, ":", toupper(unname(types[cols])), collapse = ","))

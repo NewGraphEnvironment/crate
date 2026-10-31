@@ -284,9 +284,10 @@ cols_from_qml <- function(path, decl) {
       # Option named `map`; the wrapper has a name and no value, so take only
       # options that carry both.
       o <- xml2::xml_find_all(f, ".//Option[@name='map']//Option[@name and @value]")
-      # QGIS's empty-choice placeholder, as the CSV branch drops it: its value
-      # is a GUID, which would make a coded vocabulary read as text.
-      o <- o[xml2::xml_attr(o, "name") != "<NULL>"]
+      # QGIS's empty-choice placeholder, as the CSV branch drops it. What marks
+      # it is its value, a fixed GUID; its label is editable text that only
+      # defaults to <NULL>. Kept, it would make a coded vocabulary read as text.
+      o <- o[xml2::xml_attr(o, "value") != "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"]
       v <- lapply(seq_along(o), function(i) {
         label <- xml2::xml_attr(o[i], "name")
         value <- xml2::xml_attr(o[i], "value")

@@ -54,6 +54,15 @@ test_that("the pscis fixture is the column set measured on live captures", {
   )
 })
 
+test_that("an unmarked UTF-8 name gives the same value in any locale", {
+  # Bytes as a reader that does not mark encodings returns them.
+  x <- rawToChar(as.raw(c(0x64, 0xc3, 0xa9, 0x62, 0x69, 0x74)))
+  expect_identical(Encoding(x), "unknown")
+  marked <- crt_schema_fingerprint(stats::setNames("TEXT", enc2utf8("d\u00e9bit")))
+  withr::local_locale(c(LC_CTYPE = "C"))
+  expect_identical(crt_schema_fingerprint(stats::setNames("TEXT", x)), marked)
+})
+
 test_that("a name in another encoding gives the same value", {
   utf8 <- stats::setNames("TEXT", enc2utf8("d\u00e9bit"))
   latin1 <- stats::setNames("TEXT", iconv(names(utf8), "UTF-8", "latin1"))
