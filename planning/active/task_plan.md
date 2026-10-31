@@ -62,7 +62,7 @@ Taken by default and stated here so they can be overruled:
 - [x] `data-raw/fish_data_check-real.R`, not run in CI. It fetches the four real files at their pinned SHAs into `tempfile()`s, ingests each through `crt_ingest()` and binds them. It asserts the 171/417/674/97 row counts and identical columns, and reports the recapture table: the issue's 4 cross-year 2024→2025 tags reproduce, there is 0 overlap between 2023 and later seasons, and 2023 has 17 repeat tags within the season
 - [x] `decisions/nge/20261031_fish_data_canonical.md`: FISS names over the sheet's names, tag extraction, the full column set with NA fill, season left to the caller, and the measured 2023 facts
 - [x] Add the new entry to the `crt_files()` output in `README.md` and to the Status paragraph of `CLAUDE.md`. Add a `crt_ingest()` `@examples` line for an nge fixture
-- [ ] Edit the body of issue #6 so its premise matches what was measured (shape, not names; 0 recaptures between 2023 and later seasons; tags in comments), and edit the matching sentence in #38's "Open questions"
+- [x] Edit the body of issue #6 so its premise matches what was measured (shape, not names; 0 recaptures between 2023 and later seasons; tags in comments), and edit the matching sentence in #38's "Open questions"
 
 ## Validation
 - [ ] Tests pass (`devtools::test()`), and `devtools::check()` clean
