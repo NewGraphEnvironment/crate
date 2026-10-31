@@ -85,10 +85,9 @@ crt_handler_nge_fish_pit_tag <- function(comments) {
 crt_handler_nge_fish_day <- function(x) {
   if (inherits(x, "POSIXct")) {
     clock <- format(x, "%H:%M:%S", tz = "UTC")
-    if (any(!is.na(clock) & clock != "00:00:00")) {
-      cli::cli_abort(
-        "{.field date} carries a time of day ({.val {unique(clock[clock != '00:00:00'])}}); expected a day."
-      )
+    timed <- unique(clock[!is.na(clock) & clock != "00:00:00"])
+    if (length(timed)) {
+      cli::cli_abort("{.field date} carries a time of day ({.val {timed}}); expected a day.")
     }
     return(format(x, "%Y-%m-%d", tz = "UTC"))
   }

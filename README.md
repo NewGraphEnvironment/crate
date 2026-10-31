@@ -122,6 +122,8 @@ Entries come in two kinds. `file` entries crate reads and normalizes; `schema_on
 
 - `bcfp` (files from [smnorris/bcfishpass](https://github.com/smnorris/bcfishpass))
   - `user_habitat_classification` — handles both pre-2026-04-26 long and current 2026-04-26 wide upstream variants
+- `nge` — fish sampling
+  - `fish_data` — one row per fish caught or observed; reads the 2023 individual fish files and the 2024+ field sheet to the same columns, with 2023 PIT tags read out of `comments`, so seasons stack and a tagged fish can be followed between them
 
 **`schema_only`**
 
