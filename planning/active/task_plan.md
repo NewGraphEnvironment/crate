@@ -157,9 +157,9 @@ Defaults taken (not questions — say so in the PR):
       recomputed from its column fixture
 
 ## Phase 6: Docs and cross-repo
-- [ ] Decision entry `decisions/nge/20261030_form_schemas_fish_passage.md` (why derived from rfp,
+- [x] Decision entry `decisions/nge/20261030_form_schemas_fish_passage.md` (why derived from rfp,
       fingerprint ownership, variants-as-versions, grades, the measured non-subset)
-- [ ] `_pkgdown.yml` reference, NEWS entry, CLAUDE.md Status line; `pkgdown::check_pkgdown()`
+- [x] README (registry output, public `crt_schema_*` list), CLAUDE.md Status line; `pkgdown::check_pkgdown()` clean (no reference index to update). NEWS is written by `/gh-pr-merge` at release, as for every prior version
 - [ ] File: crate issue for the 2023–2025 back-catalogue; trap issue to call
       `crt_schema_fingerprint()` (re-harvest replaces serialized values, which warn until then;
       `trp_form_stack()` must accept non-nested vintages; `_newgraph` forms share base
