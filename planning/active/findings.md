@@ -81,3 +81,10 @@ Fetched from the public reporting repos (`gh api ... contents`), probed in R.
 |-------|------------|
 | R one-liner `'\\.'` inside single-quoted `Rscript -e` → "unrecognized escape" | Write the probe to a file; use `[.]` in the regex |
 | PIT regex `{12}` matched nothing | Tags are `3DD.` + 10 hex digits |
+
+## Real-data check (2026-10-31, `data-raw/fish_data_check-real.R`)
+
+- All four files ingest; identical classes; 1,359 rows bound; every time-of-day value `HH:MM:SS`.
+- Tagged rows / distinct tags: 2023 228/211, 2024 189/188, 2025 51/50. 2023 has 17 tags seen exactly twice.
+- Cross-season recaptures: exactly #6's four (2024→2025). None involve 2023.
+- Species only in 2023: Burbot; Longnose Dace; Lamprey (General); No Fish Caught; Cutthroat Trout (General). Only in 2024–25: NFC; Fish Unidentified Species; Cutthroat Trout /Rainbow Trout  hybrid; Cutthroat Trout. → crate#40.

@@ -3,7 +3,7 @@ description: >
   Individual fish from NGE fish sampling: one row per fish caught or observed,
   with the site, the sampling effort it came from, its length and weight, and
   its PIT tag when it carries one. A pass that caught nothing is recorded
-  with `species` `NFC`.
+  as a row of its own (see `species`).
 
   Every season's file reads to the same columns, so seasons can be stacked and
   a fish followed across years by `pit_tag_id`. A column a season did not
@@ -105,8 +105,9 @@ canonical:
       type: string
       required: true
       notes: >
-        Common name, e.g. `Rainbow Trout`, `Fish Unidentified Species`; `NFC`
-        (no fish caught) for a pass that caught nothing.
+        Common name, as recorded, e.g. `Rainbow Trout`. A pass that caught
+        nothing is `NFC` from 2024 and `No Fish Caught` in 2023: spellings
+        still differ between seasons (#40).
     - name: length_mm
       type: double
       required: false
@@ -223,6 +224,9 @@ upstream_variants:
     normalize_fn: rename_2024
     first_seen: NewGraphEnvironment/fish_passage_skeena_2024_reporting@f990ad2 data/fish_data_tags_joined.csv
     last_seen: NewGraphEnvironment/fish_passage_peace_2025_reporting@e1ab377 data/fish_data_tags_joined_2025.csv
+
+decisions:
+  - decisions/nge/20261031_fish_data_canonical.md
 
 upstream_source:
   producer: New Graph Environment field crews

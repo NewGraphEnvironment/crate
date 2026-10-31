@@ -67,6 +67,18 @@ long
 # Both calls return the same canonical column set
 identical(names(wide), names(long))
 
+# NGE fish data: a 2023 file, with PIT tags written into its comments, and
+# a 2024 field sheet read to the same columns, so the seasons stack and a
+# tagged fish can be followed between them.
+fish_2023 <- crt_ingest("nge", "fish_data", system.file(
+  "extdata/examples/nge/fish_data_2023_peace.csv", package = "crate"
+))
+fish_2024 <- crt_ingest("nge", "fish_data", system.file(
+  "extdata/examples/nge/fish_data_2024.csv", package = "crate"
+))
+fish <- rbind(fish_2023, fish_2024)
+fish[!is.na(fish$pit_tag_id), c("local_name", "species", "length_mm", "pit_tag_id")]
+
 }
 \seealso{
 \code{\link[=crt_files]{crt_files()}} to list registered entries,
