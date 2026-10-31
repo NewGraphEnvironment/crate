@@ -65,10 +65,10 @@ Taken by default and stated here so they can be overruled:
 - [x] Edit the body of issue #6 so its premise matches what was measured (shape, not names; 0 recaptures between 2023 and later seasons; tags in comments), and edit the matching sentence in #38's "Open questions"
 
 ## Validation
-- [ ] Tests pass (`devtools::test()`), and `devtools::check()` clean
-- [ ] `/code-check branch` clean (three-round floor)
+- [x] Tests pass (`devtools::test()`), and `devtools::check()` clean
+- [x] `/code-check branch` clean (three-round floor)
 - [x] Plan review (Plan agent, run concurrently), findings in `planning/active/review-plan.md`
-- [ ] PWF checkboxes match landed work
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion, then `/gh-pr-push`
 
 Verification: the fixture tests prove the contract, with the same names and types for every variant and a bind that works. The `data-raw` real-data script proves it on the 1,359 real rows, against the counts measured here: 588 + 674 + 97. Revert the tag extraction and the recapture test must go red (mutation check).

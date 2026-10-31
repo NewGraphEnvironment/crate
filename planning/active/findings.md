@@ -88,3 +88,22 @@ Fetched from the public reporting repos (`gh api ... contents`), probed in R.
 - Tagged rows / distinct tags: 2023 228/211, 2024 189/188, 2025 51/50. 2023 has 17 tags seen exactly twice.
 - Cross-season recaptures: exactly #6's four (2024→2025). None involve 2023.
 - Species only in 2023: Burbot; Longnose Dace; Lamprey (General); No Fish Caught; Cutthroat Trout (General). Only in 2024–25: NFC; Fish Unidentified Species; Cutthroat Trout /Rainbow Trout  hybrid; Cutthroat Trout. → crate#40.
+
+## Code-check termination (2026-10-31): enumeration of round 3's mechanism
+
+Mechanism: the cell→canonical mapping lives in hand-kept lists that agree because they were written together. Every place it reaches:
+
+| place | checked by |
+|---|---|
+| YAML variant `cols` ↔ rename tables | fill aborts on an unmapped column; test walks every YAML variant (mutation: drop `pass_number` rename → 3 red) |
+| YAML variant ids ↔ `switch` ids | same YAML-walk test |
+| each rename lands on the right column | value tests on 2023-skeena and 2024 fixtures (`haul_number_pass_number`, `length_mm`, `species`) |
+| schema names ↔ handler output | by construction (fill reads the schema) |
+| fixture headers ↔ variant cols | CI via `crt_ingest()` setequal; exact order in `data-raw/example_fixtures_nge_fish_data.R` |
+| registry `canonical_cols` ↔ YAML | `test-crt_registry_integrity.R` subset test |
+| canonical `type` ↔ cell values | **not in scope**: crate-wide silent coercion → crate#41 |
+| `date` past readr's 1000-row guess | crate#41 |
+| 2023 vs 2024+ tag case | both upper-cased; test |
+| real-data pins ↔ YAML `first_seen`/`last_seen` | `setequal` in the real-data script (mutation: altered pin → abort) |
+| decision numbers ↔ measurement | 1,359 rows, 29 cols, 228/211, 188, 50, 17×2, the 4 recaptures, 0 with 2023: all asserted in the real-data script |
+| `comments` "as recorded" vs readr `trim_ws` | accepted: leading/trailing whitespace only |
