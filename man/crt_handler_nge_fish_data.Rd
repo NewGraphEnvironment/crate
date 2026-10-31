@@ -22,8 +22,8 @@ through \code{\link[=crt_schema_conform]{crt_schema_conform()}}.
 Called by \code{\link[=crt_ingest]{crt_ingest()}} via the registry's \code{handler_fn} lookup. Dispatches
 on \code{variant_id} (matched upstream from schema YAML) to the rename for that
 file shape, then returns every canonical column, in schema order, with a
-column the shape did not record present and null. That is what lets seasons
-be stacked with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}.
+column the shape did not record present and null. So every season comes
+back with the same columns, and even \code{\link[=rbind]{rbind()}} stacks them.
 }
 \details{
 Not exported. See \code{\link[=crt_ingest]{crt_ingest()}} for the public API.

@@ -3,8 +3,8 @@
 #' Called by [crt_ingest()] via the registry's `handler_fn` lookup. Dispatches
 #' on `variant_id` (matched upstream from schema YAML) to the rename for that
 #' file shape, then returns every canonical column, in schema order, with a
-#' column the shape did not record present and null. That is what lets seasons
-#' be stacked with [dplyr::bind_rows()].
+#' column the shape did not record present and null. So every season comes
+#' back with the same columns, and even [rbind()] stacks them.
 #'
 #' Not exported. See [crt_ingest()] for the public API.
 #'
@@ -52,10 +52,18 @@ crt_handler_nge_fish_rename_2024 <- function(raw) {
 }
 
 # Every canonical column, in schema order. Read from the schema so the column
-# list lives in one place.
+# list lives in one place. A column the rename left unmapped is a rename table
+# out of step with the schema's variants: abort rather than drop it, or the
+# fill below would put an all-NA canonical column in its place.
 crt_handler_nge_fish_fill <- function(df) {
   schema <- crt_schema_get("nge", "fish_data")
   cols <- vapply(schema$canonical$cols, function(col) col$name, character(1))
+  unmapped <- setdiff(names(df), cols)
+  if (length(unmapped)) {
+    cli::cli_abort(
+      "nge/fish_data handler left {.field {unmapped}} unmapped to a canonical column."
+    )
+  }
   for (col in setdiff(cols, names(df))) {
     df[[col]] <- rep(NA, nrow(df))
   }

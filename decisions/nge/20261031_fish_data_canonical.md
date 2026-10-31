@@ -49,8 +49,9 @@ schema's variants and read by `data-raw/fish_data_check-real.R`:
   out, and the form is the shape the next seasons will be captured in. Units in
   the name also match `form_fiss_site`'s measurements (`wetted_width_m`).
 - **Null fill.** `crt_schema_conform()` neither adds a missing optional column
-  nor drops an extra one, so seasons would not bind unless the handler returns
-  the full set.
+  nor drops an extra one, so without the fill each shape would come back with
+  its own columns. `dplyr::bind_rows()` would still stack them, but a caller
+  could not rely on a column being there, and `rbind()` would fail.
 - **Tags.** Without them a three-season recapture query cannot see 2023 at all.
   Reading them needs a strict pattern: a partial code is a question for whoever
   wrote it, so it stays in `comments` for the QC rules (#38).

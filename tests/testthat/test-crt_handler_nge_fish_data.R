@@ -57,6 +57,7 @@ test_that("2024 names map onto the canonical ones, and the day is ISO", {
   )
   expect_identical(as.double(out$length_mm[1:2]), c(201, 62))
   expect_identical(as.double(out$weight_g[[1]]), 92.4)
+  expect_identical(as.integer(out$haul_number_pass_number), rep(1L, 4))
   expect_identical(out$date, c("2024-09-06", "2024-09-06", "2024-09-07", "2024-09-07"))
   expect_true(all(is.na(out$reference_number)))
 })
@@ -95,6 +96,7 @@ test_that("tag extraction: one code, none, malformed, ambiguous, NA", {
     "3dd.003e192b98", # written lower case: still a full code
     "3DD.003E192B9I photo bute", # malformed: not a full code
     "3DD.003E192B88A", # eleven hex digits: not a code
+    "03DD.003E192B88", # a hex digit before 3DD: inside a longer run, not a code
     "3DD.003E192B88 3DD.003E192B99", # two different codes: ambiguous
     "3DD.003E192B88 again 3DD.003E192B88", # one code twice
     "no tag",
@@ -104,7 +106,7 @@ test_that("tag extraction: one code, none, malformed, ambiguous, NA", {
   expect_identical(
     crt_handler_nge_fish_pit_tag(comments),
     c(
-      "3DD.003E192B88", "3DD.003E192B98", "3DD.003E192B98", NA, NA, NA,
+      "3DD.003E192B88", "3DD.003E192B98", "3DD.003E192B98", NA, NA, NA, NA,
       "3DD.003E192B88", NA, NA, NA
     )
   )
@@ -116,4 +118,24 @@ test_that("an all-blank comments column, read as logical, yields no tags", {
   out <- crt_handler_nge_fish_data(raw, "2023-peace-6col")
   expect_true(all(is.na(out$pit_tag_id)))
   expect_type(out$pit_tag_id, "character")
+})
+
+test_that("every variant the schema lists maps onto canonical columns only", {
+  # Enumerated from the YAML, so a variant added there without its rename, or
+  # a rename table that misses a column, fails here rather than ingesting a
+  # column of NA.
+  schema <- crt_schema_read("schemas/nge/fish_data.yaml")
+  for (v in schema$upstream_variants) {
+    cols <- unlist(v$cols)
+    raw <- tibble::as_tibble(stats::setNames(
+      rep(list(character(0)), length(cols)), cols
+    ))
+    out <- crt_handler_nge_fish_data(raw, v$id)
+    expect_identical(names(out), canonical_nge_fish(), info = v$id)
+  }
+})
+
+test_that("a column the rename left unmapped aborts", {
+  df <- data.frame(local_name = "a", species = "b", pass_number = 1)
+  expect_error(crt_handler_nge_fish_fill(df), "pass_number")
 })
