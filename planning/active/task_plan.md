@@ -134,9 +134,9 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] Compare vectors (from Phase 5) pass, including the worked case → `equivalent`
 
 ## Phase 8: Mapping table and migrate
-- [ ] `inst/extdata/receipt/mapping.csv` (`source_field`, `source_format`, `receipt_key`, `stac_key`), seeded from the census: field names, with repo names only where the repo is public
-- [ ] `crt_receipt_migrate(path, format)` reads an old `manifest.json`/`provenance.json` through the mapping into a receipt, per the Phase 1 decision on migrated `recipe_id`
-- [ ] Tests on fixtures shaped like floodplains' `provenance.json` and a link-style `manifest.json`. An unmapped field is reported, never dropped silently.
+- [x] `inst/extdata/receipt/mapping.csv` (`source_field`, `source_format`, `receipt_key`, `stac_key`), seeded from the census: field names, with repo names only where the repo is public *(scope as landed: every field of the two formats migrate reads, STAC keys, and the names most repos share; see the research file)*
+- [x] `crt_receipt_migrate(path, format)` reads an old `manifest.json`/`provenance.json` through the mapping into a receipt, per the Phase 1 decision on migrated `recipe_id`
+- [x] Tests on fixtures shaped like floodplains' `provenance.json` and a link-style `manifest.json`. An unmapped field is reported, never dropped silently.
 
 ## Phase 9: `receipt:` STAC field schema
 - [ ] `pkgdown/assets/stac/receipt/v1.0.0/schema.json`, with README, CHANGELOG and `examples/item.json`. `receipt:recipe_id` is the first field (64 hex); no field is required.

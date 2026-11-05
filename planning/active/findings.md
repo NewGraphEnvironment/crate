@@ -182,3 +182,14 @@ from named `parts`. Recorded in the research file.
   bytes move while its named table agrees (`within`).
 - `compare.json` (9 pairs) is not recomputed by the Python cross-check, which covers hashing
   only; stacs#12 implements the comparison against it.
+
+## Phase 8: mapping and migrate (2026-11-05)
+
+- Census (soul `planning/archive/2026-11-issue-685-provenance-census/census-shape-walk.csv`): 887
+  distinct (repo, record, field) in 227 record formats; `rtj` and `trap` are private
+  (`gh api repos/NewGraphEnvironment/<r> --jq .private`), so none of their names are in crate.
+- floodplains' fixture is trimmed from `floodplains@3070549:data/bulk/provenance.json` (one
+  network and one floodplain section); link's is shaped from `link@2a5d881:R/lnk_scenario_export.R:636`
+  `.lnk_manifest_write()`.
+- Schema v1.0.0 (still unpublished) gains `context.legacy`; the register gains its row (record).
+- All three migrated receipts validate against the schema.

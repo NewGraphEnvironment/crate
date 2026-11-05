@@ -85,6 +85,7 @@ The vignette carries this through with a synthetic copy of the four tables, so i
 | `toolchain` | object, keyed by tool | third-party versions: `R`, `GDAL`, `terra`, `arrow`, `Python` |
 | `lockfile_sha256` | 64 hex or null | the sha256 of `renv.lock` (or another lockfile) |
 | `inputs` | object, keyed by input name | each input's own result (its fingerprint or sha256), for reporting |
+| `legacy` | object, optional | in a migrated receipt, the older record's fields with no receipt key, verbatim |
 
 ## Decisions
 
@@ -198,6 +199,21 @@ whose bytes differ and that names no table, or whose table does not agree, is `d
 sidecar through the mapping table. Old records lack fields the recipe needs (a seed, resolved
 settings), so a migrated receipt sets `recipe_id` to `null` and `output.migrated_from` to the
 source format, and the comparison reports `recipe: unknown` rather than inventing an identity.
+
+**The mapping table covers what migrate reads, not the whole census.** soul's census holds 887
+fields in 227 record formats across 26 repos. `inst/extdata/receipt/mapping.csv` maps every
+field of the formats `crt_receipt_migrate()` reads (link's `manifest.json`, floodplains'
+`provenance.json`), STAC's keys (`file:checksum`, `file:size`, `processing:software`,
+`processing:datetime`) beside the receipt keys they mirror, and the names most repos share
+(`<repo>_sha`, `<repo>_version`, `host`, `built`). A format joins it when its writer next moves,
+which is the forward-only rule; the census stays the inventory. Exact receipt keys for 887 fields
+written at once would be guesses. The two private repos' field names stay out of crate.
+
+**What a migrated receipt cannot place, it keeps.** An old field with no receipt key (an md5
+where a part needs sha256, floodplains' own `inputs_hash`, a raster's cell digest that is not a
+crate fingerprint) goes verbatim into `context.legacy`, keyed by its path in the record. A field
+the mapping does not know at all goes there too, with a warning. Nothing is dropped, and nothing
+old is passed off as a receipt identity.
 
 **One R implementation, one written contract** (*issue*). Producers that cannot call R implement
 the contract and pass the same test vectors: stacs (stacs#12) for the Python catalogues.

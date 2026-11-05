@@ -227,7 +227,11 @@
         "lockfile_sha256": {
           "oneOf": [{"$ref": "#/definitions/sha256"}, {"type": "null"}]
         },
-        "inputs": {"type": "object"}
+        "inputs": {"type": "object"},
+        "legacy": {
+          "description": "Fields of an older record that crt_receipt_migrate() could not place in a receipt key, verbatim and keyed by their path in that record. Recorded, never part of an identity.",
+          "type": "object"
+        }
       }
     }
   }

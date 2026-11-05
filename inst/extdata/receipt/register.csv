@@ -41,3 +41,4 @@ context.toolchain,record,a tool used by one build only; never identity
 context.toolchain.*,record,"a third-party version; the result decides whether it mattered"
 context.lockfile_sha256,record,"third-party versions; the result decides whether they mattered"
 context.inputs,record,"inputs' results, for reporting; never identity"
+context.legacy,record,"an older record's fields with no receipt key, kept verbatim; never identity"
