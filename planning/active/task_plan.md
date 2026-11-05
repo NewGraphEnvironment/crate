@@ -144,9 +144,9 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] `test-stac_schemas.R` finds the new prefix on its own; add negatives (bad `receipt:recipe_id`, unknown `receipt:bogus`)
 
 ## Phase 10: Vignette and docs
-- [ ] `vignettes/receipt.Rmd` from the research file, with runnable examples on a synthetic copy of the worked case (four tables, one off by 9.5e-11 km), not knowledge's data. DESCRIPTION: `VignetteBuilder: knitr`.
-- [ ] `_pkgdown.yml`: reference sections and an article; README "How it works" line; NEWS entry (the version bump is left to `/gh-pr-merge`)
-- [ ] CLAUDE.md Status and naming: the `crt_receipt_*` family and `crt_table_fingerprint`; reserve `crt_receipt_lineage` and `crt_receipt_stac`
+- [x] `vignettes/receipt.Rmd` from the research file, with runnable examples on a synthetic copy of the worked case (four tables, one off by 9.5e-11 km), not knowledge's data. DESCRIPTION: `VignetteBuilder: knitr`.
+- [x] `_pkgdown.yml`: reference sections and an article; README "How it works" line; NEWS entry (the version bump is left to `/gh-pr-merge`)
+- [x] CLAUDE.md Status and naming: the `crt_receipt_*` family and `crt_table_fingerprint`; reserve `crt_receipt_lineage` and `crt_receipt_stac`
 - [ ] Tick the #43 body's boxes as they land
 
 ## Owed at the end (reported, done after merge)

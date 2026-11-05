@@ -248,6 +248,9 @@ Two more things an implementation must get right, both found writing the Python 
   past 1e-9`)
 
 It reads the register to decide what each difference does, overlaid by the package's declaration.
+Tables supplied are each checked against their own receipt's fingerprint, whether or not the two
+receipts disagree: re-reading certifies that what is on disk is what the receipt claims, and
+`mode` is then `bytes`.
 A field is written `block.member`, with a key of a keyed collection in brackets
 (`result.parts[access_check.csv].sha256`), because keys such as file paths contain dots.
 

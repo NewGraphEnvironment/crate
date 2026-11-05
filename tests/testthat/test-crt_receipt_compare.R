@@ -54,10 +54,23 @@ test_that("a receipt compared with itself is identical", {
   expect_identical(nrow(x$differences), 0L)
 })
 
-test_that("re-reading the worked case's tables agrees", {
+test_that("re-reading the worked case's tables agrees, and says it re-read them", {
   x <- crt_receipt_compare(wc_dir("build_1"), wc_dir("build_2"),
                            tables = list(a = read_build("build_1"), b = read_build("build_2")))
   expect_identical(x$verdict, "equivalent")
+  expect_identical(x$mode, "bytes")
+})
+
+# The receipts agree, but the table on disk is not what they claim.
+test_that("a supplied table is checked against its receipt even when the fingerprints agree", {
+  b <- read_build("build_2")
+  b$walks$segments[1] <- 99L
+  x <- crt_receipt_compare(wc_dir("build_1"), wc_dir("build_2"),
+                           tables = list(a = read_build("build_1"), b = b))
+  expect_identical(x$verdict, "different")
+  hit <- x$differences[x$differences$field == "result.fingerprint[walks].sha256", ]
+  expect_identical(hit$action, "refuse")
+  expect_match(hit$detail, "supplied for b is not the one its receipt fingerprinted")
 })
 
 # Restore the bug: without the tolerance on km the same rebuild is different, and the

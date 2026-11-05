@@ -21,3 +21,5 @@ Thumbs.db
 
 # Claude local settings (keep shared version)
 .claude/settings.local.json
+/doc/
+/Meta/

@@ -67,6 +67,8 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
   d <- receipt_diff(a, b, register)
   d$action <- register$action[match(d$pattern, register$field)]
   d$action[is.na(d$action)] <- "refuse"
+  # Fingerprint differences are settled below, from the tables when they are supplied.
+  d$action[d$pattern == "result.fingerprint.*.sha256"] <- NA_character_
 
   # Neither side can vouch for a recipe it does not have.
   if (is.null(a$recipe$recipe_id) || is.null(b$recipe$recipe_id)) {
@@ -80,17 +82,36 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
   }
 
   used_bytes <- FALSE
+  # Every table supplied is checked against its own receipt, whether or not the two
+  # receipts' fingerprints differ: that is what re-reading certifies.
+  for (side in intersect(c("a", "b"), names(tables))) {
+    r <- if (side == "a") a else b
+    for (tbl in names(tables[[side]])) {
+      used_bytes <- TRUE
+      want <- r$result$fingerprint[[tbl]]$sha256
+      got <- if (!is.null(want)) {
+        crt_table_fingerprint(tables[[side]][[tbl]], r$result$tolerance$tables[[tbl]])
+      }
+      if (is.null(want) || !identical(got, want)) {
+        d <- rbind(d, receipt_diff_row(
+          paste0("result.fingerprint[", tbl, "].sha256"), "result.fingerprint.*.sha256", "refuse",
+          paste0("re-read: the table supplied for ", side, " is not the one its receipt fingerprinted"),
+          key = tbl
+        ))
+      }
+    }
+  }
   # Tables first: the parts' verdicts depend on them.
-  fp <- which(d$pattern == "result.fingerprint.*.sha256")
+  fp <- which(d$pattern == "result.fingerprint.*.sha256" & is.na(d$action))
   for (i in fp) {
     tbl <- d$key[i]
     da <- tables$a[[tbl]]
     db <- tables$b[[tbl]]
     if (is.null(da) || is.null(db)) {
+      d$action[i] <- register$action[register$field == "result.fingerprint.*.sha256"]
       d$detail[i] <- paste0("fingerprints differ (receipts only): ", d$detail[i])
       next
     }
-    used_bytes <- TRUE
     verdict <- receipt_tables_within(tbl, da, db, a, b)
     d$action[i] <- if (verdict$ok) "within" else "refuse"
     d$detail[i] <- verdict$detail
