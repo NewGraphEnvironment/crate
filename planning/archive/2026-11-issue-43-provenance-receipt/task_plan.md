@@ -160,7 +160,7 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] Tests pass
 - [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
 - [x] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] `/planning-archive` on completion
 
 How each change is proved:
 - `devtools::test()` green, and `devtools::check()` with 0 errors, 0 warnings and 0 notes beyond the existing baseline
