@@ -115,13 +115,13 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] A local cross-check with Python `rfc8785` (the stacs venv) over the jcs and recipe_id vectors, recorded in findings.md. It does not run in CI, which has no Python.
 
 ## Phase 6: The R family
-- [ ] `crt_receipt_write(path, output, recipe, result, context = NULL, publish = FALSE)`:
+- [x] `crt_receipt_write(path, output, recipe, result, context = NULL, publish = FALSE)`:
   - takes the values a package supplies and computes `recipe_id`, the fingerprints and the `parts` sha256 and bytes
   - fills `context` (UTC time, R version, loaded GDAL/terra/arrow versions, `renv.lock` hash when present)
   - writes `receipt.json` as pretty JSON; the ids are computed over JCS, not the pretty form
-- [ ] `crt_receipt_read()`, and `crt_receipt_validate()` against the installed schema
-- [ ] `crt_receipt_keys(path)` reads a package's YAML declaration: recipe inputs and settings, fingerprinted tables, tolerances, register overrides. It is validated with chk/cli, like `crt_schema_read()`.
-- [ ] Tests: written receipts validate against the schema; a round trip keeps the ids; `publish = TRUE` leaves out `host`; context never moves `recipe_id`
+- [x] `crt_receipt_read()`, and `crt_receipt_validate()` against the installed schema
+- [x] `crt_receipt_keys(path)` reads a package's YAML declaration: recipe inputs and settings, fingerprinted tables, tolerances, register overrides. It is validated with chk/cli, like `crt_schema_read()`.
+- [x] Tests: written receipts validate against the schema; a round trip keeps the ids; `publish = TRUE` leaves out `host`; context never moves `recipe_id`
 
 ## Phase 7: Comparison and register
 - [ ] `inst/extdata/receipt/register.csv`: one row per schema leaf field (`field`, `action` = refuse/warn/record, `why`)

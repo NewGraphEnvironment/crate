@@ -11,8 +11,8 @@ receipt_schema_path <- function() {
 
 receipt_example <- function() {
   jsonlite::read_json(
-    system.file("extdata", "receipt", "examples", "receipt.json", package = "crate",
-                mustWork = TRUE),
+    system.file("extdata", "receipt", "examples", "worked_case", "build_1", "receipt.json",
+                package = "crate", mustWork = TRUE),
     simplifyVector = FALSE
   )
 }
@@ -97,7 +97,7 @@ test_that("the schema rejects wrong values, missing fields and unknown keys", {
     },
     "unknown recipe field" = function(x) { x$recipe$host <- "m4"; x },
     "fingerprint without rows" = function(x) { x$result$fingerprint$access_check$rows <- NULL; x },
-    "negative part size" = function(x) { x$result$parts$access_check.csv$bytes <- -1L; x },
+    "negative part size" = function(x) { x$result$parts[["access_check.csv"]]$bytes <- -1L; x },
     "absolute part path" = function(x) {
       x$result$parts <- list(`/tmp/access_check.csv` = x$result$parts[[1]])
       x

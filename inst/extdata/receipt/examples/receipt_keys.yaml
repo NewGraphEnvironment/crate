@@ -1,0 +1,19 @@
+# The receipt declaration for the worked case's output (crate#43): what only the
+# producing package knows. crt_receipt_keys() reads it.
+receipt_keys: 1
+output: link_evidence
+recipe:
+  config_files: [settings.csv]
+  settings: [species, watershed_group]
+  inputs: [flow, fwa_stream_networks]
+  seed: false
+result:
+  tables:
+    access_check:
+      tolerance: {km: 1.0e-9}
+    visits_link: {}
+    visits_species: {}
+    walks: {}
+  summary:
+    rows: {}
+    km_total: {tolerance: 1.0e-6}

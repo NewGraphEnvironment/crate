@@ -8,3 +8,5 @@
 - Created branch `43-a-shared-provenance-receipt-a-language-n` off origin/main
 - Scaffolded PWF baseline from issue #43 with approved phases
 - Next: start Phase 1
+- Phases 1-5 committed: research file, schema v1.0.0 + guard, JCS/recipe_id, crt_table_fingerprint(), vectors (Python cross-check: 0 mismatches)
+- Phase 6: crt_receipt_write/read/validate/keys; the worked case lives in inst/extdata/receipt/examples/worked_case (two builds, data-raw/receipt_examples.R), replacing the placeholder example receipt

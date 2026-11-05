@@ -2,6 +2,10 @@
 
 export(crt_files)
 export(crt_ingest)
+export(crt_receipt_keys)
+export(crt_receipt_read)
+export(crt_receipt_validate)
+export(crt_receipt_write)
 export(crt_schema_cols)
 export(crt_schema_conform)
 export(crt_schema_fingerprint)
