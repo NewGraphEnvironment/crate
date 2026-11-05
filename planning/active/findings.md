@@ -132,3 +132,24 @@ passed as `SCHEMAS_PUBLISHED_REF`:
 
 Restore-the-bug on the schema: with `maxProperties` dropped from `definitions/input`, an input
 carrying both `recipe_id` and `sha256` validates; with it, ajv rejects it.
+
+## Phase 3: R's decimal parser is not correctly rounded on arm64 (2026-11-05)
+
+ECMAScript's number spelling needs "the fewest digits that read back as the same double",
+which needs a correctly rounded decimal-to-double parser. R's is not, here (R 4.5.2, arm64
+macOS, where long double is double): 199,915 random doubles (Python `random.getrandbits(64)`,
+seed 43, NaN and Inf dropped), each spelled to 17 significant digits by Python and read back:
+
+| reader | wrong double |
+|---|---|
+| `as.numeric()` | 167,261 (84%) |
+| `jsonlite::parse_json()` | 0 |
+
+The same holds for R source literals: `333333333.33333329` typed in R is not RFC 8785's double.
+So `jcs_numbers()` reads candidates back through jsonlite, the tests build doubles from their
+IEEE bits, and the vectors carry numbers as JSON text, never as R literals.
+
+Cross-check against Python `rfc8785` 0.1.4 (stacs' venv) over the same 199,915 doubles:
+**0 mismatches**. RFC 8785 Appendix B's 24 samples and the 3.2.3 key-order example match too.
+Speed: 3.5 s per 200k arbitrary doubles after bisecting the digit count (8.7 s before),
+0.9 s per 100k three-decimal values.

@@ -194,6 +194,16 @@ source format, and the comparison reports `recipe: unknown` rather than inventin
 **One R implementation, one written contract** (*issue*). Producers that cannot call R implement
 the contract and pass the same test vectors: stacs (stacs#12) for the Python catalogues.
 
+## Implementing JCS: the number spelling needs a correct parser
+
+RFC 8785 writes a number the way ECMAScript does: the fewest significant digits that read back
+as the same double. Finding them needs a decimal-to-double parser that rounds correctly. Not
+every language's default one does. R's `as.numeric()` misread 84% of 200,000 random 17-digit
+spellings on arm64 macOS, where long double is double; the C library's `strtod` (which
+`jsonlite` and Python use) misread none. An implementation should check its parser against the
+number vectors before trusting it, and its own tests should build doubles from their bits, not
+from 17-digit literals its parser may misread.
+
 ## The comparison
 
 `crt_receipt_compare(a, b, tables = NULL)` reads two receipts and returns:

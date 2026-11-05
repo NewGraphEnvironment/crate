@@ -90,13 +90,13 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] DESCRIPTION: `jsonlite` to Imports. `jsonvalidate` stays in Suggests; `crt_receipt_validate()` aborts with an install hint when it is missing.
 
 ## Phase 3: Canonical JSON and `recipe_id`
-- [ ] `R/crt_receipt_jcs.R` (internal), an RFC 8785 serializer:
+- [x] `R/crt_receipt_jcs.R` (internal), an RFC 8785 serializer:
   - keys sorted by UTF-16 code units
   - the JCS string escaping rules
   - numbers as ECMAScript shortest round-trip, with the 1e21 and 1e-7 switches to exponent form
   - aborts on NaN and Inf
-- [ ] Internal `recipe_id`: SHA-256 hex of the JCS bytes of the `recipe` block without `recipe_id`
-- [ ] Tests: the RFC 8785 Appendix B number samples, key-order samples (including a supplementary-plane key), escaping
+- [x] Internal `recipe_id`: SHA-256 hex of the JCS bytes of the `recipe` block without `recipe_id`
+- [x] Tests: the RFC 8785 Appendix B number samples, key-order samples (including a supplementary-plane key), escaping
 
 ## Phase 4: Table fingerprint
 - [ ] `R/crt_table_fingerprint.R`: export `crt_table_fingerprint(x, tolerance = NULL)`, using the canonical form decided at the gate
