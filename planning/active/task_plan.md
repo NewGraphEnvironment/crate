@@ -66,12 +66,12 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - `check_pkg_stale.sh` lists 12 stale first-party installs. crate imports none of them, so nothing to upgrade.
 
 ## Phase 1: Research file and design decisions
-- [ ] `research/provenance_receipt.md`, revised in place through the branch, covering:
+- [x] `research/provenance_receipt.md`, revised in place through the branch, covering:
   - the four blocks
   - the gate decisions above, each with a line of why
   - the worked case carried through two receipts, a comparison and its verdict
-- [ ] `.Rbuildignore`: `^research$`
-- [ ] Decide and record in the research file:
+- [x] `.Rbuildignore`: `^research$`
+- [x] Decide and record in the research file:
   - **Tolerance**: declared as an absolute `10^-k` per column or summary value. The fingerprint rounds to `k` decimals; the comparison tests `|a - b| <= tol`.
   - **Rounding boundary**: two values within tolerance can round apart. A receipts-only comparison then says `different` (result: fingerprint of table X) and says it compared receipts only. A bytes comparison (both tables supplied) re-reads the cells and can return `equivalent`.
   - **The register against `recipe_id`**: `recipe_id` covers every recipe field, so a recipe-field row must be `refuse`, and a test asserts it. `warn` rows are reported without changing the verdict; `record` rows (context) are listed only.
