@@ -155,6 +155,25 @@ test_that("a written receipt compares the same as its file", {
   expect_identical(crt_receipt_compare(builds$a$receipt, r)$verdict, "identical")
 })
 
+# A written receipt holds NA where its file holds null; neither is a number to subtract.
+test_that("an NA summary value compares, written or read", {
+  root <- withr::local_tempdir()
+  one <- function(name, km) {
+    dir <- file.path(root, name)
+    dir.create(dir)
+    crt_receipt_write(dir, output = list(name = "out"),
+                      recipe = list(code = list(crate = list(commit = strrep("c", 40), dirty = FALSE))),
+                      result = list(summary = list(km = km), tolerance = list(summary = list(km = 1e-3))),
+                      context = list(time = "2026-11-05T00:00:00Z"), lockfile = NULL, publish = TRUE)
+  }
+  a <- one("a", NA_real_)
+  b <- one("b", NA_real_)
+  expect_identical(crt_receipt_compare(a, b)$verdict, "identical")
+  expect_identical(crt_receipt_compare(a, file.path(root, "b"))$verdict, "identical")
+  c2 <- one("c", 1)
+  expect_identical(crt_receipt_compare(a, c2)$verdict, "different")
+})
+
 test_that("a file whose bytes moved is equivalent only when it names an agreeing table", {
   builds <- two_builds(c(1.00000000001, 5), c(1.00000000002, 5), part_table = FALSE)
   x <- crt_receipt_compare(builds$a$receipt, builds$b$receipt)

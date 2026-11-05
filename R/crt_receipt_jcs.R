@@ -44,21 +44,49 @@ receipt_sha256 <- function(txt) {
 
 jcs_value <- function(x, path) {
   if (is.null(x)) return("null")
+  # A whitelist, applied before any generic can dispatch on a class: plain lists and
+  # atomic vectors, factors, and I(). Anything else is refused rather than written
+  # through its methods, which print octmode 493 as "755", drop a ts() start, a units
+  # attribute (5 km as 5 m), an S4 slot or a data frame's shape, or recurse on
+  # POSIXlt. A Python writer holds none of these, so no spelling of them is shared.
+  cls <- oldClass(x)
+  asis <- identical(cls, "AsIs")
+  if (asis) x <- unclass(x)
+  if (!is.null(cls) && !asis && !identical(cls, "factor")) jcs_refuse_class(x, path)
+  extra <- setdiff(names(attributes(x)), c("names", if (identical(cls, "factor")) c("levels", "class")))
+  if (length(extra) || isS4(x)) {
+    cli::cli_abort(c(
+      "Value at {.code {path}} carries {.field {extra}}, which JSON would drop.",
+      "i" = "Pass the plain values, with {.fn as.vector} or {.fn unclass}."
+    ))
+  }
   if (is.list(x)) {
     if (!is.null(names(x))) return(jcs_object(x, path))
     return(paste0("[", paste(vapply(seq_along(x), function(i) {
       jcs_value(x[[i]], sprintf("%s[[%d]]", path, i))
     }, ""), collapse = ","), "]"))
   }
-  # Before anything that drops attributes: as.character() on a factor drops its names,
-  # and a matrix's dim is lost to the array it would be written as.
-  if (!is.null(names(x)) || !is.null(dim(x))) {
+  # Names on an atomic vector, a factor's included, which as.character() would drop:
+  # c(CO = 0.05, CH = 0.07) and c(CH = 0.05, CO = 0.07) would hash alike.
+  if (!is.null(names(x))) {
     cli::cli_abort(c(
-      "Value at {.code {path}} is a named vector or a matrix, whose names or shape JSON would drop.",
-      "i" = "Use {.fn as.list} for an object keyed by its names, or {.fn unname} / {.fn as.vector} for an array."
+      "Value at {.code {path}} is a named vector, whose names JSON would drop.",
+      "i" = "Use {.fn as.list} for an object keyed by its names, or {.fn unname} for an array."
     ))
   }
   if (is.factor(x)) x <- as.character(x)
+  if (!(is.character(x) || is.double(x) || is.integer(x) || is.logical(x))) {
+    cli::cli_abort(c(
+      "Value at {.code {path}} is of type {.cls {typeof(x)}}, which has no JSON form.",
+      "i" = "Use a string, number, logical, list or NULL."
+    ))
+  }
+  vals <- jcs_atomic(x, path)
+  if (length(x) == 1L && !asis) return(vals)
+  paste0("[", paste(vals, collapse = ","), "]")
+}
+
+jcs_refuse_class <- function(x, path) {
   # is.numeric() is TRUE for an integer64, whose storage is the int64's bits read as a
   # double: 42 would be written 2.0750757125332355e-322. RPostgres returns counts so.
   if (inherits(x, "integer64")) {
@@ -73,15 +101,16 @@ jcs_value <- function(x, path) {
       "i" = "Format it as an ISO 8601 string first, so its spelling is not R's."
     ))
   }
-  if (!is.atomic(x) || !(is.character(x) || is.numeric(x) || is.logical(x))) {
+  if (is.data.frame(x)) {
     cli::cli_abort(c(
-      "Value at {.code {path}} has class {.cls {class(x)}}, which has no JSON form.",
-      "i" = "Use a string, number, logical, list or NULL."
+      "Value at {.code {path}} is a data frame, which has no single JSON shape.",
+      "i" = "Pass a list of columns ({.fn as.list}) or of rows, whichever you mean."
     ))
   }
-  vals <- jcs_atomic(x, path)
-  if (length(x) == 1L && !inherits(x, "AsIs")) return(vals)
-  paste0("[", paste(vals, collapse = ","), "]")
+  cli::cli_abort(c(
+    "Value at {.code {path}} has class {.cls {class(x)}}, which has no JSON form here.",
+    "i" = "Pass its plain value: a string, number, logical, list or NULL ({.fn unclass}, {.fn format})."
+  ))
 }
 
 jcs_object <- function(x, path) {

@@ -111,7 +111,19 @@ test_that("values that would lose meaning are refused, not written", {
   expect_error(crate:::crt_receipt_jcs(c(a = 1)), "named vector")
   # ... a factor's names too, which as.character() would drop, and a matrix's shape
   expect_error(crate:::crt_receipt_jcs(list(t = factor(c(CO = "x", CH = "y")))), "named vector")
-  expect_error(crate:::crt_receipt_jcs(list(m = matrix(1:4, 2))), "matrix")
+  expect_error(crate:::crt_receipt_jcs(list(m = matrix(1:4, 2))), "dim")
+  # Any other class or attribute: refused, never written through its methods
+  refused <- list(
+    hexmode = as.hexmode(493L), octmode = as.octmode("755"), ts = stats::ts(1:3, start = 2020),
+    units = structure(5, units = "km"), frame = data.frame(a = 1), lt = as.POSIXlt("2026-01-01", tz = "UTC"),
+    version = package_version("1.2.3"), raw = as.raw(1), complex = 1i,
+    env = new.env()
+  )
+  for (nm in names(refused)) {
+    expect_error(crate:::crt_receipt_jcs(list(v = refused[[nm]])), "Value at", info = nm)
+  }
+  # ...and what is allowed still is
+  expect_identical(crate:::crt_receipt_jcs(list(f = factor("a"), i = I(1L))), "{\"f\":\"a\",\"i\":[1]}")
   expect_identical(crate:::crt_receipt_jcs(list(t = as.list(c(CO = 0.05, CH = 0.07)))),
                    "{\"t\":{\"CH\":0.07,\"CO\":0.05}}")
 })

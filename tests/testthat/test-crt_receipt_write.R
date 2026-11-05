@@ -154,6 +154,10 @@ test_that("it refuses what would give a wrong or ambiguous identity", {
   expect_error(write_with(args, result = list(tolerance = list(summary = list(km = 1e-6)))), "not in")
   expect_error(write_with(args, context = list(time = "2026-11-05 00:00:00")), "trailing")
   expect_error(write_with(args, context = list(toolchain = list(Python = NA_character_))), "version string")
+  expect_error(write_with(args, output = list(name = "")), "must not be empty")
+  for (h in list("", 5, NA_character_)) {
+    expect_error(write_with(args, context = list(host = h)), "host name")
+  }
   expect_error(write_with(args, dir = file.path(dir, "missing")), "does not exist")
 })
 

@@ -183,6 +183,19 @@ still lists each recipe field, as `refuse`, so the report names the field, and i
 none is anything else. Result fields refuse unless within tolerance. `warn` fields are reported
 without changing the verdict (`output.receipt_version`, `output.schema`). `record` fields are listed only: all of `context`.
 
+**Only plain values are serialized; every other R class is refused.** Lists, character, double,
+integer and logical vectors, factors (as their labels) and `I()`; a table's columns may also be
+`Date` or `POSIXct`. Any other class or attribute (octmode, hexmode, `ts`, a `units` attribute, S4,
+POSIXlt, a data frame as a value, integer64, a matrix's `dim`, a vector's names) is refused rather
+than written through its print or subset methods, which wrote octmode 493 as `755`, dropped a
+`ts()` start and turned 5 km into 5 (code-check round 3 enumerated 37 shapes). A writer in another
+language holds none of these, so no spelling of them is shared.
+
+**A config file is hashed as its bytes, as checked out.** Git for Windows checks text out with
+CRLF by default, so a repo whose config enters `recipe_id` should pin line endings in
+`.gitattributes` (`*.yaml text eol=lf`). Normalizing line endings in crate would hash something
+other than the file, which no other implementation could reproduce from the bytes alone.
+
 **A published receipt leaves out `host`.** A host name tells a public reader nothing; it stays in
 the private run log. `crt_receipt_write(publish = TRUE)` drops it.
 

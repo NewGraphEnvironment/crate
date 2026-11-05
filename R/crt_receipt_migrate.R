@@ -92,18 +92,18 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
     hit <- receipt_mapping_match(rows, format, f$path)
     if (is.null(hit)) {
       unmapped <- c(unmapped, f$label)
-      legacy[f$label] <- list(f$value)
+      legacy <- receipt_legacy_put(legacy, f$label, f$value)
       next
     }
     value <- receipt_mapping_transform(f$value, hit$transform)
     if (identical(hit$key, "context.legacy") || is.null(value)) {
-      legacy[f$label] <- list(f$value)
+      legacy <- receipt_legacy_put(legacy, f$label, f$value)
       next
     }
     # Two fields mapped to one key keep the first; the other is not lost.
     held <- receipt_get_key(receipt, hit$key)
     if (!is.null(held) && !identical(held, value)) {
-      legacy[f$label] <- list(f$value)
+      legacy <- receipt_legacy_put(legacy, f$label, f$value)
       next
     }
     receipt <- receipt_set_key(receipt, hit$key, value)
@@ -153,7 +153,7 @@ receipt_migrate_fields <- function(x, section, stop_at = function(path) FALSE) {
     if (is.list(v) && !is.null(names(v)) && length(v) && !(length(path) && stop_at(path))) {
       for (k in names(v)) walk(v[[k]], c(path, k))
     } else {
-      out[[length(out) + 1L]] <<- list(path = path, label = paste(path, collapse = "."), value = v)
+      out[[length(out) + 1L]] <<- list(path = path, label = receipt_label(path), value = v)
     }
   }
   if (is.null(section)) {
@@ -261,7 +261,7 @@ receipt_migrate_tidy <- function(receipt, legacy) {
   move <- function(key, ok) {
     v <- receipt_get_key(receipt, key)
     if (!is.null(v) && !ok(v)) {
-      legacy[[key]] <<- v
+      legacy <<- receipt_legacy_put(legacy, key, v)
       receipt <<- receipt_set_key(receipt, key, NULL)
     }
   }
@@ -279,7 +279,7 @@ receipt_migrate_tidy <- function(receipt, legacy) {
       (is.null(e$dirty) || is.logical(e$dirty)) &&
       (is.null(e$version) || is.character(e$version))
     if (!ok) {
-      legacy[[paste0("recipe.code.", repo)]] <- e
+      legacy <- receipt_legacy_put(legacy, paste0("recipe.code.", repo), e)
       code[[repo]] <- NULL
     }
   }
@@ -287,7 +287,7 @@ receipt_migrate_tidy <- function(receipt, legacy) {
   inputs <- receipt$recipe$inputs
   for (nm in names(inputs)) {
     if (!grepl("^[0-9a-f]{64}$", inputs[[nm]]$sha256 %||% "")) {
-      legacy[[paste0("recipe.inputs.", nm)]] <- inputs[[nm]]
+      legacy <- receipt_legacy_put(legacy, paste0("recipe.inputs.", nm), inputs[[nm]])
       inputs[[nm]] <- NULL
     }
   }
@@ -295,7 +295,7 @@ receipt_migrate_tidy <- function(receipt, legacy) {
   tc <- receipt$context$toolchain
   if (!is.null(tc)) {
     keep <- vapply(tc, function(v) is.character(v) && length(v) == 1L && !is.na(v) && nzchar(v), TRUE)
-    for (nm in names(tc)[!keep]) legacy[[paste0("context.toolchain.", nm)]] <- tc[[nm]]
+    for (nm in names(tc)[!keep]) legacy <- receipt_legacy_put(legacy, paste0("context.toolchain.", nm), tc[[nm]])
     receipt$context$toolchain <- receipt_object(tc[keep])
   }
   if (length(legacy)) receipt$context$legacy <- legacy
@@ -304,4 +304,22 @@ receipt_migrate_tidy <- function(receipt, legacy) {
   rid[["recipe_id"]] <- NULL
   receipt$recipe <- c(rid, list(recipe_id = NULL))
   receipt
+}
+
+# A record path as a legacy key, a segment holding a dot in brackets, so the nested
+# extra.k and a literal key "extra.k" ([extra.k]) are two keys, as fields are written.
+receipt_label <- function(path) {
+  paste(ifelse(grepl(".", path, fixed = TRUE), paste0("[", path, "]"), path), collapse = ".")
+}
+
+# Add to legacy without overwriting: a key already held gets the next "#<n>".
+receipt_legacy_put <- function(legacy, key, value) {
+  k <- key
+  n <- 1L
+  while (k %in% names(legacy)) {
+    n <- n + 1L
+    k <- paste0(key, "#", n)
+  }
+  legacy[k] <- list(value)
+  legacy
 }

@@ -95,6 +95,9 @@ table_decimals <- function(tolerance, x) {
     cli::cli_abort("{.arg tolerance} must be a named numeric vector, one value per column.")
   }
   tn <- jcs_utf8(tn, "names(tolerance)")
+  if (anyDuplicated(tn)) {
+    cli::cli_abort("{.arg tolerance} repeats {.val {unique(tn[duplicated(tn)])}}.")
+  }
   unknown <- setdiff(tn, names(x))
   if (length(unknown)) {
     cli::cli_abort("{.arg tolerance} names {.val {unknown}}, which {?is/are} not a column of {.arg x}.")
@@ -136,6 +139,22 @@ receipt_decimals <- function(tol, what) {
 
 # One column's cells, each already a JSON token: a quoted string or null.
 table_cells <- function(v, nm, k) {
+  # The same whitelist as the JSON serializer: a column's class decides its spelling, so
+  # an unknown one (octmode, hexmode, ITime, units, haven_labelled) is refused, not
+  # printed through its methods. A matrix column would be flattened into extra rows.
+  cls <- oldClass(v)
+  known <- is.null(cls) || identical(cls, "factor") || identical(cls, "Date") ||
+    identical(cls, c("POSIXct", "POSIXt"))
+  # An attribute the spelling does not read (a units attribute on a plain double) would
+  # be dropped: 5 km would fingerprint as 5 m.
+  extra <- setdiff(names(attributes(v)), c("names", "class", "levels", "tzone"))
+  if (!known || !is.null(dim(v)) || is.list(v) || length(extra)) {
+    cli::cli_abort(c(
+      "Column {.field {nm}} has class {.cls {class(v)}}, which has no canonical form.",
+      "i" = paste("Fingerprint character, factor, integer, double, logical, Date or POSIXct columns;",
+                  "convert or drop the rest (a geometry as WKT, a matrix as columns).")
+    ))
+  }
   if (is.factor(v)) v <- as.character(v)
   out <- rep("null", length(v))
   na <- is.na(v)
@@ -143,10 +162,8 @@ table_cells <- function(v, nm, k) {
     if (any(!is.finite(unclass(v)[!na]))) {
       cli::cli_abort("Column {.field {nm}} has an infinite date.")
     }
-    table_year_check(as.POSIXlt(v[!na])$year + 1900L, nm)
-    txt <- format(v[!na], "%Y-%m-%d")
+    txt <- table_ymd(as.POSIXlt(v[!na], tz = "UTC"), nm)
   } else if (inherits(v, "POSIXt")) {
-    v <- as.POSIXct(v)
     secs <- unclass(v)[!na]
     if (any(!is.finite(secs))) {
       cli::cli_abort("Column {.field {nm}} has an infinite datetime.")
@@ -157,15 +174,15 @@ table_cells <- function(v, nm, k) {
         "i" = "Round it to whole seconds, or fingerprint it as a number with a tolerance."
       ))
     }
-    table_year_check(as.POSIXlt(v[!na], tz = "UTC")$year + 1900L, nm)
-    txt <- format(v[!na], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+    lt <- as.POSIXlt(v[!na], tz = "UTC")
+    txt <- paste0(table_ymd(lt, nm), sprintf("T%02d:%02d:%02dZ", lt$hour, lt$min, as.integer(lt$sec)))
   } else if (is.character(v)) {
     txt <- jcs_utf8(v[!na], nm)
   } else if (is.logical(v)) {
     txt <- ifelse(v[!na], "true", "false")
-  } else if (is.integer(v) && !inherits(v, "integer64")) {
+  } else if (is.integer(v)) {
     txt <- as.character(v[!na])
-  } else if (is.double(v) && is.null(oldClass(v))) {
+  } else if (is.double(v)) {
     vals <- v[!na]
     if (any(is.nan(v) | is.infinite(v))) {
       cli::cli_abort("Column {.field {nm}} has NaN or infinite values, which have no canonical form.")
@@ -189,9 +206,16 @@ table_cells <- function(v, nm, k) {
   out
 }
 
-# The spelling is four-digit years. R writes year -221 or 10183 without complaint,
-# Python's datetime holds neither, and a datetime that is epoch milliseconds read as
-# seconds lands near year 57,000: refuse what has no YYYY.
+# YYYY-MM-DD, spelled field by field: format("%Y") does not pad years below 1000 on
+# Linux ("999-03-04") where macOS does ("0999-03-04"). R writes year -221 or 10183
+# without complaint, Python's datetime holds neither, and a datetime that is epoch
+# milliseconds read as seconds lands near year 57,000: refuse what has no YYYY.
+table_ymd <- function(lt, nm) {
+  year <- lt$year + 1900L
+  table_year_check(year, nm)
+  sprintf("%04d-%02d-%02d", year, lt$mon + 1L, lt$mday)
+}
+
 table_year_check <- function(year, nm) {
   bad <- year < 1L | year > 9999L
   if (any(bad)) {

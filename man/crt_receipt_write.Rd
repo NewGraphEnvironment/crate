@@ -49,7 +49,9 @@ region) and \code{schema} (the crate schema the output conforms to).
 with \code{commit} the full 40-character SHA; \code{config}, a list of \code{files} (paths,
 hashed here; named to set the key, otherwise keyed by the path as given) and
 \code{settings} (the resolved run settings, written verbatim: wrap a length-one
-vector in \code{\link[=I]{I()}} to keep it an array); \code{inputs}, keyed by input name, each
+vector in \code{\link[=I]{I()}} to keep it an array). A config file is hashed as its bytes, as
+checked out: a repo whose config enters \code{recipe_id} should pin its line endings
+(\code{.gitattributes}: \verb{*.yaml text eol=lf}), or a CRLF checkout is another recipe; \code{inputs}, keyed by input name, each
 exactly one of \code{list(recipe_id = )}, \code{list(version_id = )}, \code{list(sha256 = )}
 or \code{list(none = "why")}; and \code{seed}, an integer or \code{NULL}.
 \item \code{result}: \code{tables}, a named list of data frames to fingerprint; \code{parts}, the

@@ -80,6 +80,13 @@ test_that("logicals, factors, dates and datetimes have one spelling each", {
   expect_identical(crt_table_fingerprint(transform(x, f = as.character(f))), crt_table_fingerprint(x))
 })
 
+# format("%Y") leaves year 999 unpadded on Linux and pads it on macOS
+test_that("years below 1000 are padded to four digits", {
+  x <- data.frame(d = as.Date("0999-03-04"), t = as.POSIXct("0050-01-01 00:00:00", tz = "UTC"))
+  expect_identical(crate:::table_canonical(x),
+                   '{"columns":["d","t"],"rows":[["0999-03-04","0050-01-01T00:00:00Z"]]}')
+})
+
 test_that("the fingerprint does not depend on the locale", {
   x <- data.frame(name = c("été", "Zed", "apple"), v = c(1.5, 2, 3))
   a <- crt_table_fingerprint(x)
@@ -100,6 +107,16 @@ test_that("it refuses what has no canonical form", {
   expect_error(crt_table_fingerprint(data.frame(d = structure(3000000, class = "Date"))), "outside 1-9999")
   ms <- data.frame(t = as.POSIXct(1.7e12, tz = "UTC"))
   expect_error(crt_table_fingerprint(ms), "milliseconds")
+  # A class decides a column's spelling, so an unknown one is refused
+  expect_error(crt_table_fingerprint(data.frame(p = as.octmode(493L))), "no canonical form")
+  expect_error(crt_table_fingerprint(data.frame(p = as.hexmode(255L))), "no canonical form")
+  m <- data.frame(id = 1:2)
+  m$x <- matrix(1:4, 2)
+  expect_error(crt_table_fingerprint(m), "no canonical form")
+  expect_error(crt_table_fingerprint(data.frame(km = 1.5), c(km = 1e-3, km = 1e-6)), "repeats")
+  u <- data.frame(id = 1L)
+  u$d <- structure(5, units = "km")
+  expect_error(crt_table_fingerprint(u), "no canonical form")
   dup <- data.frame(a = 1, a = 2, check.names = FALSE)
   expect_error(crt_table_fingerprint(dup), "unique")
 })

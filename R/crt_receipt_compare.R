@@ -144,7 +144,10 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
     tol <- receipt_summary_tolerance(a, b, nm)
     va <- a$result$summary[[nm]]
     vb <- b$result$summary[[nm]]
-    if (!is.null(tol) && is.numeric(va) && is.numeric(vb) && abs(va - vb) <= tol) {
+    # A receipt list from crt_receipt_write() holds NA where one read from disk holds
+    # NULL; both are null, and a null has no distance from anything.
+    num <- function(v) is.numeric(v) && length(v) == 1L && !is.na(v)
+    if (!is.null(tol) && num(va) && num(vb) && abs(va - vb) <= tol) {
       d$action[i] <- "within"
       d$detail[i] <- paste0(d$detail[i], "; within ", format(tol))
     }
@@ -239,7 +242,9 @@ receipt_diff <- function(a, b, register) {
       }
     }
   }
-  show_full <- function(v) if (is.null(v)) NULL else crt_receipt_jcs(v)
+  # An absent member and a null are one value, as JSON reads them: a written receipt
+  # holds NA (null) where its file reads back as NULL.
+  show_full <- function(v) crt_receipt_jcs(v)
   for (block in c("output", "recipe", "result", "context")) {
     walk(a[[block]], b[[block]], block, block, NA_character_)
   }

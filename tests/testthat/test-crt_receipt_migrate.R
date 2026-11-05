@@ -67,6 +67,17 @@ test_that("an unknown field is reported and kept, never dropped", {
   expect_identical(r$context$legacy$surprise.answer, 42L)
 })
 
+test_that("legacy keys never collide: a dotted key is bracketed, a repeat numbered", {
+  rec <- jsonlite::read_json(legacy_path("link_manifest.json"))
+  rec$extra <- list(k = 1L)
+  rec[["extra.k"]] <- 2L
+  expect_warning(r <- crt_receipt_migrate(rec, "link manifest.json"), class = "crate_receipt_unmapped")
+  expect_identical(r$context$legacy[["extra.k"]], 1L)
+  expect_identical(r$context$legacy[["[extra.k]"]], 2L)
+  l <- crate:::receipt_legacy_put(list(a = 1), "a", 2)
+  expect_identical(l, list(a = 1, `a#2` = 2))
+})
+
 test_that("two fields mapped to one key keep the first and do not lose the second", {
   rec <- jsonlite::read_json(legacy_path("link_manifest.json"))
   rec$link_sha <- "0000000000000000000000000000000000000000"

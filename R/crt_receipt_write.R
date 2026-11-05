@@ -13,7 +13,9 @@
 #'   with `commit` the full 40-character SHA; `config`, a list of `files` (paths,
 #'   hashed here; named to set the key, otherwise keyed by the path as given) and
 #'   `settings` (the resolved run settings, written verbatim: wrap a length-one
-#'   vector in [I()] to keep it an array); `inputs`, keyed by input name, each
+#'   vector in [I()] to keep it an array). A config file is hashed as its bytes, as
+#'   checked out: a repo whose config enters `recipe_id` should pin its line endings
+#'   (`.gitattributes`: `*.yaml text eol=lf`), or a CRLF checkout is another recipe; `inputs`, keyed by input name, each
 #'   exactly one of `list(recipe_id = )`, `list(version_id = )`, `list(sha256 = )`
 #'   or `list(none = "why")`; and `seed`, an integer or `NULL`.
 #' * `result`: `tables`, a named list of data frames to fingerprint; `parts`, the
@@ -105,6 +107,7 @@ receipt_build <- function(dir, output, recipe, result, context, keys, lockfile, 
   receipt_known(context, c("time", "host", "run", "session", "toolchain", "inputs"), "context")
 
   chk::chk_string(output$name, x_name = "output$name")
+  if (!nzchar(output$name)) cli::cli_abort("{.arg output$name} must not be empty.")
   out <- list(
     name = output$name,
     scope = receipt_null_string(output$scope, "output$scope"),
@@ -382,6 +385,9 @@ receipt_context <- function(context, lockfile, publish) {
     lock <- receipt_file_sha256(lockfile)
   }
   host <- if (publish) NULL else context$host %||% Sys.info()[["nodename"]]
+  if (!is.null(host) && !(is.character(host) && length(host) == 1L && !is.na(host) && nzchar(host))) {
+    cli::cli_abort("{.arg context$host} must be a host name, or left out.")
+  }
   ctx <- list(
     time = time,
     host = host,

@@ -207,3 +207,20 @@ Fix: at powers of two, also try the decimal one step either side. Measured after
 against Python `rfc8785` on all 2,098 powers of two and on the 199,915 random doubles (6.5 s per
 200k; 1.5 s per 100k three-decimal values). `numbers.json` now carries every power of two (2,637
 cases), and the Python cross-check reproduces all of them.
+
+## code-check round 3: enumeration (2026-11-05)
+
+Round 3 named three mechanisms and enumerated them (`review-round3.md`). After the fixes in this
+round, re-measured with a script that runs each member through `crt_receipt_jcs()` and
+`table_canonical()`:
+
+- **A. R value shapes (37 in round 3's table; 33 runnable here without extra packages):** every
+  member is refused or spelled as the contract says. The whitelist (`jcs_value()`,
+  `table_cells()`) makes this structural: a shape not on it is refused.
+- **B. Places two forms of one receipt meet (14), and the writer against the schema (14):** the one
+  comparison on raw values (summary within tolerance) now skips NA/NULL, and the diff spells
+  absent and null alike. An empty output name and a non-text host are refused by the writer.
+  Tests cover written-list against file for NA summaries.
+- **C. Inputs to an identity (15):** the year padding is now explicit (`%04d`); classed values and
+  cells are refused; config line endings are documented as the caller's to pin
+  (research file), since hashing anything but the bytes would break the contract.
