@@ -150,6 +150,22 @@ test_that("the schemas reject wrong values and unknown fields", {
     list("lidarbc", "extension URL not listed", function(x) {
       x$stac_extensions <- Filter(function(u) !grepl("/stac/lidarbc/", u), x$stac_extensions)
       x
+    }),
+    list("receipt", "recipe_id not 64 hex", function(x) set_prop(x, "receipt:recipe_id", "abc")),
+    list("receipt", "recipe_id upper-case",
+         function(x) set_prop(x, "receipt:recipe_id", toupper(x$properties$`receipt:recipe_id`))),
+    list("receipt", "recipe_id null", function(x) {
+      x$properties["receipt:recipe_id"] <- list(NULL)
+      x
+    }),
+    list("receipt", "unknown receipt: field", function(x) set_prop(x, "receipt:bogus", "x")),
+    list("receipt", "bad recipe_id on an asset", function(x) {
+      x$assets$floodplain$`receipt:recipe_id` <- "abc"
+      x
+    }),
+    list("receipt", "extension URL not listed", function(x) {
+      x$stac_extensions <- Filter(function(u) !grepl("/stac/receipt/", u), x$stac_extensions)
+      x
     })
   )
   for (cs in cases) {

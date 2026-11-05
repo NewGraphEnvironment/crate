@@ -139,9 +139,9 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] Tests on fixtures shaped like floodplains' `provenance.json` and a link-style `manifest.json`. An unmapped field is reported, never dropped silently.
 
 ## Phase 9: `receipt:` STAC field schema
-- [ ] `pkgdown/assets/stac/receipt/v1.0.0/schema.json`, with README, CHANGELOG and `examples/item.json`. `receipt:recipe_id` is the first field (64 hex); no field is required.
-- [ ] `pkgdown/assets/stac/README.md`: add the index row
-- [ ] `test-stac_schemas.R` finds the new prefix on its own; add negatives (bad `receipt:recipe_id`, unknown `receipt:bogus`)
+- [x] `pkgdown/assets/stac/receipt/v1.0.0/schema.json`, with README, CHANGELOG and `examples/item.json`. `receipt:recipe_id` is the first field (64 hex); no field is required.
+- [x] `pkgdown/assets/stac/README.md`: add the index row
+- [x] `test-stac_schemas.R` finds the new prefix on its own; add negatives (bad `receipt:recipe_id`, unknown `receipt:bogus`)
 
 ## Phase 10: Vignette and docs
 - [ ] `vignettes/receipt.Rmd` from the research file, with runnable examples on a synthetic copy of the worked case (four tables, one off by 9.5e-11 km), not knowledge's data. DESCRIPTION: `VignetteBuilder: knitr`.
