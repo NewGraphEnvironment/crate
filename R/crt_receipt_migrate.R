@@ -61,8 +61,8 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
   rows <- mapping[mapping$source_format %in% c(format, "any record"), ]
   # A part of the record mapped whole to legacy (link's parts, configs) is kept whole,
   # not walked into fields that a name-only rule could misread.
-  whole <- rows[rows$source_format == format & rows$receipt_key == "context.legacy" &
-                   !grepl("[*{]", rows$source_field), ]
+  literal <- !grepl("[*{]", rows$source_field)
+  whole <- rows[rows$source_format == format & rows$receipt_key == "context.legacy" & literal, ]
   stop_at <- function(path) {
     any(vapply(strsplit(whole$source_field, ".", fixed = TRUE), function(p) {
       !is.null(receipt_pattern_match(p, path))
@@ -112,7 +112,8 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
   }
   if (length(unmapped)) {
     cli::cli_warn(
-      c("{length(unmapped)} field{?s} of the {format} {?is/are} not in the receipt mapping; kept in {.field context.legacy}.",
+      c(paste("{length(unmapped)} field{?s} of the {format} {?is/are} not in the receipt mapping;",
+              "kept in {.field context.legacy}."),
         "i" = "{.val {unmapped}}"),
       class = "crate_receipt_unmapped"
     )

@@ -155,7 +155,7 @@ receipt_build <- function(dir, output, recipe, result, context, keys, lockfile, 
   list(output = out, recipe = rec, result = res, context = ctx)
 }
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
+`%||%` <- function(a, b) if (is.null(a)) b else a # nolint: object_name_linter.
 
 receipt_version <- function() "1.0.0"
 
@@ -198,9 +198,13 @@ receipt_code <- function(code) {
   for (repo in names(code)) {
     e <- code[[repo]]
     what <- paste0("recipe$code$", repo)
-    if (!is.list(e) || !all(c("commit", "dirty") %in% names(e)) ||
-        !all(names(e) %in% c("commit", "version", "dirty"))) {
-      cli::cli_abort("{.arg {what}} must be {.code list(commit, version, dirty)}; {.field version} may be left out.")
+    shaped <- is.list(e) && all(c("commit", "dirty") %in% names(e)) &&
+      all(names(e) %in% c("commit", "version", "dirty"))
+    if (!shaped) {
+      cli::cli_abort(c(
+        "{.arg {what}} must be {.code list(commit, version, dirty)}.",
+        "i" = "{.field version} may be left out."
+      ))
     }
     if (!is.character(e$commit) || length(e$commit) != 1L || !grepl("^[0-9a-f]{40}$", e$commit)) {
       cli::cli_abort(c(
@@ -247,7 +251,8 @@ receipt_inputs <- function(inputs) {
     if (!is.list(e) || length(e) != 1L || !names(e) %in% kinds) {
       cli::cli_abort(c(
         "{.arg {what}} must hold exactly one identity.",
-        "i" = "One of {.code list(recipe_id = )}, {.code list(version_id = )}, {.code list(sha256 = )} or {.code list(none = \"why\")}."
+        "i" = paste("One of {.code list(recipe_id = )}, {.code list(version_id = )},",
+                    "{.code list(sha256 = )} or {.code list(none = \"why\")}.")
       ))
     }
     v <- e[[1]]
@@ -350,8 +355,8 @@ receipt_file_sha256 <- function(path) {
 
 receipt_context <- function(context, lockfile, publish) {
   time <- context$time %||% format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-  if (!is.character(time) || length(time) != 1L ||
-      !grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$", time)) {
+  utc <- "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+  if (!is.character(time) || length(time) != 1L || !grepl(utc, time)) {
     cli::cli_abort("{.arg context$time} must be UTC in ISO 8601 with a trailing {.val Z}.")
   }
   toolchain <- utils::modifyList(receipt_toolchain(),

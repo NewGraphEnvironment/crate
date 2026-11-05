@@ -124,7 +124,7 @@ receipt_decimals <- function(tol, what) {
   ok <- !is.na(tol) & tol > 0 & !is.na(k) & k >= 0L & k <= 15L &
     abs(tol / 10^-k - 1) < 1e-9
   if (!all(ok)) {
-    bad <- if (is.null(names(tol))) format(tol[!ok]) else names(tol)[!ok]
+    bad <- if (is.null(names(tol))) format(tol[!ok]) else names(tol)[!ok] # nolint: object_usage_linter.
     cli::cli_abort(c(
       "Each {what} must be a power of ten from 1 to 1e-15.",
       "x" = "Not one: {.val {bad}}.",
@@ -179,7 +179,8 @@ table_cells <- function(v, nm, k) {
   } else {
     cli::cli_abort(c(
       "Column {.field {nm}} has class {.cls {class(v)}}, which has no canonical form.",
-      "i" = "Fingerprint character, factor, integer, double, logical, Date or POSIXct columns; convert or drop the rest (a geometry as WKT)."
+      "i" = paste("Fingerprint character, factor, integer, double, logical, Date or POSIXct columns;",
+                  "convert or drop the rest (a geometry as WKT).")
     ))
   }
   out[!na] <- jcs_string(txt)

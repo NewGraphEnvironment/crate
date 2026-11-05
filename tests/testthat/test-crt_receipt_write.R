@@ -102,7 +102,8 @@ test_that("context never moves recipe_id; every recipe field does", {
   moved <- list(
     seed = list(recipe = list(seed = 7L)),
     setting = list(recipe = list(config = list(settings = list(threshold = 0.2, species = I("CO"))))),
-    commit = list(recipe = list(code = list(crate = list(commit = strrep("e", 40), version = "0.12.0", dirty = FALSE)))),
+    commit = list(recipe = list(code = list(crate = list(commit = strrep("e", 40), version = "0.12.0",
+                                                         dirty = FALSE)))),
     dirty = list(recipe = list(code = list(crate = list(commit = strrep("c", 40), version = "0.12.0", dirty = TRUE)))),
     input = list(recipe = list(inputs = list(dem = list(sha256 = strrep("f", 64))))),
     input_kind = list(recipe = list(inputs = list(dem = NULL, dem_v = list(version_id = "v1"))))
@@ -129,7 +130,8 @@ test_that("tolerances are written as exact powers of ten", {
 test_that("it refuses what would give a wrong or ambiguous identity", {
   dir <- withr::local_tempdir()
   args <- receipt_args(dir)
-  expect_error(write_with(args, recipe = list(code = list(crate = list(commit = "ccccccc", version = NULL, dirty = FALSE)))),
+  short <- list(crate = list(commit = "ccccccc", dirty = FALSE))
+  expect_error(write_with(args, recipe = list(code = short)),
                "40-character")
   expect_error(write_inputs(args, list(dem = list(sha256 = strrep("d", 64), none = "x"))),
                "exactly one identity")
@@ -142,7 +144,8 @@ test_that("it refuses what would give a wrong or ambiguous identity", {
   expect_error(write_with(args, result = list(parts = "/etc/hosts")), "inside it")
   expect_error(write_with(args, result = list(parts = "nope.csv")), "not found")
   expect_error(write_with(args, result = list(tolerance = list(tables = list(out = list(b = 5e-7))))), "power of ten")
-  expect_error(write_with(args, result = list(tolerance = list(tables = list(other = list(b = 1e-6))))), "not among the tables")
+  expect_error(write_with(args, result = list(tolerance = list(tables = list(other = list(b = 1e-6))))),
+               "not among the tables")
   expect_error(write_with(args, result = list(tolerance = list(summary = list(km = 1e-6)))), "not in")
   expect_error(write_with(args, context = list(time = "2026-11-05 00:00:00")), "trailing")
   expect_error(write_with(args, dir = file.path(dir, "missing")), "does not exist")

@@ -19,21 +19,19 @@ decode_table <- function(tbl) {
   cols <- lapply(tbl$columns, function(col) {
     vals <- col$values
     na <- vapply(vals, is.null, TRUE)
+    # NA where the vector holds null, the values elsewhere
+    fill <- function(empty, got) {
+      v <- rep(empty, length(vals))
+      v[!na] <- got
+      v
+    }
     switch(col$type,
-      character = { v <- rep(NA_character_, length(vals)); v[!na] <- unlist(vals[!na]); v },
-      integer = { v <- rep(NA_integer_, length(vals)); v[!na] <- as.integer(unlist(vals[!na])); v },
-      logical = { v <- rep(NA, length(vals)); v[!na] <- unlist(vals[!na]); v },
-      double = {
-        v <- rep(NA_real_, length(vals))
-        v[!na] <- vapply(vals[!na], vector_bits, 0)
-        v
-      },
-      date = { v <- rep(NA_character_, length(vals)); v[!na] <- unlist(vals[!na]); as.Date(v) },
-      datetime = {
-        v <- rep(NA_character_, length(vals))
-        v[!na] <- unlist(vals[!na])
-        as.POSIXct(v, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-      },
+      character = fill(NA_character_, unlist(vals[!na])),
+      integer = fill(NA_integer_, as.integer(unlist(vals[!na]))),
+      logical = fill(NA, unlist(vals[!na])),
+      double = fill(NA_real_, vapply(vals[!na], vector_bits, 0)),
+      date = as.Date(fill(NA_character_, unlist(vals[!na]))),
+      datetime = as.POSIXct(fill(NA_character_, unlist(vals[!na])), format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
       stop("unknown column type ", col$type)
     )
   })

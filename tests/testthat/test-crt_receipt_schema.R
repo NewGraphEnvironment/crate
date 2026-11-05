@@ -72,32 +72,86 @@ test_that("the schema rejects wrong values, missing fields and unknown keys", {
   schema <- receipt_schema_path()
   hex <- strrep("a", 64)
   cases <- list(
-    "output block missing" = function(x) { x$output <- NULL; x },
-    "context block missing" = function(x) { x$context <- NULL; x },
-    "unknown top-level block" = function(x) { x$extra <- list(); x },
-    "unknown output field" = function(x) { x$output$bogus <- "x"; x },
-    "receipt_version not 1.0.0" = function(x) { x$output$receipt_version <- "1.1.0"; x },
-    "empty output name" = function(x) { x$output$name <- ""; x },
-    "recipe_id not 64 hex" = function(x) { x$recipe$recipe_id <- "abc"; x },
-    "recipe_id upper-case" = function(x) { x$recipe$recipe_id <- toupper(hex); x },
-    "recipe_id null outside a migrated receipt" = function(x) { x$recipe["recipe_id"] <- list(NULL); x },
-    "recipe without seed" = function(x) { x$recipe$seed <- NULL; x },
-    "seed not whole" = function(x) { x$recipe$seed <- 1.5; x },
-    "short commit" = function(x) { x$recipe$code$link$commit <- "a9b8c7d"; x },
-    "dirty as a string" = function(x) { x$recipe$code$link$dirty <- "false"; x },
+    "output block missing" = function(x) {
+      x$output <- NULL
+      x
+    },
+    "context block missing" = function(x) {
+      x$context <- NULL
+      x
+    },
+    "unknown top-level block" = function(x) {
+      x$extra <- list()
+      x
+    },
+    "unknown output field" = function(x) {
+      x$output$bogus <- "x"
+      x
+    },
+    "receipt_version not 1.0.0" = function(x) {
+      x$output$receipt_version <- "1.1.0"
+      x
+    },
+    "empty output name" = function(x) {
+      x$output$name <- ""
+      x
+    },
+    "recipe_id not 64 hex" = function(x) {
+      x$recipe$recipe_id <- "abc"
+      x
+    },
+    "recipe_id upper-case" = function(x) {
+      x$recipe$recipe_id <- toupper(hex)
+      x
+    },
+    "recipe_id null outside a migrated receipt" = function(x) {
+      x$recipe["recipe_id"] <- list(NULL)
+      x
+    },
+    "recipe without seed" = function(x) {
+      x$recipe$seed <- NULL
+      x
+    },
+    "seed not whole" = function(x) {
+      x$recipe$seed <- 1.5
+      x
+    },
+    "short commit" = function(x) {
+      x$recipe$code$link$commit <- "a9b8c7d"
+      x
+    },
+    "dirty as a string" = function(x) {
+      x$recipe$code$link$dirty <- "false"
+      x
+    },
     "input with two identities" = function(x) {
       x$recipe$inputs$flow$sha256 <- hex
       x
     },
-    "input with no identity" = function(x) { x$recipe$inputs$flow <- setNames(list(), character()); x },
-    "input with an unknown identity" = function(x) { x$recipe$inputs$flow <- list(md5 = "x"); x },
+    "input with no identity" = function(x) {
+      x$recipe$inputs$flow <- setNames(list(), character())
+      x
+    },
+    "input with an unknown identity" = function(x) {
+      x$recipe$inputs$flow <- list(md5 = "x")
+      x
+    },
     "config file digest not sha256" = function(x) {
       x$recipe$config$files[[1]] <- "d41d8cd98f00b204e9800998ecf8427e"
       x
     },
-    "unknown recipe field" = function(x) { x$recipe$host <- "m4"; x },
-    "fingerprint without rows" = function(x) { x$result$fingerprint$access_check$rows <- NULL; x },
-    "negative part size" = function(x) { x$result$parts[["access_check.csv"]]$bytes <- -1L; x },
+    "unknown recipe field" = function(x) {
+      x$recipe$host <- "m4"
+      x
+    },
+    "fingerprint without rows" = function(x) {
+      x$result$fingerprint$access_check$rows <- NULL
+      x
+    },
+    "negative part size" = function(x) {
+      x$result$parts[["access_check.csv"]]$bytes <- -1L
+      x
+    },
     "absolute part path" = function(x) {
       x$result$parts <- list(`/tmp/access_check.csv` = x$result$parts[[1]])
       x
@@ -106,11 +160,26 @@ test_that("the schema rejects wrong values, missing fields and unknown keys", {
       x$result$tolerance$tables$access_check$km <- 5e-10
       x
     },
-    "summary tolerance zero" = function(x) { x$result$tolerance$summary$km_total <- 0; x },
-    "summary value a string" = function(x) { x$result$summary$km_total <- "47.375"; x },
-    "time not UTC" = function(x) { x$context$time <- "2026-11-04T11:22:05-07:00"; x },
-    "toolchain version a number" = function(x) { x$context$toolchain$R <- 4.5; x },
-    "unknown context field" = function(x) { x$context$machine <- "m4"; x }
+    "summary tolerance zero" = function(x) {
+      x$result$tolerance$summary$km_total <- 0
+      x
+    },
+    "summary value a string" = function(x) {
+      x$result$summary$km_total <- "47.375"
+      x
+    },
+    "time not UTC" = function(x) {
+      x$context$time <- "2026-11-04T11:22:05-07:00"
+      x
+    },
+    "toolchain version a number" = function(x) {
+      x$context$toolchain$R <- 4.5
+      x
+    },
+    "unknown context field" = function(x) {
+      x$context$machine <- "m4"
+      x
+    }
   )
   base <- receipt_example()
   for (nm in names(cases)) {

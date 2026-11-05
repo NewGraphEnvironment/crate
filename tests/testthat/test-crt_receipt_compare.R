@@ -269,7 +269,7 @@ test_that("a difference in each field alone does what the register says", {
     expect_identical(nrow(hit), 1L, info = f)
     want <- if (f %in% within) "within" else r$action[i]
     expect_identical(hit$action, want, info = f)
-    expect_identical(x$verdict, if (want == "refuse") "different" else if (want == "within") "equivalent" else "identical",
-                     info = f)
+    verdict <- c(refuse = "different", within = "equivalent", warn = "identical", record = "identical")
+    expect_identical(x$verdict, verdict[[want]], info = f)
   }
 })

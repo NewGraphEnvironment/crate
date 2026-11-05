@@ -104,7 +104,7 @@ jcs_inputs <- list(
   "number spelling boundaries" = '{"n":[1e20,1e21,1e-6,1e-7,0.1,1152921504606846976,5e-324]}',
   "non-ASCII text" = '{"caf\\u00e9":"\\u00e9t\\u00e9","emoji":"\\ud83d\\ude00","cjk":"\\u6c34"}',
   "scalar string" = '"top-level string"',
-  "scalar number" = '333333333.33333329'
+  "scalar number" = "333333333.33333329"
 )
 jcs <- Map(function(n, txt) {
   list(name = n, input_json = txt,
@@ -119,7 +119,8 @@ recipe_inputs <- list(
   "worked case" = paste0(
     '{"code":{"knowledge":{"commit":"3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39","version":"0.14.0","dirty":false},',
     '"link":{"commit":"a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0","version":"0.31.2","dirty":false}},',
-    '"config":{"files":{"inst/method/settings.csv":"5d41402abc4b2a76b9719d911017c592ae2f7c1b7b0c3c1b2f6d4e5a6b7c8d9e"},',
+    '"config":{"files":{"inst/method/settings.csv":',
+    '"5d41402abc4b2a76b9719d911017c592ae2f7c1b7b0c3c1b2f6d4e5a6b7c8d9e"},',
     '"settings":{"species":["CO","CH","ST"],"watershed_group":"BULK"}},',
     '"inputs":{"flow":{"recipe_id":"0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"},',
     '"fwa_stream_networks":{"version_id":"3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"}},',

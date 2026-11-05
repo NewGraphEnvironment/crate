@@ -117,10 +117,9 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
     d$detail[i] <- verdict$detail
   }
   agreed <- function(tbl) {
-    if (is.null(tbl) || !tbl %in% names(a$result$fingerprint) ||
-        !tbl %in% names(b$result$fingerprint)) {
-      return(FALSE)
-    }
+    in_both <- !is.null(tbl) && tbl %in% names(a$result$fingerprint) &&
+      tbl %in% names(b$result$fingerprint)
+    if (!in_both) return(FALSE)
     rows <- d$key %in% tbl & startsWith(d$pattern, "result.fingerprint.*.")
     all(d$action[rows] == "within")
   }
@@ -302,7 +301,10 @@ receipt_tables_within <- function(tbl, da, db, a, b) {
     x <- da[[nm]][oa]
     y <- db[[nm]][ob]
     bad <- xor(is.na(x), is.na(y)) | (!is.na(x) & !is.na(y) & abs(x - y) > tol_a[[nm]])
-    if (any(bad)) past <- c(past, paste0("column ", nm, ", ", sum(bad), " row", if (sum(bad) > 1) "s", " past ", format(tol_a[[nm]])))
+    if (any(bad)) {
+      past <- c(past, paste0("column ", nm, ", ", sum(bad), " row", if (sum(bad) > 1) "s",
+                             " past ", format(tol_a[[nm]])))
+    }
   }
   if (length(past)) return(list(ok = FALSE, detail = paste0("re-read: ", paste(past, collapse = "; "))))
   list(ok = TRUE, detail = paste0("fingerprints differ; re-read, every cell within tolerance"))
