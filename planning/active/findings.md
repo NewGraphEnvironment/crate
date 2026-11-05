@@ -115,3 +115,20 @@ Relates to #23
 ## Comments
 
 None at plan time (2026-11-05).
+
+## Phase 2: the gh-pages guard fires for receipt/ (2026-11-05)
+
+The "Check the published schemas against what is on gh-pages" step was extracted from
+`.github/workflows/pkgdown.yaml` and run in a scratch git repo, with `docs/` built by copying
+`pkgdown/assets/*` (what pkgdown does) and a fake gh-pages commit made from that `docs/`,
+passed as `SCHEMAS_PUBLISHED_REF`:
+
+| case | result |
+|---|---|
+| nothing changed | exit 0, `4 schema(s) built` (lidarbc 1.0.0, 1.1.0, las 1.0.0, receipt 1.0.0) |
+| `receipt/v1.0.0/schema.json` edited in source and build | exit 1, "differs from the published version" |
+| `pkgdown/assets/receipt/` removed | exit 1, "no receipt schema" and "published but no longer built" |
+| ref `deadbeef` | exit 1 (set -e on `git rev-parse --verify`) |
+
+Restore-the-bug on the schema: with `maxProperties` dropped from `definitions/input`, an input
+carrying both `recipe_id` and `sha256` validates; with it, ajv rejects it.

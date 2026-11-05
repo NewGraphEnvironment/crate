@@ -81,13 +81,13 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
   - **Migrated receipts**: what goes in `recipe_id` when old records lack recipe fields (proposal: `null`, plus `migrated_from` and the comparison reporting `recipe: unknown`).
 
 ## Phase 2: Receipt schema v1.0.0
-- [ ] `inst/extdata/receipt/schema/v1.0.0/schema.json`:
+- [x] `inst/extdata/receipt/schema/v1.0.0/schema.json`:
   - draft-07; `$id` `https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json`
   - blocks `output`, `recipe`, `result`, `context`; `output.receipt_version` set to the schema version
-- [ ] A published copy at `pkgdown/assets/receipt/v1.0.0/schema.json`, with a test that it is byte-identical to the installed copy
-- [ ] `pkgdown.yaml`: widen the build check and the gh-pages immutability guard to `receipt/v*/schema.json`. Prove the guard fires the way #23 did: extract the step and run it in a scratch clone against a fake published ref.
-- [ ] `tests/testthat/test-crt_receipt_schema.R`: compiles under ajv; example receipts pass; negatives fail (block missing, `recipe_id` not 64 hex, unknown block key)
-- [ ] DESCRIPTION: `jsonlite` to Imports. `jsonvalidate` stays in Suggests; `crt_receipt_validate()` aborts with an install hint when it is missing.
+- [x] A published copy at `pkgdown/assets/receipt/v1.0.0/schema.json`, with a test that it is byte-identical to the installed copy
+- [x] `pkgdown.yaml`: widen the build check and the gh-pages immutability guard to `receipt/v*/schema.json`. Prove the guard fires the way #23 did: extract the step and run it in a scratch clone against a fake published ref.
+- [x] `tests/testthat/test-crt_receipt_schema.R`: compiles under ajv; example receipts pass; negatives fail (block missing, `recipe_id` not 64 hex, unknown block key)
+- [x] DESCRIPTION: `jsonlite` to Imports. `jsonvalidate` stays in Suggests; `crt_receipt_validate()` aborts with an install hint when it is missing.
 
 ## Phase 3: Canonical JSON and `recipe_id`
 - [ ] `R/crt_receipt_jcs.R` (internal), an RFC 8785 serializer:
