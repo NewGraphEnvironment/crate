@@ -387,11 +387,13 @@ receipt_toolchain <- function() {
   for (pkg in c("arrow", "sf", "terra")) {
     if (isNamespaceLoaded(pkg)) out[[pkg]] <- as.character(utils::packageVersion(pkg))
   }
+  # Through the loaded namespace: crate does not depend on either, and asks only when
+  # the session already has one loaded.
   gdal <- tryCatch(
     if (isNamespaceLoaded("terra")) {
-      terra::gdal()
+      utils::getFromNamespace("gdal", "terra")()
     } else if (isNamespaceLoaded("sf")) {
-      unname(sf::sf_extSoftVersion()[["GDAL"]])
+      unname(utils::getFromNamespace("sf_extSoftVersion", "sf")()[["GDAL"]])
     },
     error = function(e) NULL
   )
