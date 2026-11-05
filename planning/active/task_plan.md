@@ -99,11 +99,11 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] Tests: the RFC 8785 Appendix B number samples, key-order samples (including a supplementary-plane key), escaping
 
 ## Phase 4: Table fingerprint
-- [ ] `R/crt_table_fingerprint.R`: export `crt_table_fingerprint(x, tolerance = NULL)`, using the canonical form decided at the gate
+- [x] `R/crt_table_fingerprint.R`: export `crt_table_fingerprint(x, tolerance = NULL)`, using the canonical form decided at the gate
   - supported column types: character, integer, double, logical, Date, POSIXct, factor; any other type aborts
   - a double with no declared tolerance uses shortest round-trip, i.e. exact
   - roxygen keeps it distinct from `crt_schema_fingerprint()`
-- [ ] Tests:
+- [x] Tests:
   - column order and row order do not move the value
   - a 9.5e-11 difference under a 1e-9 tolerance gives the same value; the same difference with no tolerance gives a different one
   - NA and `""` differ; a locale change (C vs UTF-8) leaves the value unchanged

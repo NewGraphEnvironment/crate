@@ -151,9 +151,11 @@ config's bytes stay hashed (`config.files`), since a config file can be large.
   written as ECMAScript's shortest round-trip form (exact). `-0`, and any value that rounds to
   zero, is written without a sign. NaN and Inf abort.
 - Logicals are `true` and `false`.
-- Dates are `YYYY-MM-DD`; datetimes are converted to UTC and written `YYYY-MM-DDTHH:MM:SSZ`, with
-  fractional seconds to the declared decimals when a tolerance is declared, otherwise dropped only
-  when zero.
+- Dates are `YYYY-MM-DD`; datetimes are converted to UTC and written `YYYY-MM-DDTHH:MM:SSZ`. A
+  datetime with fractional seconds is refused, not truncated: round it, or fingerprint it as a
+  number with a tolerance. A tolerance on a datetime would need rules for carrying into the next
+  second and for times before 1970 that every implementation must match, for a case no output
+  has yet.
 - Rows are sorted by the bytes of each row's own JCS.
 - The fingerprint is the SHA-256 hex of the UTF-8 bytes of that JCS.
 
