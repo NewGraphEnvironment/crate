@@ -124,14 +124,14 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] Tests: written receipts validate against the schema; a round trip keeps the ids; `publish = TRUE` leaves out `host`; context never moves `recipe_id`
 
 ## Phase 7: Comparison and register
-- [ ] `inst/extdata/receipt/register.csv`: one row per schema leaf field (`field`, `action` = refuse/warn/record, `why`)
-- [ ] `crt_receipt_compare(a, b, tables = NULL)` returns:
+- [x] `inst/extdata/receipt/register.csv`: one row per schema leaf field (`field`, `action` = refuse/warn/record, `why`)
+- [x] `crt_receipt_compare(a, b, tables = NULL)` returns:
   - `verdict`: identical/equivalent/different
   - `mode`: receipts/bytes
   - a `differences` tibble (side recipe/result/context/output, field, action, detail, e.g. "result: column `km`, 3 rows past 1e-9")
   - It reads the register, overlaid by the package's declaration.
-- [ ] Register test: build a receipt pair per field that differs only there, and assert the register's action. A schema field with no register row fails the test, and so does a recipe field that is not `refuse`.
-- [ ] Compare vectors (from Phase 5) pass, including the worked case → `equivalent`
+- [x] Register test: build a receipt pair per field that differs only there, and assert the register's action. A schema field with no register row fails the test, and so does a recipe field that is not `refuse`.
+- [x] Compare vectors (from Phase 5) pass, including the worked case → `equivalent`
 
 ## Phase 8: Mapping table and migrate
 - [ ] `inst/extdata/receipt/mapping.csv` (`source_field`, `source_format`, `receipt_key`, `stac_key`), seeded from the census: field names, with repo names only where the repo is public

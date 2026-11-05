@@ -165,3 +165,20 @@ every vector with `rfc8785` and its own implementation of the table canonical fo
 - Restore-the-bug: one canonical string in `fingerprint.json` changed by one digit fails the R
   runner (`test-crt_receipt_vectors.R:84`) and the Python check (1 mismatch); restored, both pass.
 - `data-raw/receipt_vectors.R` run twice gives byte-identical files (shasum).
+
+## Phase 7: the comparison needed parts to name their table (2026-11-05)
+
+In the worked case `access_check.csv`'s bytes differ while its fingerprint agrees. Without a link
+from a file to the table it holds, the comparison could either refuse every byte change (never
+`equivalent`) or accept every one (a changed raster nobody fingerprinted reads `equivalent`).
+Added `result.parts.<path>.table` (optional) to the unpublished schema v1.0.0; the writer takes it
+from named `parts`. Recorded in the research file.
+
+- Register restore-the-bug: removing `recipe.seed` from `register.csv` fails the coverage test
+  (`test-crt_receipt_compare.R:188`); softening it to `warn` fails the recipe-refuses assertion
+  (`:192`). Restored, all pass.
+- The per-field test changes each of the 42 register fields alone in a receipt that carries
+  every field, and asserts the register's action; the one documented downgrade is a part whose
+  bytes move while its named table agrees (`within`).
+- `compare.json` (9 pairs) is not recomputed by the Python cross-check, which covers hashing
+  only; stacs#12 implements the comparison against it.

@@ -71,7 +71,7 @@ write_build <- function(name, access, time, run_id) {
     ),
     result = list(
       tables = tables,
-      parts = paste0(names(tables), ".csv"),
+      parts = stats::setNames(paste0(names(tables), ".csv"), names(tables)),
       summary = list(rows = nrow(access), km_total = sum(access$km))
     ),
     context = list(time = time, run = list(link_run_id = run_id),

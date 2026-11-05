@@ -53,7 +53,10 @@ vector in \code{\link[=I]{I()}} to keep it an array); \code{inputs}, keyed by in
 exactly one of \code{list(recipe_id = )}, \code{list(version_id = )}, \code{list(sha256 = )}
 or \code{list(none = "why")}; and \code{seed}, an integer or \code{NULL}.
 \item \code{result}: \code{tables}, a named list of data frames to fingerprint; \code{parts}, the
-output's files as paths relative to \code{dir}; \code{summary}, named numbers such as
+output's files as paths relative to \code{dir}, each named by the table it holds
+where it holds one (\code{c(access_check = "access_check.csv", "map.tif")}), so a
+comparison can tell a file whose bytes moved within its table's tolerance from
+one that changed; \code{summary}, named numbers such as
 \code{rows} or \code{km_total}; and \code{tolerance}, \verb{list(tables = list(<table> = list(<column> = 1e-9)), summary = list(<name> = 1e-6))}.
 \item \code{context}: anything of \code{run} (identifiers), \code{session}, \code{inputs} (each input's
 own result, for reporting), \code{toolchain} and \code{time}. \code{time} defaults to now, in
@@ -83,7 +86,7 @@ r <- crt_receipt_write(
   ),
   result = list(
     tables = list(access_check = access),
-    parts = "access_check.csv",
+    parts = c(access_check = "access_check.csv"),
     summary = list(rows = 2L, km_total = sum(access$km)),
     tolerance = list(tables = list(access_check = list(km = 1e-9)),
                      summary = list(km_total = 1e-6))

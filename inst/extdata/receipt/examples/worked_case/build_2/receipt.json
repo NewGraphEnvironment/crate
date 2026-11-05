@@ -76,19 +76,23 @@
     "parts": {
       "access_check.csv": {
         "bytes": 128,
-        "sha256": "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"
+        "sha256": "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4",
+        "table": "access_check"
       },
       "visits_link.csv": {
         "bytes": 57,
-        "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e"
+        "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+        "table": "visits_link"
       },
       "visits_species.csv": {
         "bytes": 100,
-        "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9"
+        "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+        "table": "visits_species"
       },
       "walks.csv": {
         "bytes": 46,
-        "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f"
+        "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+        "table": "walks"
       }
     },
     "summary": {

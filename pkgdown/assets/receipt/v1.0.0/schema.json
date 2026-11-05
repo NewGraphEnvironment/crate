@@ -170,7 +170,12 @@
             "additionalProperties": false,
             "properties": {
               "bytes": {"type": "integer", "minimum": 0},
-              "sha256": {"$ref": "#/definitions/sha256"}
+              "sha256": {"$ref": "#/definitions/sha256"},
+              "table": {
+                "description": "The fingerprinted table this file holds, a key of result.fingerprint. When the file's bytes differ between two builds, that table's fingerprint decides whether they agree.",
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },

@@ -17,7 +17,10 @@
 #'   exactly one of `list(recipe_id = )`, `list(version_id = )`, `list(sha256 = )`
 #'   or `list(none = "why")`; and `seed`, an integer or `NULL`.
 #' * `result`: `tables`, a named list of data frames to fingerprint; `parts`, the
-#'   output's files as paths relative to `dir`; `summary`, named numbers such as
+#'   output's files as paths relative to `dir`, each named by the table it holds
+#'   where it holds one (`c(access_check = "access_check.csv", "map.tif")`), so a
+#'   comparison can tell a file whose bytes moved within its table's tolerance from
+#'   one that changed; `summary`, named numbers such as
 #'   `rows` or `km_total`; and `tolerance`, `list(tables = list(<table> =
 #'   list(<column> = 1e-9)), summary = list(<name> = 1e-6))`.
 #' * `context`: anything of `run` (identifiers), `session`, `inputs` (each input's
@@ -62,7 +65,7 @@
 #'   ),
 #'   result = list(
 #'     tables = list(access_check = access),
-#'     parts = "access_check.csv",
+#'     parts = c(access_check = "access_check.csv"),
 #'     summary = list(rows = 2L, km_total = sum(access$km)),
 #'     tolerance = list(tables = list(access_check = list(km = 1e-9)),
 #'                      summary = list(km_total = 1e-6))
@@ -141,7 +144,7 @@ receipt_build <- function(dir, output, recipe, result, context, keys, lockfile, 
 
   res <- list(
     fingerprint = receipt_object(fingerprint),
-    parts = receipt_parts(dir, result$parts),
+    parts = receipt_parts(dir, result$parts, names(tables)),
     summary = receipt_object(summary),
     tolerance = tolerance
   )
@@ -300,10 +303,18 @@ receipt_summary <- function(summary) {
   summary
 }
 
-receipt_parts <- function(dir, parts) {
+receipt_parts <- function(dir, parts, tables) {
   parts <- parts %||% character()
   if (!is.character(parts) || anyNA(parts)) {
     cli::cli_abort("{.arg result$parts} must be a character vector of paths relative to {.arg dir}.")
+  }
+  held <- names(parts) %||% rep("", length(parts))
+  stray <- setdiff(held[nzchar(held)], tables)
+  if (length(stray)) {
+    cli::cli_abort(c(
+      "{.arg result$parts} names {.val {stray}}, which {?is/are} not among the tables.",
+      "i" = "Name a part by the fingerprinted table it holds, or leave it unnamed."
+    ))
   }
   rel <- gsub("\\\\", "/", parts)
   bad <- rel[grepl("^/|^[A-Za-z]:|(^|/)\\.\\.(/|$)", rel) | !nzchar(rel)]
@@ -324,7 +335,11 @@ receipt_parts <- function(dir, parts) {
       "i" = "Parts are files under {.path {dir}}."
     ))
   }
-  out <- lapply(full, function(f) list(bytes = file.size(f), sha256 = receipt_file_sha256(f)))
+  out <- Map(function(f, t) {
+    e <- list(bytes = file.size(f), sha256 = receipt_file_sha256(f))
+    if (nzchar(t)) e$table <- t
+    e
+  }, full, held)
   names(out) <- rel
   receipt_object(out)
 }

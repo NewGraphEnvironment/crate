@@ -70,7 +70,7 @@ The vignette carries this through with a synthetic copy of the four tables, so i
 | field | type | |
 |---|---|---|
 | `fingerprint` | object, keyed by table name | `sha256` (64 hex), `rows` (integer) |
-| `parts` | object, keyed by path relative to the receipt | `bytes` (integer), `sha256` (64 hex) |
+| `parts` | object, keyed by path relative to the receipt | `bytes` (integer), `sha256` (64 hex), and `table` where the file holds a fingerprinted table |
 | `summary` | object, keyed by name | a number: `rows` and named totals such as `km_total` |
 | `tolerance` | object | `tables` (keyed by table, then column: a tolerance), `summary` (keyed by name: a tolerance) |
 
@@ -188,6 +188,12 @@ the private run log. `crt_receipt_write(publish = TRUE)` drops it.
 **`parts` paths are relative to the receipt's directory**, written with `/`. A receipt moved with
 its output stays true.
 
+**A part names the table it holds.** In the worked case `access_check.csv`'s bytes differ between
+the builds while its fingerprint agrees. Without knowing that file holds that table, the
+comparison could only refuse every byte change (and never say `equivalent`) or accept every one
+(and wave through a changed raster nobody fingerprinted). `parts.<path>.table` says which; a part
+whose bytes differ and that names no table, or whose table does not agree, is `different`.
+
 **A migrated receipt has `recipe_id` null.** `crt_receipt_migrate()` reads an old manifest or
 sidecar through the mapping table. Old records lack fields the recipe needs (a seed, resolved
 settings), so a migrated receipt sets `recipe_id` to `null` and `output.migrated_from` to the
@@ -226,6 +232,22 @@ Two more things an implementation must get right, both found writing the Python 
   past 1e-9`)
 
 It reads the register to decide what each difference does, overlaid by the package's declaration.
+A field is written `block.member`, with a key of a keyed collection in brackets
+(`result.parts[access_check.csv].sha256`), because keys such as file paths contain dots.
+
+The worked case compares as:
+
+```
+equivalent (receipts only)
+  within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees
+  within result.parts[access_check.csv].sha256: "04994f..." vs "6801fb..."; table access_check agrees
+  within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06
+  record context.run: {"link_run_id":"20261104T181900Z-bulk"} vs {"link_run_id":"20261104T214400Z-bulk"}
+  record context.time: "2026-11-04T18:22:05Z" vs "2026-11-04T21:47:31Z"
+```
+
+Without the `km` tolerance the same pair is `different`, naming
+`result.fingerprint[access_check].sha256`.
 
 ## Test vectors
 

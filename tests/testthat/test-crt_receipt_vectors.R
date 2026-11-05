@@ -43,7 +43,8 @@ decode_table <- function(tbl) {
 # A runner per file, so a vector file added with no runner fails here.
 test_that("every vector file has a runner", {
   expect_setequal(list.files(vectors_dir()),
-                  c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json"))
+                  c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json",
+                    "compare.json"))
 })
 
 test_that("numbers.json: RFC 8785 number spelling", {
@@ -89,4 +90,20 @@ test_that("fingerprint.json: canonical table and its fingerprint", {
   expect_false(sha[["worked case, first build, exact"]] == sha[["worked case, second build, exact"]])
   expect_identical(sha[["worked case, first build, km to 1e-9"]],
                    sha[["worked case, second build, km to 1e-9"]])
+})
+
+test_that("compare.json: verdict and the fields that differed", {
+  cases <- read_vectors("compare.json")
+  expect_gt(length(cases), 5)
+  for (cs in cases) {
+    x <- crt_receipt_compare(cs$a, cs$b)
+    expect_identical(x$verdict, cs$verdict, info = cs$name)
+    d <- x$differences[order(x$differences$field, method = "radix"), ]
+    want <- do.call(rbind, lapply(cs$differences, as.data.frame))
+    if (is.null(want)) want <- data.frame(field = character(), action = character())
+    expect_identical(d$field, want$field, info = cs$name)
+    expect_identical(d$action, want$action, info = cs$name)
+  }
+  verdicts <- vapply(cases, `[[`, "", "verdict")
+  expect_setequal(unique(verdicts), c("identical", "equivalent", "different"))
 })

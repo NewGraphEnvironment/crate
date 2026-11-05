@@ -24,6 +24,7 @@
 #   recipe_id.json    {name, recipe_json, jcs, recipe_id}
 #                     recipe_json: a recipe block as JSON text (it may carry a recipe_id,
 #                     which the hash leaves out)
+#   compare.json      {name, a, b, verdict, differences}; see the compare section below
 #   fingerprint.json  {name, table, tolerance, canonical, sha256}
 #                     table: {"columns": {<name>: {"type": <t>, "values": [...]}}}, with
 #                     t one of character, integer, double, logical, date, datetime.
@@ -218,3 +219,54 @@ fingerprints <- lapply(fp_cases, function(cs) {
        sha256 = crt_table_fingerprint(cs[[2]], tol))
 })
 write_vectors(fingerprints, "fingerprint.json")
+
+# ---- compare ---------------------------------------------------------------------
+# Receipt pairs and what crt_receipt_compare() makes of them from the receipts alone.
+# Built from the worked case, so run data-raw/receipt_examples.R first.
+#
+#   compare.json      {name, a, b, verdict, differences}
+#                     a, b: receipts; differences: [{field, action}], sorted by field.
+#                     A field is block.member, with a key in a keyed collection in
+#                     brackets: result.parts[access_check.csv].sha256
+wc <- file.path("inst", "extdata", "receipt", "examples", "worked_case")
+b1 <- crt_receipt_read(file.path(wc, "build_1"))
+b2 <- crt_receipt_read(file.path(wc, "build_2"))
+pair <- function(name, a, b) {
+  x <- crt_receipt_compare(a, b)
+  d <- x$differences[order(x$differences$field, method = "radix"), c("field", "action")]
+  list(name = name, a = a, b = b, verdict = x$verdict,
+       differences = lapply(seq_len(nrow(d)), function(i) as.list(d[i, ])))
+}
+other_setting <- b2
+other_setting$recipe$config$settings$watershed_group <- "MORR"
+other_setting$recipe$recipe_id <- crate:::crt_receipt_recipe_id(other_setting$recipe)
+other_seed <- b1
+other_seed$recipe$seed <- 20261105L
+other_seed$recipe$recipe_id <- crate:::crt_receipt_recipe_id(other_seed$recipe)
+untabled <- function(r) {
+  r$result$parts$access_check.csv$table <- NULL
+  r
+}
+past_tolerance <- b2
+past_tolerance$result$summary$km_total <- b2$result$summary$km_total + 0.01
+moved_fingerprint <- b2
+moved_fingerprint$result$fingerprint$access_check$sha256 <-
+  crt_table_fingerprint(data.frame(segment = "S010", accessible = TRUE, km = 1), list(km = 1e-9))
+migrated <- b2
+migrated$output$migrated_from <- "manifest.json"
+migrated$recipe <- list(code = list(link = list(commit = "a9b8c7d")), recipe_id = NULL)
+toolchain <- b1
+toolchain$context$toolchain$GDAL <- "3.9.2"
+
+compare <- list(
+  pair("worked case: one recipe, km within tolerance", b1, b2),
+  pair("a receipt and itself", b1, b1),
+  pair("toolchain only", b1, toolchain),
+  pair("another run setting", b1, other_setting),
+  pair("another seed", b1, other_seed),
+  pair("bytes moved in a file that names no table", untabled(b1), untabled(b2)),
+  pair("summary value past its tolerance", b1, past_tolerance),
+  pair("fingerprints differ, receipts only", b1, moved_fingerprint),
+  pair("a migrated receipt", b1, migrated)
+)
+write_vectors(compare, "compare.json")
