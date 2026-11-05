@@ -206,6 +206,15 @@ spellings on arm64 macOS, where long double is double; the C library's `strtod` 
 number vectors before trusting it, and its own tests should build doubles from their bits, not
 from 17-digit literals its parser may misread.
 
+Two more things an implementation must get right, both found writing the Python cross-check:
+
+- **Read every JSON number as a double.** JSON has one number type, and RFC 8785 spells every
+  number as ECMAScript does. Python's `json` reads `1152921504606846976` as an `int`, which
+  `rfc8785` refuses past 2^53; `parse_int=float` reads it as JavaScript would.
+- **Rows sort by the bytes of their JSON, not by their values.** `["a b"]` sorts before `["a"]`,
+  because a space (0x20) is below the closing quote (0x22). The rule is mechanical so that no
+  implementation needs a collation.
+
 ## The comparison
 
 `crt_receipt_compare(a, b, tables = NULL)` reads two receipts and returns:

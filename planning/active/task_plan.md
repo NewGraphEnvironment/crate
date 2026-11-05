@@ -109,10 +109,10 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
   - NA and `""` differ; a locale change (C vs UTF-8) leaves the value unchanged
 
 ## Phase 5: Test vectors
-- [ ] `inst/extdata/receipt/vectors/v1.0.0/` holds `jcs/`, `recipe_id/`, `fingerprint/` and `compare/`, each as JSON input plus expected output. The fingerprint tables are stored as JSON columns, so Python reads them without R.
-- [ ] `data-raw/receipt_vectors.R` writes them
-- [ ] `tests/testthat/test-crt_receipt_vectors.R` runs every file, so a vector with no test fails
-- [ ] A local cross-check with Python `rfc8785` (the stacs venv) over the jcs and recipe_id vectors, recorded in findings.md. It does not run in CI, which has no Python.
+- [x] `inst/extdata/receipt/vectors/v1.0.0/` holds `jcs/`, `recipe_id/`, `fingerprint/` and `compare/`, each as JSON input plus expected output. *(Landed as one file per kind: `numbers.json`, `jcs.json`, `recipe_id.json`, `fingerprint.json`, with a README; `compare.json` lands with Phase 7, which needs `crt_receipt_compare()`.)* The fingerprint tables are stored as JSON columns, so Python reads them without R.
+- [x] `data-raw/receipt_vectors.R` writes them
+- [x] `tests/testthat/test-crt_receipt_vectors.R` runs every file, so a vector with no test fails
+- [x] A local cross-check with Python `rfc8785` (the stacs venv) over the jcs and recipe_id vectors, recorded in findings.md. It does not run in CI, which has no Python.
 
 ## Phase 6: The R family
 - [ ] `crt_receipt_write(path, output, recipe, result, context = NULL, publish = FALSE)`:

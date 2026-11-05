@@ -153,3 +153,15 @@ Cross-check against Python `rfc8785` 0.1.4 (stacs' venv) over the same 199,915 d
 **0 mismatches**. RFC 8785 Appendix B's 24 samples and the 3.2.3 key-order example match too.
 Speed: 3.5 s per 200k arbitrary doubles after bisecting the digit count (8.7 s before),
 0.9 s per 100k three-decimal values.
+
+## Phase 5: vectors cross-checked in Python (2026-11-05)
+
+`data-raw/receipt_vectors_crosscheck.py`, run with stacs' venv (`rfc8785` 0.1.4), recomputes
+every vector with `rfc8785` and its own implementation of the table canonical form:
+539 numbers, 10 jcs, 7 recipe_id, 13 fingerprint cases, **0 mismatches**.
+
+- Python's `json` reads `1152921504606846976` as an int and `rfc8785` refuses ints past 2^53, so
+  the reader parses with `parse_int=float`. Recorded in the vectors README for stacs#12.
+- Restore-the-bug: one canonical string in `fingerprint.json` changed by one digit fails the R
+  runner (`test-crt_receipt_vectors.R:84`) and the Python check (1 mismatch); restored, both pass.
+- `data-raw/receipt_vectors.R` run twice gives byte-identical files (shasum).
