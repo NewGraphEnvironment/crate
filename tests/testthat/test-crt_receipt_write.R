@@ -114,10 +114,15 @@ test_that("context never moves recipe_id; every recipe field does", {
   # A config file's bytes are part of the recipe
   cfg <- file.path(dir, "settings.yaml")
   writeLines("a: 1", cfg)
-  a <- write_with(args, recipe = list(config = list(files = cfg)))$recipe$recipe_id
+  a <- write_with(args, recipe = list(config = list(files = c(settings.yaml = cfg))))$recipe$recipe_id
   writeLines("a: 2", cfg)
-  b <- write_with(args, recipe = list(config = list(files = cfg)))$recipe$recipe_id
+  b <- write_with(args, recipe = list(config = list(files = c(settings.yaml = cfg))))$recipe$recipe_id
   expect_false(identical(a, b))
+  # The key, not where the checkout sits, enters recipe_id: an absolute path must be named
+  expect_error(write_with(args, recipe = list(config = list(files = cfg))), "Name each config file")
+  other <- file.path(withr::local_tempdir(), "settings.yaml")
+  writeLines("a: 2", other)
+  expect_identical(write_with(args, recipe = list(config = list(files = c(settings.yaml = other))))$recipe$recipe_id, b)
 })
 
 test_that("tolerances are written as exact powers of ten", {

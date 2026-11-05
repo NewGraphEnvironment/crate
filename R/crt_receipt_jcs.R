@@ -50,6 +50,14 @@ jcs_value <- function(x, path) {
       jcs_value(x[[i]], sprintf("%s[[%d]]", path, i))
     }, ""), collapse = ","), "]"))
   }
+  # Before anything that drops attributes: as.character() on a factor drops its names,
+  # and a matrix's dim is lost to the array it would be written as.
+  if (!is.null(names(x)) || !is.null(dim(x))) {
+    cli::cli_abort(c(
+      "Value at {.code {path}} is a named vector or a matrix, whose names or shape JSON would drop.",
+      "i" = "Use {.fn as.list} for an object keyed by its names, or {.fn unname} / {.fn as.vector} for an array."
+    ))
+  }
   if (is.factor(x)) x <- as.character(x)
   # is.numeric() is TRUE for an integer64, whose storage is the int64's bits read as a
   # double: 42 would be written 2.0750757125332355e-322. RPostgres returns counts so.
@@ -69,14 +77,6 @@ jcs_value <- function(x, path) {
     cli::cli_abort(c(
       "Value at {.code {path}} has class {.cls {class(x)}}, which has no JSON form.",
       "i" = "Use a string, number, logical, list or NULL."
-    ))
-  }
-  # A named vector would lose its names: c(CO = 0.05, CH = 0.07) and
-  # c(CH = 0.05, CO = 0.07) would serialize, and hash, alike.
-  if (!is.null(names(x))) {
-    cli::cli_abort(c(
-      "Value at {.code {path}} is a named vector, whose names JSON would drop.",
-      "i" = "Use {.fn as.list} for an object keyed by those names, or {.fn unname} for an array."
     ))
   }
   vals <- jcs_atomic(x, path)
@@ -201,26 +201,57 @@ jcs_numbers <- function(x) {
   # numbers either: above 2^53 ECMAScript writes the shortest digits padded with zeros
   # (2^60 is 1152921504606847000), not the exact integer.
   #
+  # At p digits the candidates are the correctly rounded spelling and the decimals one
+  # step either side of it. ECMAScript takes any p-digit decimal that reads back, and
+  # where the exact value is a tie at p digits (2^-24 is 5.9604644775390625e-8) printf
+  # rounds to the neighbour that does not read back, while the one beside it does:
+  # Python and Node write 5.960464477539063e-8. That happens only at a power of two,
+  # where the interval of decimals that read back is twice as wide above the double as
+  # below it; elsewhere it is symmetric and the rounded spelling, the nearest, reads
+  # back whenever a neighbour would. So neighbours are tried for powers of two only.
+  #
   # If p digits read back, so do p + 1, so the fewest is found by bisection over 1-17:
   # five parses per value rather than seventeen.
-  spell <- function(p) sprintf(paste0("%.", p - 1L, "e"), ax[i])
+  pow2 <- ax == 2^round(log2(ax))
+  cands <- function(p, idx) {
+    s0 <- sprintf(paste0("%.", p - 1L, "e"), ax[idx])
+    d0 <- gsub(".", "", sub("e.*$", "", s0), fixed = TRUE)
+    q <- as.integer(sub("^.*e", "", s0)) - (p - 1L)
+    up <- down <- rep(NA_character_, length(idx))
+    two <- pow2[idx]
+    up[two] <- jcs_digit_step(d0[two], 1L)
+    down[two] <- jcs_digit_step(d0[two], -1L)
+    list(digits = cbind(d0, up, down), q = q)
+  }
+  reads_back <- function(cd, idx) {
+    hit <- matrix(FALSE, nrow = length(idx), ncol = 3L)
+    have <- !is.na(cd$digits)
+    txt <- paste0(cd$digits[have], "e", rep(cd$q, 3L)[have])
+    back <- jsonlite::parse_json(paste0("[", paste(txt, collapse = ","), "]"), simplifyVector = TRUE)
+    hit[have] <- back == rep(ax[idx], 3L)[have]
+    hit
+  }
   lo <- rep(1L, length(ax))
   hi <- rep(17L, length(ax))
   repeat {
     i <- which(lo < hi)
     if (!length(i)) break
     mid <- (lo[i] + hi[i]) %/% 2L
-    back <- jsonlite::parse_json(paste0("[", paste(spell(mid), collapse = ","), "]"),
-                                 simplifyVector = TRUE)
-    ok <- back == ax[i]
+    ok <- rowSums(reads_back(cands(mid, i), i)) > 0
     hi[i[ok]] <- mid[ok]
     lo[i[!ok]] <- mid[!ok] + 1L
   }
   i <- seq_along(ax)
-  s <- spell(lo)
-  mant <- sub("e.*$", "", s)
-  e <- as.integer(sub("^.*e", "", s))
-  digits <- sub("0+$", "", gsub(".", "", mant, fixed = TRUE))
+  cd <- cands(lo, i)
+  hit <- reads_back(cd, i)
+  pick <- ifelse(hit[, 1L], 1L, ifelse(hit[, 2L], 2L, 3L))
+  raw <- cd$digits[cbind(i, pick)]
+  # Strip trailing zeros into the exponent: value = digits x 10^q.
+  tz <- nchar(raw) - nchar(sub("0+$", "", raw))
+  digits <- sub("0+$", "", raw)
+  digits[!nzchar(digits)] <- "0"
+  q <- cd$q + tz
+  e <- nchar(digits) + q - 1L
   k <- nchar(digits)
   n <- e + 1L
   first <- substr(digits, 1L, 1L)
@@ -238,4 +269,35 @@ jcs_numbers <- function(x) {
   )
   out[nz] <- paste0(ifelse(x[nz] < 0, "-", ""), txt)
   out
+}
+
+# A decimal digit string one step up or down in its last place, without going through
+# a double (17 digits exceed 2^53). A carry out lengthens it ("999" up is "1000"); a
+# borrow out shortens it ("1000" down is "999").
+jcs_digit_step <- function(d, delta) {
+  n <- nchar(d)
+  last <- as.integer(substring(d, n))
+  out <- character(length(d))
+  # No carry: replace the last digit, vectorized; carries and borrows go below.
+  easy <- if (delta > 0L) last < 9L else last > 0L & n > 1L
+  out[easy] <- paste0(substr(d[easy], 1L, n[easy] - 1L), last[easy] + delta)
+  out[!easy] <- jcs_digit_step_carry(d[!easy], delta)
+  out
+}
+
+jcs_digit_step_carry <- function(d, delta) {
+  vapply(d, function(s) {
+    v <- as.integer(strsplit(s, "", fixed = TRUE)[[1]])
+    j <- length(v)
+    v[j] <- v[j] + delta
+    while (j > 1L && (v[j] > 9L || v[j] < 0L)) {
+      carry <- if (v[j] > 9L) 1L else -1L
+      v[j] <- v[j] - 10L * carry
+      j <- j - 1L
+      v[j] <- v[j] + carry
+    }
+    if (v[1] > 9L) v <- c(1L, v[1] - 10L, v[-1])
+    out <- sub("^0+(?=.)", "", paste(v, collapse = ""), perl = TRUE)
+    if (v[1] < 0L) "0" else out
+  }, "", USE.NAMES = FALSE)
 }

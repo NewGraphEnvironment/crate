@@ -47,7 +47,7 @@ test_that("every vector file has a runner", {
 
 test_that("numbers.json: RFC 8785 number spelling", {
   cases <- read_vectors("numbers.json")
-  expect_gt(length(cases), 500)
+  expect_gt(length(cases), 2600)
   x <- vapply(cases, function(cs) vector_bits(cs$bits), 0)
   want <- vapply(cases, `[[`, "", "expected")
   got <- crate:::jcs_numbers(x)

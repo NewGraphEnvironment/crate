@@ -193,3 +193,17 @@ from named `parts`. Recorded in the research file.
   `.lnk_manifest_write()`.
 - Schema v1.0.0 (still unpublished) gains `context.legacy`; the register gains its row (record).
 - All three migrated receipts validate against the schema.
+
+## code-check round 2: the number spelling at powers of two (2026-11-05)
+
+Round 2 found that `jcs_numbers()` tried only printf's correctly rounded spelling at each length,
+while ECMAScript accepts any decimal of that length that reads back. At a power of two the
+decimals that read back extend twice as far above the double as below it, and there the shortest
+spelling can be printf's neighbour: 2^-24 is `5.960464477539063e-8` (Python, Node) where R wrote
+17 digits. 46 of the 2,098 powers of two differed; none of 200,000 random doubles did, which is
+why the first cross-check passed.
+
+Fix: at powers of two, also try the decimal one step either side. Measured after: 0 mismatches
+against Python `rfc8785` on all 2,098 powers of two and on the 199,915 random doubles (6.5 s per
+200k; 1.5 s per 100k three-decimal values). `numbers.json` now carries every power of two (2,637
+cases), and the Python cross-check reproduces all of them.

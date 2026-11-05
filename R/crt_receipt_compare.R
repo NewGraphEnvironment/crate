@@ -91,7 +91,7 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
       want <- r$result$fingerprint[[tbl]]$sha256
       got <- if (!is.null(want)) {
         tol <- r$result$tolerance$tables[[tbl]]
-        crt_table_fingerprint(receipt_reread_numeric(tables[[side]][[tbl]], tol), tol)
+        receipt_reread_fingerprint(tables[[side]][[tbl]], tol)
       }
       if (is.null(want) || !identical(got, want)) {
         d <- rbind(d, receipt_diff_row(
@@ -252,7 +252,7 @@ receipt_diff <- function(a, b, register) {
 receipt_summary_tolerance <- function(a, b, nm) {
   ta <- a$result$tolerance$summary[[nm]]
   tb <- b$result$tolerance$summary[[nm]]
-  if (is.null(ta) || !identical(ta, tb)) return(NULL)
+  if (is.null(ta) || !receipt_same(ta, tb)) return(NULL)
   ta
 }
 
@@ -261,7 +261,7 @@ receipt_summary_tolerance <- function(a, b, nm) {
 receipt_tables_within <- function(tbl, da, db, a, b) {
   tol_a <- a$result$tolerance$tables[[tbl]]
   tol_b <- b$result$tolerance$tables[[tbl]]
-  if (!identical(tol_a, tol_b)) {
+  if (!receipt_same(tol_a, tol_b)) {
     return(list(ok = FALSE, detail = "the builds declare different tolerances for it"))
   }
   da <- receipt_reread_numeric(da, tol_a)
@@ -269,7 +269,7 @@ receipt_tables_within <- function(tbl, da, db, a, b) {
   for (side in c("a", "b")) {
     df <- if (side == "a") da else db
     r <- if (side == "a") a else b
-    if (!identical(crt_table_fingerprint(df, tol_a), r$result$fingerprint[[tbl]]$sha256)) {
+    if (!identical(receipt_reread_fingerprint(df, tol_a), r$result$fingerprint[[tbl]]$sha256)) {
       return(list(ok = FALSE, detail = paste0("re-read: the table supplied for ", side,
                                               " is not the one its receipt fingerprinted")))
     }
@@ -320,10 +320,25 @@ receipt_tables_within <- function(tbl, da, db, a, b) {
 receipt_reread_numeric <- function(df, tolerance) {
   for (nm in intersect(names(tolerance), names(df))) {
     v <- df[[nm]]
-    if ((is.integer(v) && !inherits(v, "integer64") && is.null(oldClass(v))) ||
-        (is.logical(v) && all(is.na(v)))) {
-      df[[nm]] <- as.double(v)
-    }
+    plain_int <- is.integer(v) && is.null(oldClass(v))
+    if (plain_int || (is.logical(v) && all(is.na(v)))) df[[nm]] <- as.double(v)
   }
   df
+}
+
+# One value in two receipts, compared as the receipts hash it: a receipt returned by
+# crt_receipt_write() holds a tolerance of 1 as a double in the caller's order, the
+# same receipt read from disk as 1L in key order.
+receipt_same <- function(x, y) {
+  identical(crt_receipt_jcs(x), crt_receipt_jcs(y))
+}
+
+# A re-read table's fingerprint, or NA when it cannot be fingerprinted at all (a
+# tolerance column missing or read back as text): that is a table that is not the one
+# its receipt fingerprinted, a finding, not a reason to abort the comparison.
+receipt_reread_fingerprint <- function(df, tolerance) {
+  tryCatch(
+    crt_table_fingerprint(receipt_reread_numeric(df, tolerance), tolerance),
+    error = function(e) NA_character_
+  )
 }

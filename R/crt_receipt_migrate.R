@@ -44,6 +44,11 @@
 #'
 #' @export
 crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = NULL, path = NULL) {
+  utc <- "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+  if (!is.null(time) && !(is.character(time) && length(time) == 1L && grepl(utc, time))) {
+    cli::cli_abort("{.arg time} must be UTC in ISO 8601 with a trailing {.val Z}.")
+  }
+  if (!is.null(name)) chk::chk_string(name)
   mapping <- receipt_mapping()
   formats <- setdiff(unique(mapping$source_format), c("any record", "STAC item"))
   chk::chk_string(format)
@@ -73,13 +78,13 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
   }
   fields <- receipt_migrate_fields(x, section, stop_at)
   receipt <- list(
-    output = list(name = name, scope = NULL, receipt_version = receipt_version(),
+    output = list(name = NULL, scope = NULL, receipt_version = receipt_version(),
                   schema = NULL, migrated_from = format),
     recipe = list(recipe_id = NULL),
     result = list(fingerprint = receipt_object(NULL), parts = receipt_object(NULL),
                   summary = receipt_object(NULL),
                   tolerance = list(tables = receipt_object(NULL), summary = receipt_object(NULL))),
-    context = list(time = time)
+    context = list(time = NULL)
   )
   legacy <- list()
   unmapped <- character()
@@ -105,13 +110,16 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
   }
 
   receipt <- receipt_migrate_tidy(receipt, legacy)
+  # The arguments stand in for what the record lacks or holds in an unusable form.
+  if (is.null(receipt$context$time)) receipt$context$time <- time
+  if (is.null(receipt$output$name)) receipt$output$name <- name
   # A section of a record holding several outputs is named by its path there.
   if (is.null(receipt$output$name) && !is.null(section)) receipt$output$name <- section
   if (is.null(receipt$output$name)) {
     cli::cli_abort("The record names no output; pass {.arg name}.")
   }
   if (is.null(receipt$context$time)) {
-    cli::cli_abort("The record carries no time; pass {.arg time}.")
+    cli::cli_abort("The record carries no time in UTC ISO 8601; pass {.arg time}.")
   }
   if (length(unmapped)) {
     cli::cli_warn(
@@ -248,6 +256,22 @@ receipt_set_key <- function(x, key, value) {
 
 # Place what the schema would refuse into legacy rather than write an invalid receipt.
 receipt_migrate_tidy <- function(receipt, legacy) {
+  is_text <- function(v) is.character(v) && length(v) == 1L && !is.na(v) && nzchar(v)
+  utc <- "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+  move <- function(key, ok) {
+    v <- receipt_get_key(receipt, key)
+    if (!is.null(v) && !ok(v)) {
+      legacy[[key]] <<- v
+      receipt <<- receipt_set_key(receipt, key, NULL)
+    }
+  }
+  move("context.time", function(v) is_text(v) && grepl(utc, v))
+  move("context.host", is_text)
+  move("recipe.seed", function(v) is.numeric(v) && length(v) == 1L && !is.na(v) && v == trunc(v))
+  move("output.name", is_text)
+  move("output.scope", is_text)
+  # The schema requires output's name and scope keys; an unusable one is null, not gone.
+  for (k in c("name", "scope")) if (!k %in% names(receipt$output)) receipt$output[k] <- list(NULL)
   code <- receipt$recipe$code
   for (repo in names(code)) {
     e <- code[[repo]]

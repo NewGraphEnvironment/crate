@@ -92,6 +92,22 @@ test_that("a migrated receipt compares as recipe unknown", {
   expect_match(x$differences$detail[x$differences$field == "recipe.recipe_id"], "recipe unknown")
 })
 
+test_that("a migrated value the schema would refuse goes to legacy, and the receipt validates", {
+  skip_if_not_installed("jsonvalidate")
+  rec <- jsonlite::read_json(legacy_path("link_manifest.json"))
+  rec$built <- "2026-11-01 17:04:12"
+  rec$seed <- "42"
+  rec$host <- ""
+  r <- crt_receipt_migrate(rec, "link manifest.json", time = "2026-11-01T17:04:12Z")
+  expect_true(crt_receipt_validate(r))
+  expect_identical(r$context$time, "2026-11-01T17:04:12Z")
+  expect_identical(r$context$legacy$context.time, "2026-11-01 17:04:12")
+  expect_identical(r$context$legacy$recipe.seed, "42")
+  expect_false("host" %in% names(r$context))
+  expect_error(crt_receipt_migrate(rec, "link manifest.json"), "pass `time`")
+  expect_error(crt_receipt_migrate(rec, "link manifest.json", time = "yesterday"), "trailing")
+})
+
 test_that("it refuses what it cannot read", {
   expect_error(crt_receipt_migrate(legacy_path("link_manifest.json"), "provenance.json"), "not a format")
   expect_error(crt_receipt_migrate(legacy_path("link_manifest.json"), "STAC item"), "not a format")

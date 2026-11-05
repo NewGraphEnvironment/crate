@@ -143,6 +143,7 @@ table_cells <- function(v, nm, k) {
     if (any(!is.finite(unclass(v)[!na]))) {
       cli::cli_abort("Column {.field {nm}} has an infinite date.")
     }
+    table_year_check(as.POSIXlt(v[!na])$year + 1900L, nm)
     txt <- format(v[!na], "%Y-%m-%d")
   } else if (inherits(v, "POSIXt")) {
     v <- as.POSIXct(v)
@@ -156,6 +157,7 @@ table_cells <- function(v, nm, k) {
         "i" = "Round it to whole seconds, or fingerprint it as a number with a tolerance."
       ))
     }
+    table_year_check(as.POSIXlt(v[!na], tz = "UTC")$year + 1900L, nm)
     txt <- format(v[!na], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
   } else if (is.character(v)) {
     txt <- jcs_utf8(v[!na], nm)
@@ -185,4 +187,17 @@ table_cells <- function(v, nm, k) {
   }
   out[!na] <- jcs_string(txt)
   out
+}
+
+# The spelling is four-digit years. R writes year -221 or 10183 without complaint,
+# Python's datetime holds neither, and a datetime that is epoch milliseconds read as
+# seconds lands near year 57,000: refuse what has no YYYY.
+table_year_check <- function(year, nm) {
+  bad <- year < 1L | year > 9999L
+  if (any(bad)) {
+    cli::cli_abort(c(
+      "Column {.field {nm}} has a year outside 1-9999: {.val {unique(year[bad])}}.",
+      "i" = "A datetime far in the future is often milliseconds read as seconds."
+    ))
+  }
 }

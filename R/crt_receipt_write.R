@@ -227,8 +227,19 @@ receipt_config <- function(config) {
   if (!is.character(files)) {
     cli::cli_abort("{.arg recipe$config$files} must be a character vector of paths.")
   }
-  keys <- names(files) %||% files
-  keys[!nzchar(keys)] <- files[!nzchar(keys)]
+  keys <- names(files) %||% rep("", length(files))
+  # A key is part of recipe_id, so it must not depend on where the checkout is: an
+  # unnamed file is keyed by its path only when that path is relative and stays inside.
+  unnamed <- !nzchar(keys)
+  outside <- unnamed & grepl("^/|^[A-Za-z]:|^~|(^|/)\\.\\.(/|$)", gsub("\\\\", "/", files))
+  if (any(outside)) {
+    cli::cli_abort(c(
+      "Name each config file given by an absolute or outside path: {.val {files[outside]}}.",
+      "i" = paste("Its key enters {.field recipe_id}, so",
+                  "{.code c(settings.csv = \"/abs/path/settings.csv\")} keeps it the same in every checkout.")
+    ))
+  }
+  keys[unnamed] <- gsub("\\\\", "/", files[unnamed])
   if (anyDuplicated(keys)) {
     cli::cli_abort("{.arg recipe$config$files} repeats {.val {unique(keys[duplicated(keys)])}}.")
   }

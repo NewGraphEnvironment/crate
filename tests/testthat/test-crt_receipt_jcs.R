@@ -109,6 +109,9 @@ test_that("values that would lose meaning are refused, not written", {
   # Names would be dropped, so two different settings would hash alike
   expect_error(crate:::crt_receipt_jcs(list(t = c(CO = 0.05, CH = 0.07))), "named vector")
   expect_error(crate:::crt_receipt_jcs(c(a = 1)), "named vector")
+  # ... a factor's names too, which as.character() would drop, and a matrix's shape
+  expect_error(crate:::crt_receipt_jcs(list(t = factor(c(CO = "x", CH = "y")))), "named vector")
+  expect_error(crate:::crt_receipt_jcs(list(m = matrix(1:4, 2))), "matrix")
   expect_identical(crate:::crt_receipt_jcs(list(t = as.list(c(CO = 0.05, CH = 0.07)))),
                    "{\"t\":{\"CH\":0.07,\"CO\":0.05}}")
 })

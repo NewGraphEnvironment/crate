@@ -61,7 +61,7 @@ write_vectors <- function(cases, file) {
 }
 
 # ---- numbers ---------------------------------------------------------------------
-# RFC 8785 Appendix B, the spelling boundaries, and 500 random doubles.
+# RFC 8785 Appendix B, the spelling boundaries, 500 random doubles and every power of two.
 appendix_b <- c(
   "0000000000000000", "8000000000000000", "0000000000000001", "8000000000000001",
   "7fefffffffffffff", "ffefffffffffffff", "4340000000000000", "c340000000000000",
@@ -78,9 +78,13 @@ random <- local({
                size = 8, endian = "big")
   head(r[is.finite(r)], 500)
 })
-num_bits <- c(appendix_b, bits_of(boundaries), bits_of(random))
+# Every power of two: there the decimals that read back extend twice as far above the
+# double as below, and the shortest spelling is sometimes not printf's rounding
+# (2^-24 is 5.960464477539063e-8, where printf's 16 digits end in 2).
+pow2 <- 2^(-1074:1023)
+num_bits <- c(appendix_b, bits_of(boundaries), bits_of(random), bits_of(pow2))
 num_names <- c(paste0("rfc8785 appendix B ", appendix_b), paste0("boundary ", sprintf("%.17g", boundaries)),
-               paste0("random ", seq_along(random)))
+               paste0("random ", seq_along(random)), paste0("2^", -1074:1023))
 numbers <- Map(function(n, b, e) list(name = n, bits = b, expected = e),
                num_names, num_bits, crate:::jcs_numbers(from_bits(num_bits)))
 write_vectors(unname(numbers), "numbers.json")

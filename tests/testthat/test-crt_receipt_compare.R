@@ -130,6 +130,31 @@ test_that("re-read tolerance columns of another numeric type still compare", {
   expect_identical(y$verdict, "identical")
 })
 
+test_that("a re-read table that cannot be fingerprinted is a finding, not an abort", {
+  builds <- two_builds(c(1, 5), c(1.0000000001, 5))
+  gone <- builds$b$table
+  gone$km <- NULL
+  text <- builds$b$table
+  text$km <- as.character(text$km)
+  for (b in list(gone, text)) {
+    x <- crt_receipt_compare(builds$a$receipt, builds$b$receipt,
+                             tables = list(a = list(t = builds$a$table), b = list(t = b)))
+    expect_identical(x$verdict, "different")
+    expect_true(any(grepl("supplied for b is not the one", x$differences$detail)))
+  }
+})
+
+# A receipt as crt_receipt_write() returns it and as it reads back from disk differ in
+# R types (1 vs 1L) and member order, not in what they say.
+test_that("a written receipt compares the same as its file", {
+  builds <- two_builds(c(1, 5), c(1, 5), tolerance = list(km = 1))
+  r <- builds$b$receipt
+  path <- withr::local_tempfile(fileext = ".json")
+  crate:::receipt_write_file(r, path)
+  expect_identical(crt_receipt_compare(builds$a$receipt, path)$verdict, "identical")
+  expect_identical(crt_receipt_compare(builds$a$receipt, r)$verdict, "identical")
+})
+
 test_that("a file whose bytes moved is equivalent only when it names an agreeing table", {
   builds <- two_builds(c(1.00000000001, 5), c(1.00000000002, 5), part_table = FALSE)
   x <- crt_receipt_compare(builds$a$receipt, builds$b$receipt)
