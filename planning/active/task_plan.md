@@ -147,7 +147,7 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - [x] `vignettes/receipt.Rmd` from the research file, with runnable examples on a synthetic copy of the worked case (four tables, one off by 9.5e-11 km), not knowledge's data. DESCRIPTION: `VignetteBuilder: knitr`.
 - [x] `_pkgdown.yml`: reference sections and an article; README "How it works" line; NEWS entry (the version bump is left to `/gh-pr-merge`)
 - [x] CLAUDE.md Status and naming: the `crt_receipt_*` family and `crt_table_fingerprint`; reserve `crt_receipt_lineage` and `crt_receipt_stac`
-- [ ] Tick the #43 body's boxes as they land
+- [x] Tick the #43 body's boxes as they land
 
 ## Owed at the end (reported, done after merge)
 
@@ -157,9 +157,9 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 
 ## Validation
 
-- [ ] Tests pass
-- [ ] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
+- [x] Tests pass
+- [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
 How each change is proved:
