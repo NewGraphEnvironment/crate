@@ -4,7 +4,14 @@
 \alias{crt_receipt_migrate}
 \title{Read an older provenance record as a receipt}
 \usage{
-crt_receipt_migrate(x, format, section = NULL, name = NULL, time = NULL)
+crt_receipt_migrate(
+  x,
+  format,
+  section = NULL,
+  name = NULL,
+  time = NULL,
+  path = NULL
+)
 }
 \arguments{
 \item{x}{Path to the record, or the record as a list from \code{\link[jsonlite:read_json]{jsonlite::read_json()}}.}
@@ -18,10 +25,14 @@ separated by \code{/}.}
 \code{section} for a section of a record.}
 
 \item{time}{UTC time in ISO 8601 with a trailing \code{Z}, when the record carries none.}
+
+\item{path}{Optional: where to write the receipt, a file or a directory (which gets
+\code{receipt.json}). It is written as \code{\link[=crt_receipt_write]{crt_receipt_write()}} writes, canonical JSON
+pretty-printed, so \code{\link[=crt_receipt_read]{crt_receipt_read()}} reads it back to the same bytes.}
 }
 \value{
-A receipt, as a list. Write it with \code{\link[jsonlite:read_json]{jsonlite::write_json()}} or compare it
-with \code{\link[=crt_receipt_compare]{crt_receipt_compare()}}.
+A receipt, as a list, invisibly when \code{path} is given. Compare it with
+\code{\link[=crt_receipt_compare]{crt_receipt_compare()}}.
 }
 \description{
 Reads a \code{manifest.json} or \code{provenance.json} written before its package moved to

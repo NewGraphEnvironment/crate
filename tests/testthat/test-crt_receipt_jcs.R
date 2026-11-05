@@ -102,6 +102,33 @@ test_that("the serializer refuses what has no single JSON spelling", {
   expect_error(crate:::crt_receipt_jcs(rawToChar(as.raw(0xff))), "not valid UTF-8")
 })
 
+test_that("values that would lose meaning are refused, not written", {
+  # An integer64's storage is its bits read as a double: 42 would be 2.07e-322
+  expect_error(crate:::crt_receipt_jcs(list(rows = structure(2.0750757125332355e-322, class = "integer64"))),
+               "integer64")
+  # Names would be dropped, so two different settings would hash alike
+  expect_error(crate:::crt_receipt_jcs(list(t = c(CO = 0.05, CH = 0.07))), "named vector")
+  expect_error(crate:::crt_receipt_jcs(c(a = 1)), "named vector")
+  expect_identical(crate:::crt_receipt_jcs(list(t = as.list(c(CO = 0.05, CH = 0.07)))),
+                   "{\"t\":{\"CH\":0.07,\"CO\":0.05}}")
+})
+
+# Validity is decided before any conversion, so a C session cannot turn a bad byte
+# into the text "<e9>" and hash that.
+test_that("a string that is not UTF-8 is refused in every locale; latin1 marked is converted", {
+  bad <- rawToChar(as.raw(c(0x63, 0x61, 0x66, 0xe9)))
+  for (loc in c("C", "en_US.UTF-8")) {
+    expect_error(withr::with_locale(c(LC_CTYPE = loc), crate:::crt_receipt_jcs(bad)), "not valid UTF-8",
+                 info = loc)
+  }
+  marked <- bad
+  Encoding(marked) <- "latin1"
+  for (loc in c("C", "en_US.UTF-8")) {
+    expect_identical(withr::with_locale(c(LC_CTYPE = loc), charToRaw(crate:::crt_receipt_jcs(marked))),
+                     charToRaw(enc2utf8("\"caf\u00e9\"")), info = loc)
+  }
+})
+
 test_that("the serialization does not depend on the locale", {
   x <- list(b = "\u00e9", "\u00e9" = 1.5, a = c(0.1, 1e21))
   a <- crate:::crt_receipt_jcs(x)

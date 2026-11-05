@@ -113,6 +113,23 @@ test_that("re-reading refuses past the tolerance, and a table that is not its re
                "not the one its receipt fingerprinted")
 })
 
+# read.csv() brings back whole numbers as integer and an all-NA column as logical.
+test_that("re-read tolerance columns of another numeric type still compare", {
+  builds <- two_builds(c(12, 4), c(12, 4.0001), tolerance = list(km = 1e-3))
+  a <- builds$a$table
+  a$km <- as.integer(a$km)
+  x <- crt_receipt_compare(builds$a$receipt, builds$b$receipt,
+                           tables = list(a = list(t = a), b = list(t = builds$b$table)))
+  expect_identical(x$verdict, "equivalent")
+  expect_identical(x$mode, "bytes")
+  na_builds <- two_builds(c(NA_real_, NA_real_), c(NA_real_, NA_real_))
+  na_a <- na_builds$a$table
+  na_a$km <- c(NA, NA)
+  y <- crt_receipt_compare(na_builds$a$receipt, na_builds$b$receipt,
+                           tables = list(a = list(t = na_a), b = list(t = na_builds$b$table)))
+  expect_identical(y$verdict, "identical")
+})
+
 test_that("a file whose bytes moved is equivalent only when it names an agreeing table", {
   builds <- two_builds(c(1.00000000001, 5), c(1.00000000002, 5), part_table = FALSE)
   x <- crt_receipt_compare(builds$a$receipt, builds$b$receipt)

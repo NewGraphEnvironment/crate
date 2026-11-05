@@ -361,7 +361,7 @@ receipt_context <- function(context, lockfile, publish) {
   }
   toolchain <- utils::modifyList(receipt_toolchain(),
                                  receipt_named_list(context$toolchain, "context$toolchain"))
-  ok <- vapply(toolchain, function(v) is.character(v) && length(v) == 1L && nzchar(v), TRUE)
+  ok <- vapply(toolchain, function(v) is.character(v) && length(v) == 1L && !is.na(v) && nzchar(v), TRUE)
   if (!all(ok)) {
     cli::cli_abort("Every {.arg context$toolchain} entry must be a version string: {.val {names(toolchain)[!ok]}}.")
   }

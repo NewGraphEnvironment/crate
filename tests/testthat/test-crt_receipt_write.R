@@ -148,6 +148,7 @@ test_that("it refuses what would give a wrong or ambiguous identity", {
                "not among the tables")
   expect_error(write_with(args, result = list(tolerance = list(summary = list(km = 1e-6)))), "not in")
   expect_error(write_with(args, context = list(time = "2026-11-05 00:00:00")), "trailing")
+  expect_error(write_with(args, context = list(toolchain = list(Python = NA_character_))), "version string")
   expect_error(write_with(args, dir = file.path(dir, "missing")), "does not exist")
 })
 

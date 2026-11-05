@@ -90,7 +90,8 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
       used_bytes <- TRUE
       want <- r$result$fingerprint[[tbl]]$sha256
       got <- if (!is.null(want)) {
-        crt_table_fingerprint(tables[[side]][[tbl]], r$result$tolerance$tables[[tbl]])
+        tol <- r$result$tolerance$tables[[tbl]]
+        crt_table_fingerprint(receipt_reread_numeric(tables[[side]][[tbl]], tol), tol)
       }
       if (is.null(want) || !identical(got, want)) {
         d <- rbind(d, receipt_diff_row(
@@ -263,6 +264,8 @@ receipt_tables_within <- function(tbl, da, db, a, b) {
   if (!identical(tol_a, tol_b)) {
     return(list(ok = FALSE, detail = "the builds declare different tolerances for it"))
   }
+  da <- receipt_reread_numeric(da, tol_a)
+  db <- receipt_reread_numeric(db, tol_a)
   for (side in c("a", "b")) {
     df <- if (side == "a") da else db
     r <- if (side == "a") a else b
@@ -308,4 +311,19 @@ receipt_tables_within <- function(tbl, da, db, a, b) {
   }
   if (length(past)) return(list(ok = FALSE, detail = paste0("re-read: ", paste(past, collapse = "; "))))
   list(ok = TRUE, detail = paste0("fingerprints differ; re-read, every cell within tolerance"))
+}
+
+# A table read back from a file can bring a tolerance column back as another type:
+# read.csv() gives integer when every value is whole (write.csv() writes 12.0 as 12)
+# and logical when every value is NA. Read as double they spell as the writer's
+# doubles did, so the re-read can still be fingerprinted.
+receipt_reread_numeric <- function(df, tolerance) {
+  for (nm in intersect(names(tolerance), names(df))) {
+    v <- df[[nm]]
+    if ((is.integer(v) && !inherits(v, "integer64") && is.null(oldClass(v))) ||
+        (is.logical(v) && all(is.na(v)))) {
+      df[[nm]] <- as.double(v)
+    }
+  }
+  df
 }

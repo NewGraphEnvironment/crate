@@ -29,9 +29,12 @@
 #' @param name The output's name, when the record carries none. Defaults to
 #'   `section` for a section of a record.
 #' @param time UTC time in ISO 8601 with a trailing `Z`, when the record carries none.
+#' @param path Optional: where to write the receipt, a file or a directory (which gets
+#'   `receipt.json`). It is written as [crt_receipt_write()] writes, canonical JSON
+#'   pretty-printed, so [crt_receipt_read()] reads it back to the same bytes.
 #'
-#' @return A receipt, as a list. Write it with [jsonlite::write_json()] or compare it
-#'   with [crt_receipt_compare()].
+#' @return A receipt, as a list, invisibly when `path` is given. Compare it with
+#'   [crt_receipt_compare()].
 #'
 #' @examples
 #' rec <- system.file("extdata", "receipt", "examples", "legacy", "link_manifest.json",
@@ -40,7 +43,7 @@
 #' r$recipe$code
 #'
 #' @export
-crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = NULL) {
+crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = NULL, path = NULL) {
   mapping <- receipt_mapping()
   formats <- setdiff(unique(mapping$source_format), c("any record", "STAC item"))
   chk::chk_string(format)
@@ -117,6 +120,12 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
         "i" = "{.val {unmapped}}"),
       class = "crate_receipt_unmapped"
     )
+  }
+  if (!is.null(path)) {
+    chk::chk_string(path)
+    if (dir.exists(path)) path <- file.path(path, "receipt.json")
+    receipt_write_file(receipt, path)
+    return(invisible(receipt))
   }
   receipt
 }
@@ -261,7 +270,7 @@ receipt_migrate_tidy <- function(receipt, legacy) {
   if (!is.null(inputs)) receipt$recipe$inputs <- receipt_object(inputs)
   tc <- receipt$context$toolchain
   if (!is.null(tc)) {
-    keep <- vapply(tc, function(v) is.character(v) && length(v) == 1L && nzchar(v), TRUE)
+    keep <- vapply(tc, function(v) is.character(v) && length(v) == 1L && !is.na(v) && nzchar(v), TRUE)
     for (nm in names(tc)[!keep]) legacy[[paste0("context.toolchain.", nm)]] <- tc[[nm]]
     receipt$context$toolchain <- receipt_object(tc[keep])
   }

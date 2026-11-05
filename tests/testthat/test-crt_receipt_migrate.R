@@ -51,6 +51,15 @@ test_that("a network section migrates, and link's log row lands where it belongs
   expect_match(n$recipe$inputs$network$sha256, "^[0-9a-f]{64}$")
 })
 
+test_that("a migrated receipt written with path reads back and validates", {
+  skip_if_not_installed("jsonvalidate")
+  dir <- withr::local_tempdir()
+  r <- crt_receipt_migrate(legacy_path("link_manifest.json"), "link manifest.json", path = dir)
+  back <- crt_receipt_read(dir)
+  expect_identical(crate:::crt_receipt_jcs(back), crate:::crt_receipt_jcs(r))
+  expect_true(crt_receipt_validate(back))
+})
+
 test_that("an unknown field is reported and kept, never dropped", {
   rec <- jsonlite::read_json(legacy_path("link_manifest.json"))
   rec$surprise <- list(answer = 42L)

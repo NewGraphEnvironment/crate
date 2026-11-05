@@ -51,6 +51,14 @@ jcs_value <- function(x, path) {
     }, ""), collapse = ","), "]"))
   }
   if (is.factor(x)) x <- as.character(x)
+  # is.numeric() is TRUE for an integer64, whose storage is the int64's bits read as a
+  # double: 42 would be written 2.0750757125332355e-322. RPostgres returns counts so.
+  if (inherits(x, "integer64")) {
+    cli::cli_abort(c(
+      "Value at {.code {path}} is a {.cls integer64}, which has no JSON number of its own here.",
+      "i" = "Convert it with {.fn as.numeric} (exact below 2^53) or {.fn as.character}."
+    ))
+  }
   if (inherits(x, c("Date", "POSIXt", "difftime"))) {
     cli::cli_abort(c(
       "Value at {.code {path}} is a {.cls {class(x)[1]}}.",
@@ -61,6 +69,14 @@ jcs_value <- function(x, path) {
     cli::cli_abort(c(
       "Value at {.code {path}} has class {.cls {class(x)}}, which has no JSON form.",
       "i" = "Use a string, number, logical, list or NULL."
+    ))
+  }
+  # A named vector would lose its names: c(CO = 0.05, CH = 0.07) and
+  # c(CH = 0.05, CO = 0.07) would serialize, and hash, alike.
+  if (!is.null(names(x))) {
+    cli::cli_abort(c(
+      "Value at {.code {path}} is a named vector, whose names JSON would drop.",
+      "i" = "Use {.fn as.list} for an object keyed by those names, or {.fn unname} for an array."
     ))
   }
   vals <- jcs_atomic(x, path)
@@ -113,18 +129,26 @@ jcs_atomic <- function(x, path) {
   out
 }
 
-# Mark bytes that are already UTF-8 as such before converting: enc2utf8() reads an
-# unmarked string in the session's locale, so under C it would escape them, and one
-# key would sort and hash two ways (as crt_schema_fingerprint() found).
+# Decide validity before converting, whatever the locale. enc2utf8() reads an unmarked
+# string in the session's locale: under C it escapes a bad byte to the text "<e9>",
+# which is valid UTF-8, so one input would abort in one session and hash as
+# "caf<e9>" or "café" in others. So an unmarked string must already be UTF-8 (it is
+# marked as such), and only a string marked latin1 is converted.
 jcs_utf8 <- function(x, path) {
   if (!length(x)) return(x)
-  unmarked <- Encoding(x) == "unknown" & validUTF8(x)
-  if (any(unmarked)) Encoding(x)[unmarked] <- "UTF-8"
-  x <- enc2utf8(x)
-  if (!all(validUTF8(x))) {
-    cli::cli_abort("A string at {.code {path}} is not valid UTF-8.")
+  enc <- Encoding(x)
+  if (any(enc == "bytes")) {
+    cli::cli_abort("A string at {.code {path}} is marked as bytes, which have no text form.")
   }
-  x
+  unmarked <- enc == "unknown"
+  if (any(unmarked & !validUTF8(x))) {
+    cli::cli_abort(c(
+      "A string at {.code {path}} is not valid UTF-8.",
+      "i" = "Mark latin1 text with {.code Encoding(x) <- \"latin1\"} so it can be converted."
+    ))
+  }
+  if (any(unmarked)) Encoding(x)[unmarked] <- "UTF-8"
+  enc2utf8(x)
 }
 
 # JSON.stringify's escaping, which RFC 8785 adopts: the quote, the backslash and the
