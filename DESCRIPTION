@@ -1,6 +1,6 @@
 Package: crate
 Title: Canonical Schemas and Data Governance for Changing Data
-Version: 0.13.0
+Version: 0.14.0
 Date: 2026-11-06
 Authors@R: c(
     person("Allan", "Irvine", , "al@newgraphenvironment.com", role = c("aut", "cre"),
