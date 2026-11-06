@@ -147,8 +147,11 @@ table_cells <- function(v, nm, k) {
   # storage) is the same day count or instant, so it is admitted and rebuilt as its
   # base class below: the base class spells it, never the subclass's methods.
   cls <- oldClass(v)
-  is_date <- table_ends_with(cls, "Date") && (is.double(v) || is.integer(v))
-  is_time <- table_ends_with(cls, c("POSIXct", "POSIXt")) && is.double(v)
+  # Either class can sit on integer storage: IDate does, and so does seq() of a POSIXct.
+  # An all-NA one can be logical (structure(NA, class = "Date")).
+  on_number <- is.double(v) || is.integer(v) || (is.logical(v) && all(is.na(v)))
+  is_date <- table_ends_with(cls, "Date") && on_number
+  is_time <- table_ends_with(cls, c("POSIXct", "POSIXt")) && on_number
   known <- is.null(cls) || identical(cls, "factor") || is_date || is_time
   # An attribute the spelling does not read (a units attribute on a plain double) would
   # be dropped: 5 km would fingerprint as 5 m.

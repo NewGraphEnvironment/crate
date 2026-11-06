@@ -93,6 +93,15 @@ test_that("a subclass of Date or POSIXct is spelled as its base class", {
   sub_t <- structure(unclass(t), class = c("stamp", "POSIXct", "POSIXt"), tzone = "America/Vancouver")
   expect_identical(crate:::table_canonical(data.frame(t = sub_t)),
                    '{"columns":["t"],"rows":[["2026-11-04T18:22:05Z"]]}')
+  # seq() of a POSIXct stores integer seconds
+  int_t <- structure(c(1762400000L, NA), class = c("POSIXct", "POSIXt"), tzone = "UTC")
+  expect_identical(crate:::table_canonical(data.frame(t = int_t)),
+                   crate:::table_canonical(data.frame(t = as.POSIXct(c(1762400000, NA), tz = "UTC"))))
+  na_cols <- data.frame(id = 1:2)
+  na_cols$d <- structure(c(NA, NA), class = "Date")
+  na_cols$t <- structure(c(NA, NA), class = c("POSIXct", "POSIXt"))
+  expect_identical(crate:::table_canonical(na_cols),
+                   '{"columns":["d","id","t"],"rows":[[null,"1",null],[null,"2",null]]}')
 })
 
 test_that("a class is a Date or POSIXct subclass only with the base class last", {
