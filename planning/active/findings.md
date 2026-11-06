@@ -23,3 +23,9 @@ crate 0.12.0, data.table 1.18.2.1. Found by knowledge#158, whose check converts 
 
 - [ ] Treat any column inheriting from `Date` as a `Date` (`inherits(x, "Date")` in place of a class match), so `IDate` gets `YYYY-MM-DD`; the same question for `POSIXct` subclasses
 - [ ] A test that an `IDate` column and the same `Date` column give the same fingerprint
+
+## Code-check (branch, 3 rounds incl. enumeration)
+
+- Round 1: integer-stored POSIXct (`seq()` output) refused by a double-only storage test; fixed (df71ff7), with all-NA logical storage, both accepted by the old exact match.
+- Round 2 (inside round 1's fix): a Date/POSIXct on logical storage with non-NA values, or a Date on complex storage, was spelled by the old code (TRUE as day/second 1) and is now refused. **Accepted refusal**: no R constructor makes such a column, only `structure()`/`class<-` on a raw vector, and spelling TRUE as 1970-01-02 is not a canonical form worth keeping.
+- Enumeration (terminal): 4 classes (Date, POSIXct, IDate, a POSIXct subclass) x 10 storages (logical all-NA, logical, integer, double, double out of range, complex, character, raw, empty double, empty integer), old (9074750) vs new `table_canonical()`. Base classes: 17/20 byte-identical; the 3 differences are exactly round 2's accepted refusals. Subclasses: every difference is refused -> accepted, and all 20 subclass/base pairs spell identically under the new code.

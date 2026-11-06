@@ -57,8 +57,8 @@ Approved by the owner at the plan gate, 2026-11-06:
 ## Validation
 
 - [x] Tests pass (`devtools::test()`), `R CMD check` clean
-- [ ] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
+- [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
 Verification: the issue's reprex (`data.table::as.IDate("2026-11-06")` vs `as.Date`) run against
