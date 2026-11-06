@@ -1,6 +1,6 @@
 # Changelog
 
-## crate (development version)
+## crate 0.12.1 (2026-11-06)
 
 - The package title is now “Canonical Schemas and Data Governance for
   Changing Data”, saying what crate is for rather than whose it is
