@@ -25,7 +25,8 @@
 #'   without a sign. `NaN` and infinite values abort.
 #' * Dates are `YYYY-MM-DD`. Datetimes are converted to UTC and written
 #'   `YYYY-MM-DDTHH:MM:SSZ`; one with fractional seconds aborts, so round it or
-#'   fingerprint it as a number.
+#'   fingerprint it as a number. A subclass of `Date` or `POSIXct`, such as
+#'   data.table's `IDate`, is spelled as its base class.
 #' * Rows are sorted by the UTF-8 bytes of each row's own canonical JSON.
 #'
 #' @param x A data frame.
@@ -142,9 +143,13 @@ table_cells <- function(v, nm, k) {
   # The same whitelist as the JSON serializer: a column's class decides its spelling, so
   # an unknown one (octmode, hexmode, ITime, units, haven_labelled) is refused, not
   # printed through its methods. A matrix column would be flattened into extra rows.
+  # A subclass of Date or POSIXct (data.table's IDate, c("IDate", "Date") on integer
+  # storage) is the same day count or instant, so it is admitted and rebuilt as its
+  # base class below: the base class spells it, never the subclass's methods.
   cls <- oldClass(v)
-  known <- is.null(cls) || identical(cls, "factor") || identical(cls, "Date") ||
-    identical(cls, c("POSIXct", "POSIXt"))
+  is_date <- table_ends_with(cls, "Date") && (is.double(v) || is.integer(v))
+  is_time <- table_ends_with(cls, c("POSIXct", "POSIXt")) && is.double(v)
+  known <- is.null(cls) || identical(cls, "factor") || is_date || is_time
   # An attribute the spelling does not read (a units attribute on a plain double) would
   # be dropped: 5 km would fingerprint as 5 m.
   extra <- setdiff(names(attributes(v)), c("names", "class", "levels", "tzone"))
@@ -155,6 +160,8 @@ table_cells <- function(v, nm, k) {
                   "convert or drop the rest (a geometry as WKT, a matrix as columns).")
     ))
   }
+  if (is_date) v <- structure(as.double(unclass(v)), class = "Date")
+  if (is_time) v <- structure(as.double(unclass(v)), class = c("POSIXct", "POSIXt"))
   if (is.factor(v)) v <- as.character(v)
   out <- rep("null", length(v))
   na <- is.na(v)
@@ -204,6 +211,12 @@ table_cells <- function(v, nm, k) {
   }
   out[!na] <- jcs_string(txt)
   out
+}
+
+# Whether a class vector ends in `base`, so it is `base` or a subclass of it.
+table_ends_with <- function(cls, base) {
+  n <- length(cls)
+  n >= length(base) && identical(cls[seq(n - length(base) + 1L, n)], base)
 }
 
 # YYYY-MM-DD, spelled field by field: format("%Y") does not pad years below 1000 on

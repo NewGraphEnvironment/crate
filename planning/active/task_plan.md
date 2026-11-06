@@ -32,12 +32,12 @@ Approved by the owner at the plan gate, 2026-11-06:
 
 ## Phase 1: Accept and normalize Date / POSIXct subclasses
 
-- [ ] `R/crt_table_fingerprint.R` `table_cells()`: `known` accepts a class vector ending in
+- [x] `R/crt_table_fingerprint.R` `table_cells()`: `known` accepts a class vector ending in
       `"Date"` (integer or double storage) or ending in `c("POSIXct", "POSIXt")` (double);
       after the refusal checks, rebuild such a column as a plain `Date` / `POSIXct` from its
       numeric values, so the existing branches spell it
-- [ ] Comment the rule beside the whitelist comment, in the file's voice
-- [ ] Roxygen "The canonical form": dates and datetimes include their subclasses
+- [x] Comment the rule beside the whitelist comment, in the file's voice
+- [x] Roxygen "The canonical form": dates and datetimes include their subclasses
       (data.table's `IDate`), spelled as the base class; regenerate `man/` with `devtools::document()`
 
 ## Phase 2: Tests
