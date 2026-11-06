@@ -162,6 +162,11 @@ family-namespaced:
 - `crt_schema_conform`, `crt_schema_cols`, `crt_schema_grade`,
   `crt_schema_variant`, `crt_schema_fingerprint` — public, and in the
   `crt_schema_*` family because that is what they belong to
+- `crt_receipt_write`, `crt_receipt_read`, `crt_receipt_validate`,
+  `crt_receipt_compare`, `crt_receipt_keys`, `crt_receipt_migrate` —
+  public, the provenance receipt family; `crt_table_fingerprint` beside
+  it, named apart from `crt_schema_fingerprint`, which hashes column
+  names and types rather than values
 - `crt_handler_<source>_<file_name>` — per-(source, file) dispatchers
 - `crt_<family>_<verb>` — internal helper families (`crt_registry_*`,
   `crt_schema_*`)
@@ -261,14 +266,39 @@ read, which you conform yourself with
 
 **STAC field schemas**
 
-- `lidarbc` and `las` — JSON Schemas for the custom fields NGE’s STAC
-  catalogues write, published by this site at
+- `lidarbc`, `las` and `receipt` — JSON Schemas for the custom fields
+  NGE’s STAC catalogues write, published by this site at
   `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json`
   for items to list in `stac_extensions`. They are not R schemas and not
   part of the package: they live in
   [`pkgdown/assets/stac/`](https://newgraphenvironment.github.io/crate/pkgdown/assets/stac/README.md),
   and a released version is never edited. See the [decision
   entry](https://newgraphenvironment.github.io/crate/decisions/nge/20261010_stac_field_schemas.md).
+
+**Provenance receipts**
+
+- One `receipt.json` per output, saying what it is, how it was made,
+  what came out, and where and when, so any rebuild can be compared with
+  its reference copy and answered identical, equivalent within a
+  declared tolerance, or different, naming what differed
+  ([\#43](https://github.com/NewGraphEnvironment/crate/issues/43)).
+  crate holds the contract any language implements (the [receipt
+  schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json),
+  RFC 8785 canonical JSON, the table fingerprint, and test vectors in
+  [`inst/extdata/receipt/vectors/`](https://newgraphenvironment.github.io/crate/inst/extdata/receipt/vectors/v1.0.0/README.md))
+  and the R functions:
+  [`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md),
+  [`crt_receipt_read()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_read.md),
+  [`crt_receipt_validate()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_validate.md),
+  [`crt_receipt_compare()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_compare.md),
+  [`crt_receipt_keys()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_keys.md),
+  [`crt_receipt_migrate()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_migrate.md)
+  and
+  [`crt_table_fingerprint()`](https://newgraphenvironment.github.io/crate/reference/crt_table_fingerprint.md).
+  See
+  [`vignette("receipt")`](https://newgraphenvironment.github.io/crate/articles/receipt.md).
+  A `receipt:` STAC field schema mirrors a receipt’s `recipe_id` into an
+  item.
 
 More land as integration work surfaces. Each addition = a YAML in
 `inst/extdata/schemas/` + a registry row, plus a handler when crate does

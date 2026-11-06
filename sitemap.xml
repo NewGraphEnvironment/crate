@@ -2,6 +2,8 @@
 <url><loc>https://newgraphenvironment.github.io/crate/404.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/LICENSE-text.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/LICENSE.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/articles/index.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/articles/receipt.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/authors.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/index.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/news/index.html</loc></url>
@@ -10,6 +12,12 @@
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_handler_bcfp_user_habitat_classification.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_handler_nge_fish_data.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_ingest.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_receipt_compare.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_receipt_keys.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_receipt_migrate.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_receipt_read.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_receipt_validate.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_schema_apply.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_schema_cols.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.html</loc></url>
@@ -18,6 +26,7 @@
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_schema_read.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_schema_validate.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/crt_schema_variant.html</loc></url>
+<url><loc>https://newgraphenvironment.github.io/crate/reference/crt_table_fingerprint.html</loc></url>
 <url><loc>https://newgraphenvironment.github.io/crate/reference/index.html</loc></url>
 </urlset>
 

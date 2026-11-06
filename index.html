@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Canonical Schema and Data Governance for New Graph Environment">
-<meta name="description" content="Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas, decision logs, and adapter functions that insulate downstream consumers (link, fresh, reporting repos) from upstream-shape variability. First instance: bcfishpass override CSVs.">
-<meta property="og:description" content="Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas, decision logs, and adapter functions that insulate downstream consumers (link, fresh, reporting repos) from upstream-shape variability. First instance: bcfishpass override CSVs.">
+<meta name="description" content="Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas, decision logs, and adapter functions that insulate downstream consumers (link, fresh, reporting repos) from upstream-shape variability. First instance: bcfishpass override CSVs. Also holds the provenance receipt contract: a JSON Schema, RFC 8785 canonical JSON, a table fingerprint and test vectors, with R functions that write receipts and compare two builds as identical, equivalent within a declared tolerance, or different.">
+<meta property="og:description" content="Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas, decision logs, and adapter functions that insulate downstream consumers (link, fresh, reporting repos) from upstream-shape variability. First instance: bcfishpass override CSVs. Also holds the provenance receipt contract: a JSON Schema, RFC 8785 canonical JSON, a table fingerprint and test vectors, with R functions that write receipts and compare two builds as identical, equivalent within a declared tolerance, or different.">
 <meta property="og:image" content="https://newgraphenvironment.github.io/crate/logo.png">
 </head>
 <body>
@@ -33,6 +33,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -144,6 +145,8 @@
 <li>
 <code>crt_schema_conform</code>, <code>crt_schema_cols</code>, <code>crt_schema_grade</code>, <code>crt_schema_variant</code>, <code>crt_schema_fingerprint</code> — public, and in the <code>crt_schema_*</code> family because that is what they belong to</li>
 <li>
+<code>crt_receipt_write</code>, <code>crt_receipt_read</code>, <code>crt_receipt_validate</code>, <code>crt_receipt_compare</code>, <code>crt_receipt_keys</code>, <code>crt_receipt_migrate</code> — public, the provenance receipt family; <code>crt_table_fingerprint</code> beside it, named apart from <code>crt_schema_fingerprint</code>, which hashes column names and types rather than values</li>
+<li>
 <code>crt_handler_&lt;source&gt;_&lt;file_name&gt;</code> — per-(source, file) dispatchers</li>
 <li>
 <code>crt_&lt;family&gt;_&lt;verb&gt;</code> — internal helper families (<code>crt_registry_*</code>, <code>crt_schema_*</code>)</li>
@@ -218,7 +221,11 @@
 <p><strong>STAC field schemas</strong></p>
 <ul>
 <li>
-<code>lidarbc</code> and <code>las</code> — JSON Schemas for the custom fields NGE’s STAC catalogues write, published by this site at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v&lt;X.Y.Z&gt;/schema.json</code> for items to list in <code>stac_extensions</code>. They are not R schemas and not part of the package: they live in <a href="pkgdown/assets/stac/README.html"><code>pkgdown/assets/stac/</code></a>, and a released version is never edited. See the <a href="decisions/nge/20261010_stac_field_schemas.html">decision entry</a>.</li>
+<code>lidarbc</code>, <code>las</code> and <code>receipt</code> — JSON Schemas for the custom fields NGE’s STAC catalogues write, published by this site at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v&lt;X.Y.Z&gt;/schema.json</code> for items to list in <code>stac_extensions</code>. They are not R schemas and not part of the package: they live in <a href="pkgdown/assets/stac/README.html"><code>pkgdown/assets/stac/</code></a>, and a released version is never edited. See the <a href="decisions/nge/20261010_stac_field_schemas.html">decision entry</a>.</li>
+</ul>
+<p><strong>Provenance receipts</strong></p>
+<ul>
+<li>One <code>receipt.json</code> per output, saying what it is, how it was made, what came out, and where and when, so any rebuild can be compared with its reference copy and answered identical, equivalent within a declared tolerance, or different, naming what differed (<a href="https://github.com/NewGraphEnvironment/crate/issues/43" class="external-link">#43</a>). crate holds the contract any language implements (the <a href="https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json">receipt schema</a>, RFC 8785 canonical JSON, the table fingerprint, and test vectors in <a href="inst/extdata/receipt/vectors/v1.0.0/README.html"><code>inst/extdata/receipt/vectors/</code></a>) and the R functions: <code><a href="reference/crt_receipt_write.html">crt_receipt_write()</a></code>, <code><a href="reference/crt_receipt_read.html">crt_receipt_read()</a></code>, <code><a href="reference/crt_receipt_validate.html">crt_receipt_validate()</a></code>, <code><a href="reference/crt_receipt_compare.html">crt_receipt_compare()</a></code>, <code><a href="reference/crt_receipt_keys.html">crt_receipt_keys()</a></code>, <code><a href="reference/crt_receipt_migrate.html">crt_receipt_migrate()</a></code> and <code><a href="reference/crt_table_fingerprint.html">crt_table_fingerprint()</a></code>. See <code><a href="articles/receipt.html">vignette("receipt")</a></code>. A <code>receipt:</code> STAC field schema mirrors a receipt’s <code>recipe_id</code> into an item.</li>
 </ul>
 <p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a registry row, plus a handler when crate does the reading. See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
 </div>

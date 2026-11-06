@@ -16,6 +16,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -31,9 +32,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="ingest">Ingest<a class="anchor" aria-label="anchor" href="#ingest"></a></h2>
 
-
+      <div class="section-desc"><p>Read a registered source file to its canonical shape.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -42,19 +43,28 @@
 
       <dl><dt>
 
-          <code><a href="crt_files.html">crt_files()</a></code>
-
-        </dt>
-        <dd>List registered (source, file_name) entries crate knows how to ingest</dd>
-
-        <dt>
-
           <code><a href="crt_ingest.html">crt_ingest()</a></code>
 
         </dt>
         <dd>Ingest a registered upstream file and return canonical-shape data</dd>
 
         <dt>
+
+          <code><a href="crt_files.html">crt_files()</a></code>
+
+        </dt>
+        <dd>List registered (source, file_name) entries crate knows how to ingest</dd>
+      </dl></div><div class="section level2">
+      <h2 id="schemas">Schemas<a class="anchor" aria-label="anchor" href="#schemas"></a></h2>
+
+      <div class="section-desc"><p>Declared canonical shapes, and conforming a frame to one.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="crt_schema_cols.html">crt_schema_cols()</a></code>
 
@@ -88,8 +98,83 @@
 
         </dt>
         <dd>Name the known version each record was captured with</dd>
+      </dl></div><div class="section level2">
+      <h2 id="provenance-receipts">Provenance receipts<a class="anchor" aria-label="anchor" href="#provenance-receipts"></a></h2>
+
+      <div class="section-desc"><p>Write, read and compare one receipt per output: how it was made and what came out, judged identical, equivalent within a declared tolerance, or different.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="crt_receipt_compare.html">crt_receipt_compare()</a></code>
+
+        </dt>
+        <dd>Compare two provenance receipts</dd>
+
+        <dt>
+
+          <code><a href="crt_receipt_keys.html">crt_receipt_keys()</a></code>
+
+        </dt>
+        <dd>Read a package's receipt declaration</dd>
+
+        <dt>
+
+          <code><a href="crt_receipt_migrate.html">crt_receipt_migrate()</a></code>
+
+        </dt>
+        <dd>Read an older provenance record as a receipt</dd>
+
+        <dt>
+
+          <code><a href="crt_receipt_read.html">crt_receipt_read()</a></code>
+
+        </dt>
+        <dd>Read a provenance receipt</dd>
+
+        <dt>
+
+          <code><a href="crt_receipt_validate.html">crt_receipt_validate()</a></code>
+
+        </dt>
+        <dd>Validate a provenance receipt</dd>
+
+        <dt>
+
+          <code><a href="crt_receipt_write.html">crt_receipt_write()</a></code>
+
+        </dt>
+        <dd>Write a provenance receipt</dd>
+
+        <dt>
+
+          <code><a href="crt_table_fingerprint.html">crt_table_fingerprint()</a></code>
+
+        </dt>
+        <dd>Fingerprint a table's values</dd>
+      </dl></div><div class="section level2">
+      <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="crate-package.html">crate</a></code> <code><a href="crate-package.html">crate-package</a></code>
+
+        </dt>
+        <dd>crate: Canonical Schema and Data Governance for New Graph Environment</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
