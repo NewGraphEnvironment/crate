@@ -1,4 +1,4 @@
-# crate (development version)
+# crate 0.12.0 (2026-11-06)
 
 crate holds the provenance receipt: one `receipt.json` per output, in one shape any language can write, saying what the output is, how it was made, what came out, and where and when. Any rebuild can then be compared with its reference copy and answered `identical`, `equivalent` within a declared tolerance, or `different`, naming each field that differed ([#43](https://github.com/NewGraphEnvironment/crate/issues/43)). See `vignette("receipt")`.
 
