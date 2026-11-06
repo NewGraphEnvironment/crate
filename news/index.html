@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.14.0" id="crate-0140-2026-11-06">crate 0.14.0 (2026-11-06)<a class="anchor" aria-label="anchor" href="#crate-0140-2026-11-06"></a></h2>
+<ul><li>
+<code><a href="../reference/crt_table_fingerprint.html">crt_table_fingerprint()</a></code> fingerprints a subclass of <code>Date</code> or <code>POSIXct</code>, such as data.table’s <code>IDate</code>, as its base class, so a table read with <code>data.table::fread()</code> gets the same fingerprint as the same table read any other way, in <code><a href="../reference/crt_receipt_write.html">crt_receipt_write()</a></code> and in <code><a href="../reference/crt_receipt_compare.html">crt_receipt_compare()</a></code>’s re-read alike. The class must end in the base class, on numeric storage; a column carrying an extra attribute is still refused, and every plain <code>Date</code> and <code>POSIXct</code> column keeps its canonical form (<a href="https://github.com/NewGraphEnvironment/crate/issues/49" class="external-link">#49</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.13.0" id="crate-0130-2026-11-06">crate 0.13.0 (2026-11-06)<a class="anchor" aria-label="anchor" href="#crate-0130-2026-11-06"></a></h2>
 <ul><li>

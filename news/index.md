@@ -1,5 +1,19 @@
 # Changelog
 
+## crate 0.14.0 (2026-11-06)
+
+- [`crt_table_fingerprint()`](https://newgraphenvironment.github.io/crate/reference/crt_table_fingerprint.md)
+  fingerprints a subclass of `Date` or `POSIXct`, such as data.table’s
+  `IDate`, as its base class, so a table read with `data.table::fread()`
+  gets the same fingerprint as the same table read any other way, in
+  [`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md)
+  and in
+  [`crt_receipt_compare()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_compare.md)’s
+  re-read alike. The class must end in the base class, on numeric
+  storage; a column carrying an extra attribute is still refused, and
+  every plain `Date` and `POSIXct` column keeps its canonical form
+  ([\#49](https://github.com/NewGraphEnvironment/crate/issues/49)).
+
 ## crate 0.13.0 (2026-11-06)
 
 - `crt_receipt_write(file =)` names the receipt inside `dir` (default

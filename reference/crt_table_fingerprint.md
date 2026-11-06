@@ -57,7 +57,8 @@ serializer and SHA-256 reproduces it (crate#43):
 
 - Dates are `YYYY-MM-DD`. Datetimes are converted to UTC and written
   `YYYY-MM-DDTHH:MM:SSZ`; one with fractional seconds aborts, so round
-  it or fingerprint it as a number.
+  it or fingerprint it as a number. A subclass of `Date` or `POSIXct`,
+  such as data.table's `IDate`, is spelled as its base class.
 
 - Rows are sorted by the UTF-8 bytes of each row's own canonical JSON.
 
