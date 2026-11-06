@@ -24,9 +24,9 @@ habit, written nowhere.
 ## Context
 
 Every package and catalogue records provenance in its own shape, under hundreds of field names.
-soul#685's census found 272 names for "built from what" alone, so no two records can be compared
-without a hand-written mapping. soul's `conventions/provenance.md` (renamed to "receipt" by
-soul#746, merging now) hands the contract to crate: a language-neutral JSON Schema, an RFC 8785
+an internal provenance census found 272 names for "built from what" alone, so no two records can be compared
+without a hand-written mapping. NGE's provenance convention (renamed to "receipt" the same
+day) hands the contract to crate: a language-neutral JSON Schema, an RFC 8785
 `recipe_id`, a table fingerprint and test vectors. It also hands crate the one R implementation.
 stacs#12 (open) is the Python side: it pins a crate tag and runs the same vectors. Worked case
 (knowledge#145): a link build's evidence was rebuilt and gave three byte-identical tables and a
@@ -62,7 +62,7 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 - `pkgdown/assets/` is not installed, so `crt_receipt_validate()` needs the schema in `inst/` as well.
 - `digest` (0.6.39, has sha256) is already in Imports. `jsonlite` and `jsonvalidate` are in Suggests. There is no `vignettes/` directory and no `VignetteBuilder` field.
 - Python `rfc8785` 0.1.4 is in `~/Projects/repo/stacs/.venv`, which allows a local cross-check against an independent JCS implementation.
-- The field-name inventory to map from is soul#685's census CSVs (`soul/planning/archive/2026-11-issue-685-provenance-census/census-*.csv`). soul is private, so only field names and public repos' names go into crate (`gh api repos/<o>/<r> --jq .private` per repo).
+- The field-name inventory to map from is the internal census's CSVs. The census is private, so only field names and public repos' names go into crate (`gh api repos/<o>/<r> --jq .private` per repo).
 - `check_pkg_stale.sh` lists 12 stale first-party installs. crate imports none of them, so nothing to upgrade.
 
 ## Phase 1: Research file and design decisions
@@ -153,7 +153,7 @@ Decided by the owner on 2026-11-05, in the plan-mode questions:
 
 - [ ] After the deploy, check that the receipt and `receipt:` STAC schema URLs serve (curl returns 200 and the `$id` matches)
 - [ ] Tell stacs#12 the crate tag carrying vectors v1.0.0, so it can pin it
-- [ ] soul `conventions/provenance.md` rule 4: point at the published vignette and drop the detail it now holds (the rule says to once the vignette exists)
+- [ ] NGE's provenance convention, rule 4: point at the published vignette and drop the detail it now holds (the rule says to once the vignette exists)
 
 ## Validation
 

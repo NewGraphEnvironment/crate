@@ -185,8 +185,8 @@ from named `parts`. Recorded in the research file.
 
 ## Phase 8: mapping and migrate (2026-11-05)
 
-- Census (soul `planning/archive/2026-11-issue-685-provenance-census/census-shape-walk.csv`): 887
-  distinct (repo, record, field) in 227 record formats; `rtj` and `trap` are private
+- Census (the internal provenance census's shape-walk table): 887
+  distinct (repo, record, field) in 227 record formats; two of its repos are private
   (`gh api repos/NewGraphEnvironment/<r> --jq .private`), so none of their names are in crate.
 - floodplains' fixture is trimmed from `floodplains@3070549:data/bulk/provenance.json` (one
   network and one floodplain section); link's is shaped from `link@2a5d881:R/lnk_scenario_export.R:636`

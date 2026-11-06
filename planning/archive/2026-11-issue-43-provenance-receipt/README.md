@@ -42,6 +42,6 @@ drops nothing).
 
 - After the deploy, check that the receipt and `receipt:` STAC schema URLs serve (curl returns 200 and the `$id` matches)
 - Tell stacs#12 the crate tag carrying vectors v1.0.0, so it can pin it
-- soul `conventions/provenance.md` rule 4: point at the published vignette and drop the detail it now holds (the rule says to once the vignette exists)
+- NGE's provenance convention, rule 4: point at the published vignette and drop the detail it now holds (the rule says to once the vignette exists)
 
 Closed by: PR from branch `43-a-shared-provenance-receipt-a-language-n`

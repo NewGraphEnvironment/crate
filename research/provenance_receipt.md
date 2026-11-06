@@ -7,7 +7,7 @@ It becomes the vignette (`vignettes/receipt.Rmd`) once the R API is stable.
 
 Every package and catalogue that publishes an output records how it was made, each in its own
 shape: a `manifest.json` with a `provenance` block, a `provenance.json` sidecar, a log table, STAC
-properties, raster tags. soul's census (soul#685) found 272 field names answering "built from what"
+properties, raster tags. An internal census of NGE's records (2026-11-05) found 272 field names answering "built from what"
 alone. No two records can be compared without a hand-written mapping.
 
 A rebuild asks two questions, and they need two answers:
@@ -213,7 +213,7 @@ sidecar through the mapping table. Old records lack fields the recipe needs (a s
 settings), so a migrated receipt sets `recipe_id` to `null` and `output.migrated_from` to the
 source format, and the comparison reports `recipe: unknown` rather than inventing an identity.
 
-**The mapping table covers what migrate reads, not the whole census.** soul's census holds 887
+**The mapping table covers what migrate reads, not the whole census.** The census holds 887
 fields in 227 record formats across 26 repos. `inst/extdata/receipt/mapping.csv` maps every
 field of the formats `crt_receipt_migrate()` reads (link's `manifest.json`, floodplains'
 `provenance.json`), STAC's keys (`file:checksum`, `file:size`, `processing:software`,
