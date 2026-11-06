@@ -91,6 +91,48 @@ test_that("publish = TRUE leaves the host out", {
   expect_false("host" %in% names(crt_receipt_read(dir)$context))
 })
 
+test_that("file names the receipt, so outputs sharing a directory keep one each", {
+  dir <- withr::local_tempdir()
+  args <- receipt_args(dir)
+  write_with(args)
+  write_with(args, output = list(name = "out_b"), file = "out_b_receipt.json")
+  expect_identical(crt_receipt_read(dir)$output$name, "out")
+  b <- crt_receipt_read(file.path(dir, "out_b_receipt.json"))
+  expect_identical(b$output$name, "out_b")
+  expect_identical(b$result$parts, crt_receipt_read(dir)$result$parts)
+  for (bad in c("sub/out.json", "sub\\out.json", "../out.json", "out.txt", "receipt", ".json", "")) {
+    expect_error(write_with(args, file = bad), "bare file name", info = bad)
+  }
+  # a name that is a file the receipt hashes would overwrite the bytes it records: a part however spelled,
+  # a part linked to the name, a config file or the lockfile
+  writeLines("{}", file.path(dir, "out.json"))
+  before <- readLines(file.path(dir, "out.json"))
+  refused <- "is a file the receipt hashes"
+  for (part in c("out.json", "./out.json", ".//out.json", "././out.json", "OUT.json")) {
+    expect_error(write_with(args, result = list(parts = c("out.csv", part)), file = "out.json"), refused, info = part)
+  }
+  file.symlink(file.path(dir, "out.json"), file.path(dir, "link.json"))
+  expect_error(write_with(args, result = list(parts = c("out.csv", "link.json")), file = "out.json"), refused)
+  # and the other way: the target name is a link to a hashed file
+  expect_error(write_with(args, result = list(parts = c("out.csv", "out.json")), file = "link.json"), refused)
+  unlink(file.path(dir, "link.json"))
+  # a Unicode form the filesystem folds (macOS keeps one entry for the NFC and NFD spellings)
+  nfd <- "cafe\u0301.json"
+  nfc <- "caf\u00e9.json"
+  writeLines("{}", file.path(dir, nfd))
+  if (file.exists(file.path(dir, nfc))) {
+    expect_error(write_with(args, result = list(parts = c("out.csv", nfd)), file = nfc), refused)
+    expect_identical(readLines(file.path(dir, nfd)), "{}")
+  }
+  unlink(file.path(dir, nfd))
+  expect_error(write_with(args, recipe = list(config = list(files = c(cfg = file.path(dir, "out.json")))),
+                          file = "out.json"), refused)
+  expect_error(write_with(args, lockfile = file.path(dir, "out.json"), file = "out.json"), refused)
+  withr::with_dir(dir, expect_error(write_with(args, dir = ".", lockfile = "out.json", file = "out.json"), refused))
+  expect_identical(readLines(file.path(dir, "out.json")), before)
+  expect_setequal(list.files(dir), c("out.csv", "out.json", "receipt.json", "out_b_receipt.json"))
+})
+
 test_that("context never moves recipe_id; every recipe field does", {
   dir <- withr::local_tempdir()
   args <- receipt_args(dir)

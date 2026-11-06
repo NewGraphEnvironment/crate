@@ -12,7 +12,8 @@ crt_receipt_write(
   context = list(),
   keys = NULL,
   lockfile = NULL,
-  publish = FALSE
+  publish = FALSE,
+  file = "receipt.json"
 )
 }
 \arguments{
@@ -29,9 +30,16 @@ tables supplied must be exactly those it declares.}
 \code{NULL}. Defaults to \code{renv.lock} in the working directory when one exists.}
 
 \item{publish}{\code{TRUE} for a receipt that will be published: leaves the host out.}
+
+\item{file}{The receipt's file name inside \code{dir}: a bare name ending \code{.json}, with
+no path separator, so the receipt sits in the directory its parts are relative
+to. Name it after the output (\code{"CH_rear_grades_receipt.json"}) where several
+outputs share a directory; the name is not part of the receipt (#47). A name
+that resolves to a file the receipt hashes (a part, a config file, the lockfile)
+is refused, since writing the receipt would replace those bytes.}
 }
 \value{
-The receipt, as a list, invisibly. The file is \code{file.path(dir, "receipt.json")}.
+The receipt, as a list, invisibly. The file is \code{file.path(dir, file)}.
 }
 \description{
 Writes \code{receipt.json} for one output: what it is, how it was made, what came out,

@@ -44,9 +44,14 @@
 #' @param lockfile Path to a lockfile whose SHA-256 is recorded in `context`, or
 #'   `NULL`. Defaults to `renv.lock` in the working directory when one exists.
 #' @param publish `TRUE` for a receipt that will be published: leaves the host out.
+#' @param file The receipt's file name inside `dir`: a bare name ending `.json`, with
+#'   no path separator, so the receipt sits in the directory its parts are relative
+#'   to. Name it after the output (`"CH_rear_grades_receipt.json"`) where several
+#'   outputs share a directory; the name is not part of the receipt (#47). A name
+#'   that resolves to a file the receipt hashes (a part, a config file, the lockfile)
+#'   is refused, since writing the receipt would replace those bytes.
 #'
-#' @return The receipt, as a list, invisibly. The file is `file.path(dir,
-#'   "receipt.json")`.
+#' @return The receipt, as a list, invisibly. The file is `file.path(dir, file)`.
 #'
 #' @seealso [crt_receipt_read()], [crt_receipt_validate()], [crt_receipt_compare()],
 #'   [crt_table_fingerprint()].
@@ -78,9 +83,17 @@
 #'
 #' @export
 crt_receipt_write <- function(dir, output, recipe, result = list(), context = list(),
-                              keys = NULL, lockfile = NULL, publish = FALSE) {
+                              keys = NULL, lockfile = NULL, publish = FALSE,
+                              file = "receipt.json") {
   chk::chk_string(dir)
   chk::chk_flag(publish)
+  chk::chk_string(file)
+  if (!grepl("^[^/\\\\]+\\.json$", file)) {
+    cli::cli_abort(c(
+      "{.arg file} must be a bare file name ending {.file .json}: not {.val {file}}.",
+      "i" = "The receipt sits in {.arg dir}, the directory its parts are relative to."
+    ))
+  }
   if (!dir.exists(dir)) {
     cli::cli_abort("Directory {.path {dir}} does not exist.")
   }
@@ -90,8 +103,31 @@ crt_receipt_write <- function(dir, output, recipe, result = list(), context = li
   }
 
   receipt <- receipt_build(dir, output, recipe, result, context, keys, lockfile, publish)
-  receipt_write_file(receipt, file.path(dir, "receipt.json"))
+  receipt_target_free(dir, file, names(receipt$result$parts), c(recipe$config$files, lockfile))
+  receipt_write_file(receipt, file.path(dir, file))
   invisible(receipt)
+}
+
+# The receipt must not land on a file it has just hashed: a part, a config file or the
+# lockfile would be replaced by the receipt recording its bytes. The filesystem decides
+# what the target names, not the spelling: every hashed file exists by now, so a target
+# no entry answers to cannot be one of them, and one that exists is resolved as the
+# filesystem resolves it (a symlink followed, the case and Unicode form it stores) and
+# compared with each hashed file resolved the same way (#47). Parts are relative to
+# `dir`; config files and the lockfile to the working directory.
+receipt_target_free <- function(dir, file, parts, others) {
+  target <- file.path(dir, file)
+  if (!file.exists(target)) return(invisible(TRUE))
+  hashed <- c(file.path(dir, unname(as.character(parts))), path.expand(unname(as.character(others))))
+  resolve <- function(x) tolower(normalizePath(x, winslash = "/", mustWork = FALSE))
+  hit <- resolve(hashed) == resolve(target)
+  if (any(hit)) {
+    cli::cli_abort(c(
+      "{.arg file} {.val {file}} is a file the receipt hashes: writing it would replace those bytes.",
+      "x" = "{.path {hashed[hit]}}"
+    ))
+  }
+  invisible(TRUE)
 }
 
 receipt_build <- function(dir, output, recipe, result, context, keys, lockfile, publish) {
