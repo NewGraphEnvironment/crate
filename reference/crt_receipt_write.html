@@ -59,7 +59,8 @@ config files' SHA-256 (crate#43).</p>
 <span>  context <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  keys <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lockfile <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  publish <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  publish <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  file <span class="op">=</span> <span class="st">"receipt.json"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -90,10 +91,19 @@ tables supplied must be exactly those it declares.</p></dd>
 <dt id="arg-publish">publish<a class="anchor" aria-label="anchor" href="#arg-publish"></a></dt>
 <dd><p><code>TRUE</code> for a receipt that will be published: leaves the host out.</p></dd>
 
+
+<dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
+<dd><p>The receipt's file name inside <code>dir</code>: a bare name ending <code>.json</code>, with
+no path separator, so the receipt sits in the directory its parts are relative
+to. Name it after the output (<code>"CH_rear_grades_receipt.json"</code>) where several
+outputs share a directory; the name is not part of the receipt (#47). A name
+that resolves to a file the receipt hashes (a part, a config file, the lockfile)
+is refused, since writing the receipt would replace those bytes.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The receipt, as a list, invisibly. The file is <code>file.path(dir, "receipt.json")</code>.</p>
+    <p>The receipt, as a list, invisibly. The file is <code>file.path(dir, file)</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="the-blocks">The blocks<a class="anchor" aria-label="anchor" href="#the-blocks"></a></h2>

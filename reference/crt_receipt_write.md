@@ -17,7 +17,8 @@ crt_receipt_write(
   context = list(),
   keys = NULL,
   lockfile = NULL,
-  publish = FALSE
+  publish = FALSE,
+  file = "receipt.json"
 )
 ```
 
@@ -48,10 +49,20 @@ crt_receipt_write(
 
   `TRUE` for a receipt that will be published: leaves the host out.
 
+- file:
+
+  The receipt's file name inside `dir`: a bare name ending `.json`, with
+  no path separator, so the receipt sits in the directory its parts are
+  relative to. Name it after the output
+  (`"CH_rear_grades_receipt.json"`) where several outputs share a
+  directory; the name is not part of the receipt (#47). A name that
+  resolves to a file the receipt hashes (a part, a config file, the
+  lockfile) is refused, since writing the receipt would replace those
+  bytes.
+
 ## Value
 
-The receipt, as a list, invisibly. The file is
-`file.path(dir, "receipt.json")`.
+The receipt, as a list, invisibly. The file is `file.path(dir, file)`.
 
 ## The blocks
 
