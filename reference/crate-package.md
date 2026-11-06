@@ -1,4 +1,4 @@
-# crate: Canonical Schema and Data Governance for New Graph Environment
+# crate: Canonical Schemas and Data Governance for Changing Data
 
 Source-explicit dispatcher and declarative schemas for canonicalizing
 heterogeneous data inputs across the New Graph Environment ecosystem.

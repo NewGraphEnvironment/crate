@@ -13,13 +13,13 @@
 Source:
 [`inst/CITATION`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/CITATION)
 
-Irvine A (2026). *crate: Canonical Schema and Data Governance for New
-Graph Environment*. New Graph Environment Ltd.
+Irvine A (2026). *crate: Canonical Schemas and Data Governance for
+Changing Data*. New Graph Environment Ltd.
 [doi:10.5281/zenodo.23289273](https://doi.org/10.5281/zenodo.23289273).
 Version 0.12.0, <https://github.com/NewGraphEnvironment/crate>.
 
     @Manual{crate,
-      title = {crate: Canonical Schema and Data Governance for New Graph Environment},
+      title = {crate: Canonical Schemas and Data Governance for Changing Data},
       author = {Allan Irvine},
       organization = {New Graph Environment Ltd.},
       year = {2026},
