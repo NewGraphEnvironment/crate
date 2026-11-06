@@ -4,7 +4,7 @@
 \name{crate-package}
 \alias{crate}
 \alias{crate-package}
-\title{crate: Canonical Schema and Data Governance for New Graph Environment}
+\title{crate: Canonical Schemas and Data Governance for Changing Data}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
