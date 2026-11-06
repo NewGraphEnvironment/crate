@@ -108,7 +108,11 @@ test_that("file names the receipt, so outputs sharing a directory keep one each"
   writeLines("{}", file.path(dir, "out.json"))
   before <- readLines(file.path(dir, "out.json"))
   refused <- "is a file the receipt hashes"
-  for (part in c("out.json", "./out.json", ".//out.json", "././out.json", "OUT.json")) {
+  # OUT.json is the same file only where the filesystem folds case (macOS, Windows); on Linux it is another file, which
+  # does not exist, and the parts check refuses it first
+  spellings <- c("out.json", "./out.json", ".//out.json", "././out.json",
+                 if (file.exists(file.path(dir, "OUT.json"))) "OUT.json")
+  for (part in spellings) {
     expect_error(write_with(args, result = list(parts = c("out.csv", part)), file = "out.json"), refused, info = part)
   }
   file.symlink(file.path(dir, "out.json"), file.path(dir, "link.json"))
