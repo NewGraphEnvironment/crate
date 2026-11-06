@@ -44,7 +44,8 @@ ECMAScript's shortest round-trip form, so it is exact. A zero is written
 without a sign. \code{NaN} and infinite values abort.
 \item Dates are \code{YYYY-MM-DD}. Datetimes are converted to UTC and written
 \code{YYYY-MM-DDTHH:MM:SSZ}; one with fractional seconds aborts, so round it or
-fingerprint it as a number.
+fingerprint it as a number. A subclass of \code{Date} or \code{POSIXct}, such as
+data.table's \code{IDate}, is spelled as its base class.
 \item Rows are sorted by the UTF-8 bytes of each row's own canonical JSON.
 }
 }

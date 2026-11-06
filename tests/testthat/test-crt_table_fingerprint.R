@@ -80,6 +80,41 @@ test_that("logicals, factors, dates and datetimes have one spelling each", {
   expect_identical(crt_table_fingerprint(transform(x, f = as.character(f))), crt_table_fingerprint(x))
 })
 
+# data.table::fread() reads ISO dates as IDate, a Date subclass on integer storage (#49)
+test_that("a subclass of Date or POSIXct is spelled as its base class", {
+  d <- as.Date(c("2026-11-06", NA, "0999-03-04"))
+  idate <- structure(as.integer(unclass(d)), class = c("IDate", "Date"))
+  expect_identical(crate:::table_canonical(data.frame(d = idate)),
+                   crate:::table_canonical(data.frame(d = d)))
+  expect_identical(crt_table_fingerprint(data.frame(d = idate)), crt_table_fingerprint(data.frame(d = d)))
+  expect_identical(crt_table_fingerprint(data.frame(d = idate[1])),
+                   "1f1a7f8ee69670f33e2cbf737fb5ef1d8a7b1d8e468e36d522ce101c881100fb")
+  t <- as.POSIXct("2026-11-04 11:22:05", tz = "America/Vancouver")
+  sub_t <- structure(unclass(t), class = c("stamp", "POSIXct", "POSIXt"), tzone = "America/Vancouver")
+  expect_identical(crate:::table_canonical(data.frame(t = sub_t)),
+                   '{"columns":["t"],"rows":[["2026-11-04T18:22:05Z"]]}')
+  # seq() of a POSIXct stores integer seconds
+  int_t <- structure(c(1762400000L, NA), class = c("POSIXct", "POSIXt"), tzone = "UTC")
+  expect_identical(crate:::table_canonical(data.frame(t = int_t)),
+                   crate:::table_canonical(data.frame(t = as.POSIXct(c(1762400000, NA), tz = "UTC"))))
+  na_cols <- data.frame(id = 1:2)
+  na_cols$d <- structure(c(NA, NA), class = "Date")
+  na_cols$t <- structure(c(NA, NA), class = c("POSIXct", "POSIXt"))
+  expect_identical(crate:::table_canonical(na_cols),
+                   '{"columns":["d","id","t"],"rows":[[null,"1",null],[null,"2",null]]}')
+})
+
+test_that("a class is a Date or POSIXct subclass only with the base class last", {
+  x <- data.frame(id = 1L)
+  x$d <- structure(20398, class = c("Date", "foo"))
+  expect_error(crt_table_fingerprint(x), "no canonical form")
+  x$d <- structure("2026-11-06", class = c("IDate", "Date"))
+  expect_error(crt_table_fingerprint(x), "no canonical form")
+  # An attribute the base class does not read would be dropped by the rebuild
+  x$d <- structure(20398L, class = c("IDate", "Date"), source = "fread")
+  expect_error(crt_table_fingerprint(x), "no canonical form")
+})
+
 # format("%Y") leaves year 999 unpadded on Linux and pads it on macOS
 test_that("years below 1000 are padded to four digits", {
   x <- data.frame(d = as.Date("0999-03-04"), t = as.POSIXct("0050-01-01 00:00:00", tz = "UTC"))

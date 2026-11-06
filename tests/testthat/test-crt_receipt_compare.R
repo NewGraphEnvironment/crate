@@ -12,12 +12,13 @@ read_build <- function(build) {
 }
 
 # One small output written twice, the second build changed by `change`.
-two_builds <- function(km_a, km_b, tolerance = list(km = 1e-9), part_table = TRUE) {
+two_builds <- function(km_a, km_b, tolerance = list(km = 1e-9), part_table = TRUE, day = NULL) {
   root <- withr::local_tempdir(.local_envir = parent.frame())
   one <- function(name, km) {
     dir <- file.path(root, name)
     dir.create(dir)
     df <- data.frame(segment = paste0("s", seq_along(km)), km = km)
+    if (!is.null(day)) df$day <- day
     utils::write.csv(df, file.path(dir, "t.csv"), row.names = FALSE)
     parts <- if (part_table) c(t = "t.csv") else "t.csv"
     r <- crt_receipt_write(
@@ -128,6 +129,17 @@ test_that("re-read tolerance columns of another numeric type still compare", {
   y <- crt_receipt_compare(na_builds$a$receipt, na_builds$b$receipt,
                            tables = list(a = list(t = na_a), b = list(t = na_builds$b$table)))
   expect_identical(y$verdict, "identical")
+})
+
+# data.table::fread() reads a date column back as IDate (#49).
+test_that("a re-read date column read back as IDate pairs with its Date", {
+  day <- as.Date(c("2026-11-05", "2026-11-06"))
+  builds <- two_builds(c(1, 5), c(1.0000000001, 5), day = day)
+  b <- builds$b$table
+  b$day <- structure(as.integer(unclass(b$day)), class = c("IDate", "Date"))
+  x <- crt_receipt_compare(builds$a$receipt, builds$b$receipt,
+                           tables = list(a = list(t = builds$a$table), b = list(t = b)))
+  expect_identical(x$verdict, "equivalent")
 })
 
 test_that("a re-read table that cannot be fingerprinted is a finding, not an abort", {
