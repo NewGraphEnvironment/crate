@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.12.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.13.0" id="crate-0130-2026-11-06">crate 0.13.0 (2026-11-06)<a class="anchor" aria-label="anchor" href="#crate-0130-2026-11-06"></a></h2>
+<ul><li>
+<code>crt_receipt_write(file =)</code> names the receipt inside <code>dir</code> (default <code>receipt.json</code>), so outputs that share a directory keep one receipt each. A name with a path separator, or not ending <code>.json</code>, is refused, and so is one the filesystem resolves to a file the receipt hashes (a part, a config file or the lockfile), which the write would otherwise replace (<a href="https://github.com/NewGraphEnvironment/crate/issues/47" class="external-link">#47</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.12.1" id="crate-0121-2026-11-06">crate 0.12.1 (2026-11-06)<a class="anchor" aria-label="anchor" href="#crate-0121-2026-11-06"></a></h2>
 <ul><li>The package title is now “Canonical Schemas and Data Governance for Changing Data”, saying what crate is for rather than whose it is (<a href="https://github.com/NewGraphEnvironment/crate/issues/45" class="external-link">#45</a>).</li>

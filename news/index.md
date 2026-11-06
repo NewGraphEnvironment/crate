@@ -1,5 +1,15 @@
 # Changelog
 
+## crate 0.13.0 (2026-11-06)
+
+- `crt_receipt_write(file =)` names the receipt inside `dir` (default
+  `receipt.json`), so outputs that share a directory keep one receipt
+  each. A name with a path separator, or not ending `.json`, is refused,
+  and so is one the filesystem resolves to a file the receipt hashes (a
+  part, a config file or the lockfile), which the write would otherwise
+  replace
+  ([\#47](https://github.com/NewGraphEnvironment/crate/issues/47)).
+
 ## crate 0.12.1 (2026-11-06)
 
 - The package title is now “Canonical Schemas and Data Governance for
