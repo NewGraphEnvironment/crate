@@ -1,0 +1,176 @@
+{
+  "area": "bulk",
+  "floodplain": {
+    "all_ff02": {
+      "inputs": {
+        "anchor_order": 1,
+        "attribute_by": "blue_line_key",
+        "cost_threshold": 2500,
+        "crs_epsg": 3005,
+        "dem_buffer_m": 2000,
+        "dem_content_sha256": "sha256:ffc4eae31ef94d2e7402e1119b9e9d64424b14e8abf649017fb9fc9153ae53e1",
+        "dem_crs_epsg": 3005,
+        "dem_ncell": 21300318,
+        "dem_res_m": 30,
+        "dem_resolver": "flooded::fl_dem_aoi(source = dem_source)",
+        "dem_source": "/vsicurl/https://canelevation-dem.s3.ca-central-1.amazonaws.com/mrdem-30/mrdem-30-dtm.tif",
+        "flood_factor": 2,
+        "flooded": {
+          "dirty": false,
+          "sha": "698042e15fad5ac4d93ec0bd2353b68c45729046",
+          "sha_source": "RemoteSha",
+          "version": "0.7.0"
+        },
+        "hole_threshold": 2500,
+        "max_width": 2000,
+        "network_layer": "streams_all2",
+        "scenario": "all_ff02",
+        "size_threshold": 5000,
+        "slope_threshold": 9,
+        "species": "all",
+        "subbasin_source": "fwa_watershed_groups_poly",
+        "wsg": "BULK"
+      },
+      "inputs_hash": "sha256:683f664a0e95bdac70326eb98a8809604333b3382244bb6bd92d0d6c47605e3a",
+      "outputs": {
+        "floodplain_content_sha256": "sha256:0c25a98462c912397ef421555f1392f80265a6506f5cf7a514d36651efd36567",
+        "floodplain_raster": "floodplain_all_ff02.tif",
+        "valley_cells": 678786
+      },
+      "outputs_hash": "sha256:3013bc6c91449452c161dfe37fe5cdf6d193893c2c2723ab30adc3d23c28a57c",
+      "run": {
+        "datetime_utc": "2026-10-14T12:42:04Z",
+        "dem_cache": {
+          "etag": "1bf055857edce86b1311967c8d88395e-9997",
+          "key_sha256": "sha256:bc3173c84df74a3addbf53c5a1ed58e6a63e1c0552d8e54aa1a61ea42293d502",
+          "last_modified": "Wed, 24 Jun 2026 15:08:08 GMT",
+          "path": "dem_all2.tif",
+          "status": "miss"
+        },
+        "toolchain": {
+          "gdal": "3.8.5",
+          "gdal_terra": "3.13.0",
+          "geos": "3.13.0",
+          "proj": "9.5.1",
+          "proj_terra": "9.8.1",
+          "sf": "1.1.2",
+          "terra": "1.9.50"
+        }
+      }
+    }
+  },
+  "network": {
+    "all2": {
+      "habitat": {
+        "inputs": {
+          "fwa_content_sha256": "sha256:24ec6d030e2b3a5f71d20229133968406a67bbeb40b129952002db7c3e16583d",
+          "fwapg_sha": "e6e1eb0f47181ee77113ad5e8dbf040e6b4c6e4c",
+          "fwapg_sha_source": "link_log",
+          "model": "link",
+          "read_schema": "fresh",
+          "species": [
+            "bt",
+            "ch",
+            "co",
+            "pk",
+            "sk",
+            "st"
+          ],
+          "watershed_group": "BULK"
+        },
+        "inputs_hash": "sha256:9962e76696988d3700ea35cbc1abbc5be67cf7764b199a393c85dba68e3a2d18",
+        "outputs": {
+          "layer": "habitat_link",
+          "rows": 525834,
+          "table_content_sha256": "sha256:2001c38564d1ae6f3a72cb81e817dc9856afd95cc60b3a985576adaf7d1dfecd"
+        },
+        "outputs_hash": "sha256:0925e29558497bcb1ea3cafed484578213cc98970aab8e14f28dc78c4a3dc3a1",
+        "run": {
+          "datetime_utc": "2026-10-14T12:37:56Z"
+        }
+      },
+      "inputs": {
+        "fresh": {
+          "dirty": false,
+          "sha": "e247ca19a7803982dc7e5f55dbbf377dfc85d007",
+          "sha_source": "RemoteSha",
+          "version": "0.39.0"
+        },
+        "link": {
+          "dirty": null,
+          "sha": null,
+          "sha_source": "unresolved_version_mismatch",
+          "version": "0.50.0"
+        },
+        "link_config_name": "bcfishpass",
+        "link_config_name_source": "link_log",
+        "min_order": 2,
+        "network_content_sha256": "sha256:5761376ebac4db3af7c573c41f433571f0cd40dc01344374bcd322a89bff02f5",
+        "network_source": "GRAB from fresh",
+        "read_schema": "fresh",
+        "species": "all",
+        "subset": null,
+        "watershed_group": "BULK"
+      },
+      "inputs_hash": "sha256:9610dc4e2fa5b0395639ce480d3d45f344617b176a8ba09e68dbbf0b06835cdd",
+      "link_log": {
+        "arg_cleanup_working": false,
+        "arg_dams": true,
+        "arg_mapping_code": true,
+        "bcfishobs_sha": "08630cf4ac14b2f17cc4d7058b127f3996f3fd8a",
+        "bcfp_model_run_id": null,
+        "bcfp_model_version": "v0.7.15-47-ga702229",
+        "bcfp_pin_source": "env",
+        "config_drift": false,
+        "config_hash": "sha256:19e3a0568842da0e65708356d1c4ab5cd6e9598c0cf2e2fa904881142cfc64da",
+        "config_name": "bcfishpass",
+        "crate_version": "0.3.0",
+        "date_end": "2026-09-02T00:27:25Z",
+        "date_start": "2026-09-02T00:18:57Z",
+        "fresh_dirty": false,
+        "fresh_sha": "7f12d99115b7d20302d5ed043188cb870f90f83b",
+        "fresh_sha_source": "env",
+        "fresh_version": "0.33.0",
+        "fwapg_sha": "e6e1eb0f47181ee77113ad5e8dbf040e6b4c6e4c",
+        "host": "cypher-job2",
+        "link_dirty": false,
+        "link_sha": "689146867a5f00f94ec2e8085ddae36996e64379",
+        "link_version": "0.50.0",
+        "notes": null,
+        "run_id": "cypherjob2-20260902T001857.755-165251",
+        "run_label": null,
+        "run_uid": "20260901_234743-6628379d",
+        "schema_persist": "fresh",
+        "species": [
+          "BT",
+          "CH",
+          "CO",
+          "PK",
+          "SK",
+          "ST"
+        ],
+        "watershed_group_code": "BULK",
+        "wsg_upstream": [
+          "KISP",
+          "KLUM",
+          "LSKE",
+          "ZYMO"
+        ]
+      },
+      "link_log_note": null,
+      "outputs": {
+        "n_segments": 31631,
+        "streams_content_sha256": "sha256:5761376ebac4db3af7c573c41f433571f0cd40dc01344374bcd322a89bff02f5",
+        "streams_layer": "streams_all2"
+      },
+      "outputs_hash": "sha256:708db081d91e25aae65cdf4371be499f7b73c15a594b59cdaa134802f2a8816e",
+      "run": {
+        "datetime_utc": "2026-10-14T12:37:50Z",
+        "freshness": "grabbed 5929 km vs bcfp 5929 km = 0.0% dev (tol 2%, guard=strict)",
+        "network_guard": "strict"
+      }
+    }
+  },
+  "schema_version": 2,
+  "wsg": "BULK"
+}

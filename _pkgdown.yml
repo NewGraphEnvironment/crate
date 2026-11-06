@@ -1,3 +1,30 @@
 url: https://newgraphenvironment.github.io/crate/
 template:
   bootstrap: 5
+
+reference:
+  - title: Ingest
+    desc: Read a registered source file to its canonical shape.
+    contents:
+      - crt_ingest
+      - crt_files
+      - starts_with("crt_handler_")
+  - title: Schemas
+    desc: Declared canonical shapes, and conforming a frame to one.
+    contents:
+      - starts_with("crt_schema_")
+  - title: Provenance receipts
+    desc: >
+      Write, read and compare one receipt per output: how it was made and what came
+      out, judged identical, equivalent within a declared tolerance, or different.
+    contents:
+      - starts_with("crt_receipt_")
+      - crt_table_fingerprint
+  - title: Package
+    contents:
+      - crate-package
+
+articles:
+  - title: Provenance receipts
+    contents:
+      - receipt

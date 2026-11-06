@@ -1,3 +1,14 @@
+# crate (development version)
+
+crate holds the provenance receipt: one `receipt.json` per output, in one shape any language can write, saying what the output is, how it was made, what came out, and where and when. Any rebuild can then be compared with its reference copy and answered `identical`, `equivalent` within a declared tolerance, or `different`, naming each field that differed ([#43](https://github.com/NewGraphEnvironment/crate/issues/43)). See `vignette("receipt")`.
+
+- The contract: a JSON Schema published at `https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json`; `recipe_id`, a SHA-256 over the RFC 8785 canonical JSON of the recipe; a table fingerprint over a declared canonical form; and test vectors in `inst/extdata/receipt/vectors/v1.0.0/` that every implementation runs (Python's, in stacs, among them).
+- `crt_receipt_write()` computes the ids, fingerprints and digests and writes the receipt; `crt_receipt_read()` and `crt_receipt_validate()` read and check one; `crt_receipt_keys()` reads a package's declaration of its recipe, tables and tolerances.
+- `crt_receipt_compare()` gives the verdict, deciding what a difference in each field does from a per-field register (`inst/extdata/receipt/register.csv`). Supplied with both builds' tables, it re-reads them, checks each against its receipt, and accepts cells within tolerance.
+- `crt_table_fingerprint()` hashes a table's values; `crt_schema_fingerprint()` still hashes its column names and types.
+- `crt_receipt_migrate()` reads link's `manifest.json` and floodplains' `provenance.json` as receipts through a mapping table that also lists STAC's keys.
+- A `receipt:` STAC field schema (`receipt:recipe_id`) is published beside `lidarbc:` and `las:`.
+
 # crate 0.11.0 (2026-10-31)
 
 `nge/fish_data` reads NGE individual fish data from any season to one set of 29 columns with the same types, so seasons stack and a PIT-tagged fish can be followed between them ([#6](https://github.com/NewGraphEnvironment/crate/issues/6)). It is the first `nge` entry `crt_ingest()` reads: `crt_ingest("nge", "fish_data", path)` takes the 2023 individual fish files and the 2024 onward field sheet. Names follow the provincial FISS individual fish template and the field form (`species`, `length_mm`, `weight_g`, `haul_number_pass_number`), 2023 PIT tags written into `comments` are read into `pit_tag_id`, and `date` is an ISO day. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261031_fish_data_canonical.md).

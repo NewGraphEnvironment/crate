@@ -1,0 +1,4 @@
+setting,value
+species,CO;CH;ST
+watershed_group,BULK
+min_gradient,0.02
