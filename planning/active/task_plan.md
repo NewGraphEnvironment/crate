@@ -42,12 +42,12 @@ Approved by the owner at the plan gate, 2026-11-06:
 
 ## Phase 2: Tests
 
-- [ ] `tests/testthat/test-crt_table_fingerprint.R`: an `IDate` column (integer storage) and the
+- [x] `tests/testthat/test-crt_table_fingerprint.R`: an `IDate` column (integer storage) and the
       same `Date` give the identical canonical JSON and fingerprint, NA included
-- [ ] A POSIXct subclass gives the same canonical JSON as the plain POSIXct
-- [ ] Still refused: a class with `Date` not last (e.g. `c("Date", "foo")`), and an `IDate`
+- [x] A POSIXct subclass gives the same canonical JSON as the plain POSIXct
+- [x] Still refused: a class with `Date` not last (e.g. `c("Date", "foo")`), and an `IDate`
       carrying an extra attribute
-- [ ] `crt_receipt_compare()` re-read path: a table with an `IDate` key column pairs rows with
+- [x] `crt_receipt_compare()` re-read path: a table with an `IDate` key column pairs rows with
       its `Date` twin
 
 ## Owed at the end (reported, done after merge)
@@ -56,7 +56,7 @@ Approved by the owner at the plan gate, 2026-11-06:
 
 ## Validation
 
-- [ ] Tests pass (`devtools::test()`), `R CMD check` clean
+- [x] Tests pass (`devtools::test()`), `R CMD check` clean
 - [ ] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
