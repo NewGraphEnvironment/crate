@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.12.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.12.0" id="crate-0120-2026-11-06">crate 0.12.0 (2026-11-06)<a class="anchor" aria-label="anchor" href="#crate-0120-2026-11-06"></a></h2>
 <p>crate holds the provenance receipt: one <code>receipt.json</code> per output, in one shape any language can write, saying what the output is, how it was made, what came out, and where and when. Any rebuild can then be compared with its reference copy and answered <code>identical</code>, <code>equivalent</code> within a declared tolerance, or <code>different</code>, naming each field that differed (<a href="https://github.com/NewGraphEnvironment/crate/issues/43" class="external-link">#43</a>). See <code><a href="../articles/receipt.html">vignette("receipt")</a></code>.</p>
 <ul><li>The contract: a JSON Schema published at <code>https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json</code>; <code>recipe_id</code>, a SHA-256 over the RFC 8785 canonical JSON of the recipe; a table fingerprint over a declared canonical form; and test vectors in <code>inst/extdata/receipt/vectors/v1.0.0/</code> that every implementation runs (Python’s, in stacs, among them).</li>
 <li>

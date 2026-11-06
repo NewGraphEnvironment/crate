@@ -1,6 +1,6 @@
 # Changelog
 
-## crate (development version)
+## crate 0.12.0 (2026-11-06)
 
 crate holds the provenance receipt: one `receipt.json` per output, in
 one shape any language can write, saying what the output is, how it was
