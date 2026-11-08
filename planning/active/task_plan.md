@@ -47,19 +47,19 @@ What I found while exploring, which shaped the phases:
 
 ## Phase 2: Rewrite the README
 
-- [ ] Order: title + hex sticker; `<!-- badges: start -->` lifecycle `experimental` badge `<!-- badges: end -->`; tagline; opening; Installation; Example; Learn more; Ecosystem; Citation; License.
-- [ ] Opening, 2–3 plain sentences covering both jobs and naming the decision it informs. Draft, to be checked against the code in Phase 4: *crate gives each registered data source one declared shape and reads or conforms the data to it, so code downstream keeps working when the source renames a column, changes a type or changes its layout. It also writes a provenance receipt beside each output, so a rebuild can be judged identical to its reference copy, equivalent within a declared tolerance, or different, naming what differed.* The third sentence ties it to restoration planning and monitoring work, if a true one can be written.
-- [ ] Installation: `pak::pak("NewGraphEnvironment/crate")`, then a sentence saying crate is under active development and its functions change between releases (link NEWS), with the pin `pak::pak("NewGraphEnvironment/crate@vX.Y.Z")`.
-- [ ] Example: one context sentence (bcfishpass reshaped `user_habitat_classification.csv` long → wide). Then the two `crt_ingest()` calls and `identical(names(wide), names(long))`. Then the worked-case `crt_receipt_compare(build_1, build_2)` with its real output, and one sentence on why it says `equivalent`.
-- [ ] Learn more, one line each, linking the site: the reading article, the receipt article, reference groups by anchor (`#ingest`, `#schemas`, `#provenance-receipts`), `inst/extdata/schemas/README.md` (absolute GitHub URL), and STAC field schemas (`pkgdown/assets/stac/README.md`, absolute GitHub URL).
-- [ ] Ecosystem table as decided above. crate's row: "Canonical schemas for data that changes shape, and provenance receipts for outputs (this package)".
-- [ ] Citation: `citation("crate")`. License: MIT, with the LICENSE linked by absolute URL.
-- [ ] Removed: the four-paragraph opening, `crt_files()` tibble, Provenance receipts section (write example, function list, stacs sentence), How reading works, Naming convention, What crate handles today, the STAC field schemas section, and Sibling public packages.
+- [x] Order: title + hex sticker; `<!-- badges: start -->` lifecycle `experimental` badge `<!-- badges: end -->`; tagline; opening; Installation; Example; Learn more; Ecosystem; Citation; License.
+- [x] Opening, 2–3 plain sentences covering both jobs and naming the decision it informs. Draft, to be checked against the code in Phase 4: *crate gives each registered data source one declared shape and reads or conforms the data to it, so code downstream keeps working when the source renames a column, changes a type or changes its layout. It also writes a provenance receipt beside each output, so a rebuild can be judged identical to its reference copy, equivalent within a declared tolerance, or different, naming what differed.* The third sentence ties it to restoration planning and monitoring work, if a true one can be written.
+- [x] Installation: `pak::pak("NewGraphEnvironment/crate")`, then a sentence saying crate is under active development and its functions change between releases (link NEWS), with the pin `pak::pak("NewGraphEnvironment/crate@vX.Y.Z")`.
+- [x] Example: one context sentence (bcfishpass reshaped `user_habitat_classification.csv` long → wide). Then the two `crt_ingest()` calls and `identical(names(wide), names(long))`. Then the worked-case `crt_receipt_compare(build_1, build_2)` with its real output, and one sentence on why it says `equivalent`.
+- [x] Learn more, one line each, linking the site: the reading article, the receipt article, reference groups by anchor (`#ingest`, `#schemas`, `#provenance-receipts`), `inst/extdata/schemas/README.md` (absolute GitHub URL), and STAC field schemas (`pkgdown/assets/stac/README.md`, absolute GitHub URL).
+- [x] Ecosystem table as decided above. crate's row: "Canonical schemas for data that changes shape, and provenance receipts for outputs (this package)".
+- [x] Citation: `citation("crate")`. License: MIT, with the LICENSE linked by absolute URL.
+- [x] Removed: the four-paragraph opening, `crt_files()` tibble, Provenance receipts section (write example, function list, stacs sentence), How reading works, Naming convention, What crate handles today, the STAC field schemas section, and Sibling public packages.
 
 ## Phase 3: Title, Description, About in step
 
-- [ ] DESCRIPTION `Title` as decided. Rewrite `Description` in step with the opening (both jobs, no "First instance" line), ending "Under active development."
-- [ ] `devtools::document()`, so `man/crate-package.Rd` follows.
+- [x] DESCRIPTION `Title` as decided. Rewrite `Description` in step with the opening (both jobs, no "First instance" line), ending "Under active development."
+- [x] `devtools::document()`, so `man/crate-package.Rd` follows.
 
 ## Owed at the end (reported, done after merge)
 

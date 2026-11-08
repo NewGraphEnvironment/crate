@@ -4,11 +4,11 @@
 \name{crate-package}
 \alias{crate}
 \alias{crate-package}
-\title{crate: Canonical Schemas and Data Governance for Changing Data}
+\title{crate: Canonical Schemas for Changing Data and Provenance Receipts}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas, decision logs, and adapter functions that insulate downstream consumers (link, fresh, reporting repos) from upstream-shape variability. First instance: bcfishpass override CSVs. Also holds the provenance receipt contract: a JSON Schema, RFC 8785 canonical JSON, a table fingerprint and test vectors, with R functions that write receipts and compare two builds as identical, equivalent within a declared tolerance, or different.
+Declares a canonical shape for each data source it registers and reads or conforms data to that shape, so downstream code keeps working when a source renames a column, changes a type or changes its layout. Also holds the provenance receipt contract: a JSON Schema, RFC 8785 canonical JSON, a table fingerprint and test vectors, with R functions that write receipts and compare two builds as identical, equivalent within a declared tolerance, or different. Under active development.
 }
 \seealso{
 Useful links:
