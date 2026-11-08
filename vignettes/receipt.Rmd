@@ -175,7 +175,8 @@ r$recipe$recipe_id
   Without a tolerance it is written in the shortest round-trip form above. A zero has no sign.
   NaN and infinities are refused.
 - Dates are `YYYY-MM-DD`; datetimes are UTC `YYYY-MM-DDTHH:MM:SSZ`, and fractional seconds are
-  refused.
+  refused. A subclass of `Date` or `POSIXct`, such as data.table's `IDate`, is spelled as its base
+  class.
 - Rows are sorted by the UTF-8 bytes of each row's own canonical JSON.
 
 ```{r}
