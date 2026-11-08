@@ -44,7 +44,7 @@ Every function in crate's namespace prefixed `crt_*`, family-namespaced:
 - `crt_handler_<source>_<file_name>` — per-(source, file) registry-dispatched handlers
 - `crt_<family>_<verb>` — internal helper families (`crt_registry_*`, `crt_schema_*`)
 
-A new function joins the family it belongs to. A function not yet built is an issue, not a name held here. See [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4) for the lock-in discussion.
+A new function joins the family it belongs to. A function not yet built goes in an issue, not in this list. See [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4) for the lock-in discussion.
 
 <!-- BEGIN SOUL CONVENTIONS — DO NOT EDIT BELOW THIS LINE -->
 

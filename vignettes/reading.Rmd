@@ -69,16 +69,16 @@ together:
    variant: a set of column names and an id. `crt_schema_read()` loads it.
 3. **Handler**
    ([`R/crt_handler_bcfp_user_habitat_classification.R`](https://github.com/NewGraphEnvironment/crate/blob/main/R/crt_handler_bcfp_user_habitat_classification.R)),
-   one function per `(source, file_name)`. crate matches the file's column names against each
+   one function per `file` entry. crate matches the file's column names against each
    variant's (the first set-equal match wins) and passes the matched variant's id to the
    handler. Here `2026-04-26-wide` passes the data through, and `pre-2026-04-26-long` pivots
    the long rows to wide, turning the `habitat_ind` text into integer indicators in the same
    step.
 4. **Validation** (`crt_schema_validate()`) checks that every column the schema declares
    `required: true` is present, and fails listing all that are missing.
-5. **Type enforcement** (`crt_schema_apply()`) coerces every declared column to its schema type
-   (`integer`, `double`, `string`, `logical` or `datetime`). The schema is the one place types
-   are declared, so handlers carry no type knowledge, and readr's guesses (a double for an
+5. **Type enforcement** (`crt_schema_apply()`) coerces each declared column the data has to its
+   schema type (`integer`, `double`, `string`, `logical` or `datetime`). Whatever types a handler
+   returns, the schema's are the ones that come out, and readr's guesses (a double for an
    integer column, a `Date` for a declared string) do not leak through.
 
 Steps 4 and 5 are `crt_schema_conform()`, which `crt_ingest()` calls rather than repeats, so a

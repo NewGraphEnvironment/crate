@@ -44,7 +44,7 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
 #>   record context.time: "2026-11-04T18:22:05Z" vs "2026-11-04T21:47:31Z"
 ```
 
-The file's bytes differ, but the receipt says the file holds the `access_check` table, whose fingerprint agrees under the declared `1e-9` tolerance on `km`, and `km_total` differs within its `1e-6`, so the builds are equivalent. The run identifiers and times are recorded, never part of the verdict.
+The file's bytes differ, but the receipt says the file holds the `access_check` table, whose fingerprint agrees under the declared `1e-9` tolerance on `km`, and `km_total` differs within its `1e-6`, so the builds are equivalent. The run identifiers and times are context, recorded and never part of an identity.
 
 ## Learn more
 
@@ -52,7 +52,7 @@ The file's bytes differ, but the receipt says the file holds the `access_check` 
 - [Provenance receipts](https://newgraphenvironment.github.io/crate/articles/receipt.html): the receipt contract, writing a receipt and comparing two builds.
 - Function reference: [Ingest](https://newgraphenvironment.github.io/crate/reference/index.html#ingest), [Schemas](https://newgraphenvironment.github.io/crate/reference/index.html#schemas) and [Provenance receipts](https://newgraphenvironment.github.io/crate/reference/index.html#provenance-receipts).
 - [Schemas](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md): the schema format, and how to register a new file or table.
-- [STAC field schemas](https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md): JSON Schemas for custom fields in New Graph Environment's STAC catalogues, published on this site.
+- [STAC field schemas](https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md): JSON Schemas for custom fields a STAC item can list in `stac_extensions`, published with crate's website.
 
 ## Ecosystem
 
