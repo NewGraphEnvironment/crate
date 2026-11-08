@@ -68,8 +68,8 @@ What I found while exploring, which shaped the phases:
 ## Validation
 
 - [x] Tests pass (`devtools::test()`) and `devtools::check()` is clean, including the new vignette build
-- [ ] `/code-check` clean (each commit, or once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
+- [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`): 3 rounds, ended on a 121-claim enumeration
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
 How each change is proved:
