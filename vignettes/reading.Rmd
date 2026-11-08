@@ -17,7 +17,7 @@ library(crate)
 
 ## What crate knows about
 
-Every source crate knows about is a row in its registry. A `file` entry is one crate reads and
+Every file or table crate knows about is a row in its registry, keyed by a source family and a file name. A `file` entry is one crate reads and
 normalizes with `crt_ingest()`. A `schema_only` entry declares a canonical shape for data crate
 does not read, which you hold to that shape yourself with `crt_schema_conform()`.
 

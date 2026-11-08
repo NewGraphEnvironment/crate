@@ -6,7 +6,7 @@
 
 > Canonical schemas for data that changes shape, and provenance receipts for what we build from it.
 
-crate keeps one declared shape for each data source it registers, and reads or conforms the data to that shape, so when a source renames a column, changes a type or changes its layout, the fix is made once in crate and code downstream keeps working. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
+crate declares a canonical shape for each kind of file or table it registers. It reads a registered file to that shape whichever known layout arrives, so when the source changes the file's columns or layout, the fix is made once in crate and code downstream keeps working; data read some other way is held to the same shape. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
 
 ## Installation
 
@@ -44,7 +44,7 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
 #>   record context.time: "2026-11-04T18:22:05Z" vs "2026-11-04T21:47:31Z"
 ```
 
-The file's bytes and `km_total` differ, each within a tolerance the receipts declare, so the builds are equivalent. The run identifiers and times are recorded, never part of the verdict.
+The file's bytes differ, but the receipt says the file holds the `access_check` table, whose fingerprint agrees under the declared `1e-9` tolerance on `km`, and `km_total` differs within its `1e-6`, so the builds are equivalent. The run identifiers and times are recorded, never part of the verdict.
 
 ## Learn more
 
