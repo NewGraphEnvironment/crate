@@ -6,7 +6,7 @@
 
 > Canonical schemas for data that changes shape, and provenance receipts for what we build from it.
 
-crate keeps one declared shape for each data source it registers, and reads or conforms the data to that shape, so code downstream keeps working when a source renames a column, changes a type or changes its layout. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
+crate keeps one declared shape for each data source it registers, and reads or conforms the data to that shape, so when a source renames a column, changes a type or changes its layout, the fix is made once in crate and code downstream keeps working. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
 
 ## Installation
 
@@ -18,7 +18,7 @@ crate is under active development and its functions change between releases (see
 
 ## Example
 
-[bcfishpass](https://github.com/smnorris/bcfishpass) reshaped `user_habitat_classification.csv` from long to wide on 2026-04-26. crate ships a small copy of each shape, and one call reads either to the same columns:
+[bcfishpass](https://github.com/smnorris/bcfishpass) reshaped `user_habitat_classification.csv` from long to wide on 2026-04-26. crate ships a small synthetic example of each shape, and one call reads either to the same columns:
 
 ```r
 library(crate)
@@ -44,7 +44,7 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
 #>   record context.time: "2026-11-04T18:22:05Z" vs "2026-11-04T21:47:31Z"
 ```
 
-The file's bytes differ, but its table agrees within the tolerance the receipt declares, so the two builds are equivalent.
+The file's bytes and `km_total` differ, each within a tolerance the receipts declare, so the builds are equivalent. The run identifiers and times are recorded, never part of the verdict.
 
 ## Learn more
 

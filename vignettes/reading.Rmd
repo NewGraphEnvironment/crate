@@ -82,7 +82,9 @@ together:
    integer column, a `Date` for a declared string) do not leak through.
 
 Steps 4 and 5 are `crt_schema_conform()`, which `crt_ingest()` calls rather than repeats, so a
-file crate reads and a data frame you bring get the same treatment.
+file crate reads and a data frame you bring get the same treatment. The handler,
+`crt_schema_read()`, `crt_schema_validate()` and `crt_schema_apply()` are internal: you call
+`crt_ingest()` or `crt_schema_conform()`, and they call the rest.
 
 ## A datetime is an instant
 
