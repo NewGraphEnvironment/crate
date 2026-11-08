@@ -1,3 +1,7 @@
+# crate 0.14.1 (2026-11-08)
+
+- The README, which is also the pkgdown home page, now names both of crate's jobs, canonical schemas for data that changes shape and provenance receipts for outputs, and has a Provenance receipts section that writes a receipt and compares two builds. The receipt vignette says a subclass of `Date` or `POSIXct`, such as data.table's `IDate`, is spelled as its base class. The README and the vignette no longer say that stacs implements receipts, which is still planned ([stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). No code change ([#52](https://github.com/NewGraphEnvironment/crate/issues/52)).
+
 # crate 0.14.0 (2026-11-06)
 
 - `crt_table_fingerprint()` fingerprints a subclass of `Date` or `POSIXct`, such as data.table's `IDate`, as its base class, so a table read with `data.table::fread()` gets the same fingerprint as the same table read any other way, in `crt_receipt_write()` and in `crt_receipt_compare()`'s re-read alike. The class must end in the base class, on numeric storage; a column carrying an extra attribute is still refused, and every plain `Date` and `POSIXct` column keeps its canonical form ([#49](https://github.com/NewGraphEnvironment/crate/issues/49)).
