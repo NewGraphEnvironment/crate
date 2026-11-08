@@ -1,6 +1,6 @@
 # crate <img src="man/figures/logo.png" align="right" height="139" alt="crate hex sticker" />
 
-> Stable file readers for shape-shifting data sources.
+> Canonical schemas for data that changes shape, and provenance receipts for what we build from it.
 
 When external data we depend on changes shape — columns renamed, types swapped, layouts flipped — code that reads those files breaks. crate is the one place that knows about all the shape variations.
 
@@ -8,13 +8,15 @@ Call `crt_ingest("source", "file_name", path)` from anywhere. Same call, same ou
 
 Some data crate should not read — a spatial format, a database, an API. For that, `crt_schema_conform(df, "source", "file_name")` takes a data frame you already have and holds it to the same declared shape. crate says what the columns mean either way; reading the bytes is somebody else's job.
 
+crate's other job is the outputs. A provenance receipt is one `receipt.json` per output (a table, raster, model or STAC item) saying what it is, how it was made, what came out, and where and when, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed. See [Provenance receipts](#provenance-receipts) below and `vignette("receipt")`.
+
 ## Installation
 
 ```r
 pak::pak("NewGraphEnvironment/crate")
 ```
 
-## Example
+## Reading a file that changed shape
 
 [bcfishpass](https://github.com/smnorris/bcfishpass) changed `user_habitat_classification.csv` between commit `9cc30fc` (long format with text `habitat_ind` indicators) and commit `40c4a0a` (wide format with integer `spawning` + `rearing` columns) on 2026-04-26. The reshape included both a structural change (one column → two) and a type change (text → integer). crate handles both shapes:
 
@@ -65,7 +67,59 @@ When the next upstream reshape happens, the fix is one PR in crate — register 
 
 See the [function reference](https://newgraphenvironment.github.io/crate/reference/) and [browse the schemas](https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas).
 
-## How it works
+## Provenance receipts
+
+A rebuild asks two questions. **Was it made the same way?** That is the recipe: code, config, the inputs' identities, a seed. **Did it come out the same?** That is the result. The same recipe can give slightly different results on another machine or another day, through row order or float summation order, so comparing two receipts answers one of three verdicts: `identical`; `equivalent`, the same recipe with every differing value within its declared tolerance; or `different`, another recipe or a value past its tolerance.
+
+A package declares what only it knows (which inputs and settings are recipe, which tables are fingerprinted, and their tolerances) and hands `crt_receipt_write()` its values. crate computes the ids, fingerprints and digests, fills the context, and writes `receipt.json` beside the output:
+
+```r
+wc <- system.file("extdata", "receipt", "examples", "worked_case", package = "crate")
+access <- read.csv(file.path(wc, "build_1", "access_check.csv"))
+
+dir <- file.path(tempdir(), "evidence")
+dir.create(dir)
+write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
+
+w <- crt_receipt_write(
+  dir,
+  output = list(name = "access_check", scope = "BULK"),
+  recipe = list(
+    code = list(link = list(commit = "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+                            version = "0.31.2", dirty = FALSE)),
+    config = list(settings = list(species = c("CO", "CH", "ST"))),
+    inputs = list(fwa_stream_networks = list(version_id = "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"))
+  ),
+  result = list(
+    tables = list(access_check = access),
+    parts = c(access_check = "access_check.csv"),
+    summary = list(rows = nrow(access), km_total = sum(access$km)),
+    tolerance = list(tables = list(access_check = list(km = 1e-9)),
+                     summary = list(km_total = 1e-6))
+  ),
+  publish = TRUE
+)
+w$recipe$recipe_id
+#> [1] "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"
+```
+
+One link build's evidence was built twice from the same code. The `access_check` table had the same rows and counts both times but differed in the 11th decimal place of `km`, because the database summed in another order. crate ships a synthetic copy of the two builds, each with its receipt:
+
+```r
+crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
+#> equivalent (receipts only)
+#>   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees
+#>   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees
+#>   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06
+#>   record context.run: {"link_run_id":"20261104T181900Z-bulk"} vs {"link_run_id":"20261104T214400Z-bulk"}
+#>   record context.time: "2026-11-04T18:22:05Z" vs "2026-11-04T21:47:31Z"
+```
+
+`access_check.csv`'s bytes differ, but the receipt says that file holds the `access_check` table, whose fingerprint agrees under the `1e-9` tolerance on `km`; `km_total` differs within its `1e-6`; the run identifiers and times are context, recorded and never part of an identity.
+
+crate holds the contract in a form any language can implement: the [receipt schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json) (also installed with crate), RFC 8785 canonical JSON, the table fingerprint, and test vectors in [`inst/extdata/receipt/vectors/`](inst/extdata/receipt/vectors/v1.0.0/README.md). The R implementation is `crt_receipt_write()`, `crt_receipt_read()`, `crt_receipt_validate()`, `crt_receipt_compare()`, `crt_receipt_keys()`, `crt_receipt_migrate()` and `crt_table_fingerprint()`; Python catalogues implement the same contract in `stacs.receipt` ([stacs](https://github.com/NewGraphEnvironment/stacs)) and pass the same vectors. `vignette("receipt")` is the contract's reference.
+
+## How reading works
 
 When you call `crt_ingest("bcfp", "user_habitat_classification", path)`, five pieces wire together at runtime:
 
@@ -87,18 +141,6 @@ A `datetime` column is **an instant**, and crate never moves it. A `POSIXct` has
 
 The handler made the type change transparent in our example. The wide canonical declares `spawning` and `rearing` as integer columns; the long upstream had `habitat_ind` as text (`"t"`/`"f"`). The pivot does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form. Type enforcement (step 5) catches any leaks at the boundary regardless of handler.
 
-### Naming convention
-
-Every function in crate's namespace starts with `crt_`, family-namespaced:
-
-- `crt_<verb>` — public singletons (`crt_ingest`, `crt_files`)
-- `crt_schema_conform`, `crt_schema_cols`, `crt_schema_grade`, `crt_schema_variant`, `crt_schema_fingerprint` — public, and in the `crt_schema_*` family because that is what they belong to
-- `crt_receipt_write`, `crt_receipt_read`, `crt_receipt_validate`, `crt_receipt_compare`, `crt_receipt_keys`, `crt_receipt_migrate` — public, the provenance receipt family; `crt_table_fingerprint` beside it, named apart from `crt_schema_fingerprint`, which hashes column names and types rather than values
-- `crt_handler_<source>_<file_name>` — per-(source, file) dispatchers
-- `crt_<family>_<verb>` — internal helper families (`crt_registry_*`, `crt_schema_*`)
-
-Reserved future families (slots in the `crt_schema_*` family for the schema-as-contract roadmap): `crt_schema_version`, `crt_schema_migrate`, plus a future `cols[].predicate` extension to `crt_schema_validate`. A schema already declares `cols[].values` and `cols[].range`, which `crt_schema_cols()` returns for a QC rule to flag against; conforming does not enforce them.
-
 ### Caveat: variant matching is column-names only
 
 `crt_ingest()` matches input to upstream variants by exact column-name set equality. It does not validate column types at the variant-match step. If upstream later ships the same column names with different types, the handler would receive misshapen data; `crt_schema_apply()` then coerces the output (some coercions silently produce NAs, e.g., `as.integer("yes")` → NA). Type-aware variant matching (declaring `cols: [{name, type}]` and validating both at dispatch) is a planned v0.1.x improvement.
@@ -115,9 +157,21 @@ Output types and required-cols ARE enforced via `crt_schema_apply()` and `crt_sc
 
 See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) and [`decisions/README.md`](decisions/README.md) for the conventions on each.
 
+## Naming convention
+
+Every function in crate's namespace starts with `crt_`, family-namespaced:
+
+- `crt_<verb>` — public singletons (`crt_ingest`, `crt_files`)
+- `crt_schema_conform`, `crt_schema_cols`, `crt_schema_grade`, `crt_schema_variant`, `crt_schema_fingerprint` — public, and in the `crt_schema_*` family because that is what they belong to
+- `crt_receipt_write`, `crt_receipt_read`, `crt_receipt_validate`, `crt_receipt_compare`, `crt_receipt_keys`, `crt_receipt_migrate` — public, the provenance receipt family; `crt_table_fingerprint` beside it, named apart from `crt_schema_fingerprint`, which hashes column names and types rather than values
+- `crt_handler_<source>_<file_name>` — per-(source, file) dispatchers
+- `crt_<family>_<verb>` — internal helper families (`crt_registry_*`, `crt_schema_*`)
+
+Reserved future families (slots in the `crt_schema_*` family for the schema-as-contract roadmap): `crt_schema_version`, `crt_schema_migrate`, plus a future `cols[].predicate` extension to `crt_schema_validate`. A schema already declares `cols[].values` and `cols[].range`, which `crt_schema_cols()` returns for a QC rule to flag against; conforming does not enforce them.
+
 ## What crate handles today
 
-Entries come in two kinds. `file` entries crate reads and normalizes; `schema_only` entries declare a canonical shape for data crate does not read, which you conform yourself with `crt_schema_conform()`.
+Registered entries come in two kinds. `file` entries crate reads and normalizes; `schema_only` entries declare a canonical shape for data crate does not read, which you conform yourself with `crt_schema_conform()`.
 
 **`file`**
 
@@ -135,15 +189,11 @@ Entries come in two kinds. `file` entries crate reads and normalizes; `schema_on
 - `nge` — field forms
   - `form_capture` — the envelope every captured field-form record carries (`project`, `form`, `record_id`, `source_version`, `schema_version`, `captured_at`), saying where a record came from and in what shape, and nothing about what any observation means. See the [decision entry](decisions/nge/20260901_form_capture_envelope.md).
 
-**STAC field schemas**
-
-- `lidarbc`, `las` and `receipt` — JSON Schemas for the custom fields NGE's STAC catalogues write, published by this site at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](decisions/nge/20261010_stac_field_schemas.md).
-
-**Provenance receipts**
-
-- One `receipt.json` per output, saying what it is, how it was made, what came out, and where and when, so any rebuild can be compared with its reference copy and answered identical, equivalent within a declared tolerance, or different, naming what differed ([#43](https://github.com/NewGraphEnvironment/crate/issues/43)). crate holds the contract any language implements (the [receipt schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json), RFC 8785 canonical JSON, the table fingerprint, and test vectors in [`inst/extdata/receipt/vectors/`](inst/extdata/receipt/vectors/v1.0.0/README.md)) and the R functions: `crt_receipt_write()`, `crt_receipt_read()`, `crt_receipt_validate()`, `crt_receipt_compare()`, `crt_receipt_keys()`, `crt_receipt_migrate()` and `crt_table_fingerprint()`. See `vignette("receipt")`. A `receipt:` STAC field schema mirrors a receipt's `recipe_id` into an item.
-
 More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a registry row, plus a handler when crate does the reading. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
+
+## STAC field schemas
+
+crate's pkgdown site also publishes JSON Schemas for the custom fields NGE's STAC catalogues write: `lidarbc`, `las` and `receipt`, at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. The `receipt:` fields mirror a receipt's `recipe_id` into an item. They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](decisions/nge/20261010_stac_field_schemas.md).
 
 ## Sibling public packages
 
