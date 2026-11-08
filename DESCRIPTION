@@ -8,7 +8,7 @@ Authors@R: c(
                        affiliation = "New Graph Environment Ltd.")),
     person("New Graph Environment Ltd.", role = c("cph", "fnd"))
     )
-Description: Declares a canonical shape for each kind of file or table it
+Description: Declares a canonical shape for each file or table it
     registers, reads a registered file to that shape whichever known layout
     arrives, and holds data read some other way to the same shape, so a
     change in a registered file's columns or layout is fixed once in crate

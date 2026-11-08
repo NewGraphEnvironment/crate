@@ -97,14 +97,14 @@ every join downstream. Stamping fixes the label, which was the only thing wrong.
 ## Variant matching uses column names only
 
 `crt_ingest()` picks the upstream variant by the set of column names alone. It does not compare
-column types at that step, so a source that kept its column names and changed a type would
+column types at that step, so an upstream file that kept its column names and changed a type would
 reach the handler misshapen. `crt_schema_apply()` then coerces the output, and some coercions
 turn a value into `NA` without an error (`as.integer("yes")`). Checking types at dispatch is
 [crate#55](https://github.com/NewGraphEnvironment/crate/issues/55).
 
 Required columns and output types are still enforced, by steps 4 and 5.
 
-## Registering a source
+## Registering a file or table
 
 How to add a `(source, file_name)` pair, a schema, a registry row, a handler for a `file` entry,
 a decision entry and tests with fixtures, is in

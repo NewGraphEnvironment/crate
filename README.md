@@ -6,7 +6,7 @@
 
 > Canonical schemas for data that changes shape, and provenance receipts for what we build from it.
 
-crate declares a canonical shape for each kind of file or table it registers. It reads a registered file to that shape whichever known layout arrives, so when the source changes the file's columns or layout, the fix is made once in crate and code downstream keeps working; data read some other way is held to the same shape. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
+crate declares a canonical shape for each file or table it registers. It reads a registered file to that shape whichever known layout arrives, so when upstream changes the file's columns or layout, the fix is made once in crate and code downstream keeps working; data read some other way is held to the same shape. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
 
 ## Installation
 
@@ -51,7 +51,7 @@ The file's bytes differ, but the receipt says the file holds the `access_check` 
 - [How reading works](https://newgraphenvironment.github.io/crate/articles/reading.html): what crate knows about, one call reading two shapes of a file, and what happens between the file and the returned table.
 - [Provenance receipts](https://newgraphenvironment.github.io/crate/articles/receipt.html): the receipt contract, writing a receipt and comparing two builds.
 - Function reference: [Ingest](https://newgraphenvironment.github.io/crate/reference/index.html#ingest), [Schemas](https://newgraphenvironment.github.io/crate/reference/index.html#schemas) and [Provenance receipts](https://newgraphenvironment.github.io/crate/reference/index.html#provenance-receipts).
-- [Schemas](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md): the schema format, and how to register a new source.
+- [Schemas](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md): the schema format, and how to register a new file or table.
 - [STAC field schemas](https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md): JSON Schemas for custom fields in New Graph Environment's STAC catalogues, published on this site.
 
 ## Ecosystem
