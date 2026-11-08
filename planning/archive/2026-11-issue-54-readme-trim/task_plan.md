@@ -70,7 +70,7 @@ What I found while exploring, which shaped the phases:
 - [x] Tests pass (`devtools::test()`) and `devtools::check()` is clean, including the new vignette build
 - [x] `/code-check` clean (each commit, or once over the branch with `/code-check branch`): 3 rounds, ended on a 121-claim enumeration
 - [x] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] `/planning-archive` on completion
 
 How each change is proved:
 - **Example output:** run the README example in a fresh `Rscript` against the installed branch, and diff its output with the pasted output.
