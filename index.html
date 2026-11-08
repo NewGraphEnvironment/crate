@@ -54,11 +54,12 @@
 </h1>
 </div>
 <blockquote>
-<p>Stable file readers for shape-shifting data sources.</p>
+<p>Canonical schemas for data that changes shape, and provenance receipts for what we build from it.</p>
 </blockquote>
 <p>When external data we depend on changes shape — columns renamed, types swapped, layouts flipped — code that reads those files breaks. crate is the one place that knows about all the shape variations.</p>
 <p>Call <code>crt_ingest("source", "file_name", path)</code> from anywhere. Same call, same output, regardless of which version of the upstream file landed. When upstream changes shape again, fix it once in crate; everywhere downstream keeps working.</p>
 <p>Some data crate should not read — a spatial format, a database, an API. For that, <code>crt_schema_conform(df, "source", "file_name")</code> takes a data frame you already have and holds it to the same declared shape. crate says what the columns mean either way; reading the bytes is somebody else’s job.</p>
+<p>crate’s other job is the outputs. A provenance receipt is one <code>receipt.json</code> per output (a table, raster, model or STAC item) saying what it is, how it was made, what came out, and where and when, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed. See <a href="#provenance-receipts">Provenance receipts</a> below and <code><a href="articles/receipt.html">vignette("receipt")</a></code>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -66,7 +67,7 @@
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"NewGraphEnvironment/crate"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="reading-a-file-that-changed-shape">Reading a file that changed shape<a class="anchor" aria-label="anchor" href="#reading-a-file-that-changed-shape"></a>
 </h2>
 <p><a href="https://github.com/smnorris/bcfishpass" class="external-link">bcfishpass</a> changed <code>user_habitat_classification.csv</code> between commit <code>9cc30fc</code> (long format with text <code>habitat_ind</code> indicators) and commit <code>40c4a0a</code> (wide format with integer <code>spawning</code> + <code>rearing</code> columns) on 2026-04-26. The reshape included both a structural change (one column → two) and a type change (text → integer). crate handles both shapes:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -114,14 +115,59 @@
 <p>See the <a href="https://newgraphenvironment.github.io/crate/reference/">function reference</a> and <a href="https://github.com/NewGraphEnvironment/crate/tree/main/inst/extdata/schemas" class="external-link">browse the schemas</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+<h2 id="provenance-receipts">Provenance receipts<a class="anchor" aria-label="anchor" href="#provenance-receipts"></a>
+</h2>
+<p>A rebuild asks two questions. <strong>Was it made the same way?</strong> That is the recipe: code, config, the inputs’ identities, a seed. <strong>Did it come out the same?</strong> That is the result. The same recipe can give slightly different results on another machine or another day, through row order or float summation order, so comparing two receipts answers one of three verdicts: <code>identical</code>; <code>equivalent</code>, the same recipe with every differing value within its declared tolerance; or <code>different</code>, another recipe or a value past its tolerance.</p>
+<p>A package declares what only it knows (which inputs and settings are recipe, which tables are fingerprinted, and their tolerances) and hands <code><a href="reference/crt_receipt_write.html">crt_receipt_write()</a></code> its values. crate computes the ids, fingerprints and digests, fills the context, and writes <code>receipt.json</code> beside the output:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"examples"</span>, <span class="st">"worked_case"</span>, package <span class="op">=</span> <span class="st">"crate"</span><span class="op">)</span></span>
+<span><span class="va">access</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_1"</span>, <span class="st">"access_check.csv"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"evidence"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">access</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"access_check.csv"</span><span class="op">)</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/crt_receipt_write.html">crt_receipt_write</a></span><span class="op">(</span></span>
+<span>  <span class="va">dir</span>,</span>
+<span>  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"access_check"</span>, scope <span class="op">=</span> <span class="st">"BULK"</span><span class="op">)</span>,</span>
+<span>  recipe <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>link <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>commit <span class="op">=</span> <span class="st">"a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0"</span>,</span>
+<span>                            version <span class="op">=</span> <span class="st">"0.31.2"</span>, dirty <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    config <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CO"</span>, <span class="st">"CH"</span>, <span class="st">"ST"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    inputs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fwa_stream_networks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>version_id <span class="op">=</span> <span class="st">"3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  result <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    tables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>access_check <span class="op">=</span> <span class="va">access</span><span class="op">)</span>,</span>
+<span>    parts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>access_check <span class="op">=</span> <span class="st">"access_check.csv"</span><span class="op">)</span>,</span>
+<span>    summary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">access</span><span class="op">)</span>, km_total <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">access</span><span class="op">$</span><span class="va">km</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    tolerance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>tables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>access_check <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>km <span class="op">=</span> <span class="fl">1e-9</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                     summary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>km_total <span class="op">=</span> <span class="fl">1e-6</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  publish <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">w</span><span class="op">$</span><span class="va">recipe</span><span class="op">$</span><span class="va">recipe_id</span></span>
+<span><span class="co">#&gt; [1] "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"</span></span></code></pre></div>
+<p>One link build’s evidence was built twice from the same code. The <code>access_check</code> table had the same rows and counts both times but differed in the 11th decimal place of <code>km</code>, because the database summed in another order. crate ships a synthetic copy of the two builds, each with its receipt:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/crt_receipt_compare.html">crt_receipt_compare</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_1"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_2"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; equivalent (receipts only)</span></span>
+<span><span class="co">#&gt;   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees</span></span>
+<span><span class="co">#&gt;   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees</span></span>
+<span><span class="co">#&gt;   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06</span></span>
+<span><span class="co">#&gt;   record context.run: {"link_run_id":"20261104T181900Z-bulk"} vs {"link_run_id":"20261104T214400Z-bulk"}</span></span>
+<span><span class="co">#&gt;   record context.time: "2026-11-04T18:22:05Z" vs "2026-11-04T21:47:31Z"</span></span></code></pre></div>
+<p><code>access_check.csv</code>’s bytes differ, but the receipt says that file holds the <code>access_check</code> table, whose fingerprint agrees under the <code>1e-9</code> tolerance on <code>km</code>; <code>km_total</code> differs within its <code>1e-6</code>; the run identifiers and times are context, recorded and never part of an identity.</p>
+<p>crate holds the contract in a form any language can implement: the <a href="https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json">receipt schema</a> (also installed with crate), RFC 8785 canonical JSON, the table fingerprint, and test vectors in <a href="https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/receipt/vectors/v1.0.0/README.md" class="external-link"><code>inst/extdata/receipt/vectors/</code></a>. The R implementation is <code><a href="reference/crt_receipt_write.html">crt_receipt_write()</a></code>, <code><a href="reference/crt_receipt_read.html">crt_receipt_read()</a></code>, <code><a href="reference/crt_receipt_validate.html">crt_receipt_validate()</a></code>, <code><a href="reference/crt_receipt_compare.html">crt_receipt_compare()</a></code>, <code><a href="reference/crt_receipt_keys.html">crt_receipt_keys()</a></code>, <code><a href="reference/crt_receipt_migrate.html">crt_receipt_migrate()</a></code> and <code><a href="reference/crt_table_fingerprint.html">crt_table_fingerprint()</a></code>. A Python implementation for STAC catalogues, passing the same vectors, is planned in stacs (<a href="https://github.com/NewGraphEnvironment/stacs/issues/12" class="external-link">stacs#12</a>). <code><a href="articles/receipt.html">vignette("receipt")</a></code> is the contract’s reference.</p>
+</div>
+<div class="section level2">
+<h2 id="how-reading-works">How reading works<a class="anchor" aria-label="anchor" href="#how-reading-works"></a>
 </h2>
 <p>When you call <code>crt_ingest("bcfp", "user_habitat_classification", path)</code>, five pieces wire together at runtime:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Registry</strong> (<a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>) — a CSV mapping each <code>(source, file_name)</code> pair to a handler function name and a schema YAML path. crate looks up “what do I know about this file?” here. Loaded by <code>crt_registry_load()</code>.</p></li>
-<li><p><strong>Schema YAML</strong> (<a href="inst/extdata/schemas/bcfp/user_habitat_classification.yaml"><code>inst/extdata/schemas/bcfp/user_habitat_classification.yaml</code></a>) — declares the canonical column shape (names, types, required flags) AND each known upstream variant (a column-name set + a normalize-function id). Loaded by <code><a href="reference/crt_schema_read.html">crt_schema_read()</a></code>.</p></li>
+<li><p><strong>Registry</strong> (<a href="https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/crate_registry.csv" class="external-link"><code>inst/extdata/crate_registry.csv</code></a>) — a CSV mapping each <code>(source, file_name)</code> pair to a handler function name and a schema YAML path. crate looks up “what do I know about this file?” here. Loaded by <code>crt_registry_load()</code>.</p></li>
+<li><p><strong>Schema YAML</strong> (<a href="https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/bcfp/user_habitat_classification.yaml" class="external-link"><code>inst/extdata/schemas/bcfp/user_habitat_classification.yaml</code></a>) — declares the canonical column shape (names, types, required flags) AND each known upstream variant (a column-name set + a normalize-function id). Loaded by <code><a href="reference/crt_schema_read.html">crt_schema_read()</a></code>.</p></li>
 <li>
-<p><strong>Handler</strong> (<a href="R/crt_handler_bcfp_user_habitat_classification.R"><code>R/crt_handler_bcfp_user_habitat_classification.R</code></a>) — one function per <code>(source, file_name)</code>. crate matches the actual file columns against each variant’s declared columns (first set-equal match wins), then dispatches the matched <code>variant_id</code> into the handler:</p>
+<p><strong>Handler</strong> (<a href="https://github.com/NewGraphEnvironment/crate/blob/main/R/crt_handler_bcfp_user_habitat_classification.R" class="external-link"><code>R/crt_handler_bcfp_user_habitat_classification.R</code></a>) — one function per <code>(source, file_name)</code>. crate matches the actual file columns against each variant’s declared columns (first set-equal match wins), then dispatches the matched <code>variant_id</code> into the handler:</p>
 <ul>
 <li>
 <code>2026-04-26-wide</code> → identity passthrough (already canonical)</li>
@@ -136,8 +182,31 @@
 <p>A <code>datetime</code> column is <strong>an instant</strong>, and crate never moves it. A <code>POSIXct</code> has its timezone attribute <em>stamped</em> to UTC rather than converted: several readers return correct UTC instants carrying no timezone label, so R renders them in the session’s zone and they read as a second clock in a second timezone. Converting to “fix” that rendering injects a real whole-hour error into every join downstream. Stamping fixes the label, which was the only thing wrong.</p>
 <p>The handler made the type change transparent in our example. The wide canonical declares <code>spawning</code> and <code>rearing</code> as integer columns; the long upstream had <code>habitat_ind</code> as text (<code>"t"</code>/<code>"f"</code>). The pivot does the text→integer conversion in the same step as the long→wide reshape — callers never see either intermediate form. Type enforcement (step 5) catches any leaks at the boundary regardless of handler.</p>
 <div class="section level3">
-<h3 id="naming-convention">Naming convention<a class="anchor" aria-label="anchor" href="#naming-convention"></a>
+<h3 id="caveat-variant-matching-is-column-names-only">Caveat: variant matching is column-names only<a class="anchor" aria-label="anchor" href="#caveat-variant-matching-is-column-names-only"></a>
 </h3>
+<p><code><a href="reference/crt_ingest.html">crt_ingest()</a></code> matches input to upstream variants by exact column-name set equality. It does not validate column types at the variant-match step. If upstream later ships the same column names with different types, the handler would receive misshapen data; <code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code> then coerces the output (some coercions silently produce NAs, e.g., <code>as.integer("yes")</code> → NA). Type-aware variant matching (declaring <code>cols: [{name, type}]</code> and validating both at dispatch) is a planned v0.1.x improvement.</p>
+<p>Output types and required-cols ARE enforced via <code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code> and <code><a href="reference/crt_schema_validate.html">crt_schema_validate()</a></code> respectively (steps 4–5 above).</p>
+</div>
+<div class="section level3">
+<h3 id="adding-a-new-source-file_name-pair">Adding a new (source, file_name) pair<a class="anchor" aria-label="anchor" href="#adding-a-new-source-file_name-pair"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Author the schema YAML at <code>inst/extdata/schemas/&lt;source&gt;/&lt;file_name&gt;.yaml</code>
+</li>
+<li>Write a normalize handler at <code>R/crt_handler_&lt;source&gt;_&lt;file_name&gt;.R</code>
+</li>
+<li>Add a row to <a href="https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/crate_registry.csv" class="external-link"><code>inst/extdata/crate_registry.csv</code></a>
+</li>
+<li>Write a decision-log entry at <code>decisions/&lt;source&gt;/&lt;YYYYMMDD&gt;_&lt;topic&gt;.md</code> if the canonical-shape choice isn’t self-evident</li>
+<li>Add tests + small synthetic fixtures at <code>inst/extdata/examples/&lt;source&gt;/&lt;file_name&gt;_&lt;variant&gt;.csv</code>
+</li>
+</ol>
+<p>See <a href="https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md" class="external-link"><code>inst/extdata/schemas/README.md</code></a> and <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/README.md" class="external-link"><code>decisions/README.md</code></a> for the conventions on each.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="naming-convention">Naming convention<a class="anchor" aria-label="anchor" href="#naming-convention"></a>
+</h2>
 <p>Every function in crate’s namespace starts with <code>crt_</code>, family-namespaced:</p>
 <ul>
 <li>
@@ -153,33 +222,10 @@
 </ul>
 <p>Reserved future families (slots in the <code>crt_schema_*</code> family for the schema-as-contract roadmap): <code>crt_schema_version</code>, <code>crt_schema_migrate</code>, plus a future <code>cols[].predicate</code> extension to <code>crt_schema_validate</code>. A schema already declares <code>cols[].values</code> and <code>cols[].range</code>, which <code><a href="reference/crt_schema_cols.html">crt_schema_cols()</a></code> returns for a QC rule to flag against; conforming does not enforce them.</p>
 </div>
-<div class="section level3">
-<h3 id="caveat-variant-matching-is-column-names-only">Caveat: variant matching is column-names only<a class="anchor" aria-label="anchor" href="#caveat-variant-matching-is-column-names-only"></a>
-</h3>
-<p><code><a href="reference/crt_ingest.html">crt_ingest()</a></code> matches input to upstream variants by exact column-name set equality. It does not validate column types at the variant-match step. If upstream later ships the same column names with different types, the handler would receive misshapen data; <code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code> then coerces the output (some coercions silently produce NAs, e.g., <code>as.integer("yes")</code> → NA). Type-aware variant matching (declaring <code>cols: [{name, type}]</code> and validating both at dispatch) is a planned v0.1.x improvement.</p>
-<p>Output types and required-cols ARE enforced via <code><a href="reference/crt_schema_apply.html">crt_schema_apply()</a></code> and <code><a href="reference/crt_schema_validate.html">crt_schema_validate()</a></code> respectively (steps 4–5 above).</p>
-</div>
-<div class="section level3">
-<h3 id="adding-a-new-source-file_name-pair">Adding a new (source, file_name) pair<a class="anchor" aria-label="anchor" href="#adding-a-new-source-file_name-pair"></a>
-</h3>
-<ol style="list-style-type: decimal">
-<li>Author the schema YAML at <code>inst/extdata/schemas/&lt;source&gt;/&lt;file_name&gt;.yaml</code>
-</li>
-<li>Write a normalize handler at <code>R/crt_handler_&lt;source&gt;_&lt;file_name&gt;.R</code>
-</li>
-<li>Add a row to <a href="inst/extdata/crate_registry.csv"><code>inst/extdata/crate_registry.csv</code></a>
-</li>
-<li>Write a decision-log entry at <code>decisions/&lt;source&gt;/&lt;YYYYMMDD&gt;_&lt;topic&gt;.md</code> if the canonical-shape choice isn’t self-evident</li>
-<li>Add tests + small synthetic fixtures at <code>inst/extdata/examples/&lt;source&gt;/&lt;file_name&gt;_&lt;variant&gt;.csv</code>
-</li>
-</ol>
-<p>See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> and <a href="decisions/README.html"><code>decisions/README.md</code></a> for the conventions on each.</p>
-</div>
-</div>
 <div class="section level2">
 <h2 id="what-crate-handles-today">What crate handles today<a class="anchor" aria-label="anchor" href="#what-crate-handles-today"></a>
 </h2>
-<p>Entries come in two kinds. <code>file</code> entries crate reads and normalizes; <code>schema_only</code> entries declare a canonical shape for data crate does not read, which you conform yourself with <code><a href="reference/crt_schema_conform.html">crt_schema_conform()</a></code>.</p>
+<p>Registered entries come in two kinds. <code>file</code> entries crate reads and normalizes; <code>schema_only</code> entries declare a canonical shape for data crate does not read, which you conform yourself with <code><a href="reference/crt_schema_conform.html">crt_schema_conform()</a></code>.</p>
 <p><strong><code>file</code></strong></p>
 <ul>
 <li>
@@ -207,27 +253,23 @@
 <li>
 <code>track_vertices</code> — one row per recorded position; non-spatial, so the geometry is reconstructable without a spatial dependency in the read path</li>
 <li>
-<code>track_annotations</code> — overrides for the crew-supplied columns, deliberately a separate table. Captured tables are immutable and a harvest only ever writes those, so a correction lives beside them; a non-key column here sharing a captured column’s name overrides it where non-<code>NA</code>. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else’s track. See the decision entries on <a href="decisions/nge/20260824_track_canonical_two_tables.html">the two-table shape</a> and <a href="decisions/nge/20260902_track_naming_captured_and_overridden.html">captured naming and overrides</a>.</li>
+<code>track_annotations</code> — overrides for the crew-supplied columns, deliberately a separate table. Captured tables are immutable and a harvest only ever writes those, so a correction lives beside them; a non-key column here sharing a captured column’s name overrides it where non-<code>NA</code>. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else’s track. See the decision entries on <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260824_track_canonical_two_tables.md" class="external-link">the two-table shape</a> and <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260902_track_naming_captured_and_overridden.md" class="external-link">captured naming and overrides</a>.</li>
 </ul>
 </li>
 <li>
 <code>nge</code> — field forms
 <ul>
 <li>
-<code>form_capture</code> — the envelope every captured field-form record carries (<code>project</code>, <code>form</code>, <code>record_id</code>, <code>source_version</code>, <code>schema_version</code>, <code>captured_at</code>), saying where a record came from and in what shape, and nothing about what any observation means. See the <a href="decisions/nge/20260901_form_capture_envelope.html">decision entry</a>.</li>
+<code>form_capture</code> — the envelope every captured field-form record carries (<code>project</code>, <code>form</code>, <code>record_id</code>, <code>source_version</code>, <code>schema_version</code>, <code>captured_at</code>), saying where a record came from and in what shape, and nothing about what any observation means. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260901_form_capture_envelope.md" class="external-link">decision entry</a>.</li>
 </ul>
 </li>
 </ul>
-<p><strong>STAC field schemas</strong></p>
-<ul>
-<li>
-<code>lidarbc</code>, <code>las</code> and <code>receipt</code> — JSON Schemas for the custom fields NGE’s STAC catalogues write, published by this site at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v&lt;X.Y.Z&gt;/schema.json</code> for items to list in <code>stac_extensions</code>. They are not R schemas and not part of the package: they live in <a href="pkgdown/assets/stac/README.html"><code>pkgdown/assets/stac/</code></a>, and a released version is never edited. See the <a href="decisions/nge/20261010_stac_field_schemas.html">decision entry</a>.</li>
-</ul>
-<p><strong>Provenance receipts</strong></p>
-<ul>
-<li>One <code>receipt.json</code> per output, saying what it is, how it was made, what came out, and where and when, so any rebuild can be compared with its reference copy and answered identical, equivalent within a declared tolerance, or different, naming what differed (<a href="https://github.com/NewGraphEnvironment/crate/issues/43" class="external-link">#43</a>). crate holds the contract any language implements (the <a href="https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json">receipt schema</a>, RFC 8785 canonical JSON, the table fingerprint, and test vectors in <a href="inst/extdata/receipt/vectors/v1.0.0/README.html"><code>inst/extdata/receipt/vectors/</code></a>) and the R functions: <code><a href="reference/crt_receipt_write.html">crt_receipt_write()</a></code>, <code><a href="reference/crt_receipt_read.html">crt_receipt_read()</a></code>, <code><a href="reference/crt_receipt_validate.html">crt_receipt_validate()</a></code>, <code><a href="reference/crt_receipt_compare.html">crt_receipt_compare()</a></code>, <code><a href="reference/crt_receipt_keys.html">crt_receipt_keys()</a></code>, <code><a href="reference/crt_receipt_migrate.html">crt_receipt_migrate()</a></code> and <code><a href="reference/crt_table_fingerprint.html">crt_table_fingerprint()</a></code>. See <code><a href="articles/receipt.html">vignette("receipt")</a></code>. A <code>receipt:</code> STAC field schema mirrors a receipt’s <code>recipe_id</code> into an item.</li>
-</ul>
-<p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a registry row, plus a handler when crate does the reading. See <a href="inst/extdata/schemas/README.html"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
+<p>More land as integration work surfaces. Each addition = a YAML in <code>inst/extdata/schemas/</code> + a registry row, plus a handler when crate does the reading. See <a href="https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md" class="external-link"><code>inst/extdata/schemas/README.md</code></a> for the format.</p>
+</div>
+<div class="section level2">
+<h2 id="stac-field-schemas">STAC field schemas<a class="anchor" aria-label="anchor" href="#stac-field-schemas"></a>
+</h2>
+<p>crate’s pkgdown site also publishes JSON Schemas for custom fields in NGE’s STAC catalogues, <code>lidarbc</code>, <code>las</code> and <code>receipt</code>, at <code>https://newgraphenvironment.github.io/crate/stac/&lt;prefix&gt;/v&lt;X.Y.Z&gt;/schema.json</code> for items to list in <code>stac_extensions</code>. <code>receipt:</code> mirrors a receipt’s <code>recipe_id</code> into an item; catalogues adopt it with receipts (<a href="https://github.com/NewGraphEnvironment/stacs/issues/12" class="external-link">stacs#12</a>). They are not R schemas and not part of the package: they live in <a href="https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md" class="external-link"><code>pkgdown/assets/stac/</code></a>, and a released version is never edited. See the <a href="https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261010_stac_field_schemas.md" class="external-link">decision entry</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="sibling-public-packages">Sibling public packages<a class="anchor" aria-label="anchor" href="#sibling-public-packages"></a>
