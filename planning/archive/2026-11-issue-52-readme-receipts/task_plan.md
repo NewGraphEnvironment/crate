@@ -66,9 +66,9 @@ also the pkgdown home page) still describes only the first:
 - [x] Every relative link and path in the changed README resolves (`ls` each); the published schema URL answers 200 with redirects followed (`curl -sL -o /dev/null -w '%{http_code}'`; it 301s to www.newgraphenvironment.com, and the github.io form stays in the text)
 - [x] Each README example's output, re-run with `devtools::load_all()`, is captured with `capture.output()`, prefixed `#> `, and every line found verbatim in README.md by script (the compare prints two sha256 hashes and 12-digit decimals an eye check would miss)
 - [x] The vignette renders and the home page builds without warnings, both into temp destinations so nothing untracked lands in the tree (`rmarkdown::render(..., output_dir = tempdir())`; `pkgdown::build_home(preview = FALSE, override = list(destination = tempdir()))`); `git status` clean of render output afterwards
-- [ ] Tests unaffected (docs only); `/code-check` clean (once over the branch with `/code-check branch`)
+- [x] Tests unaffected (docs only); `/code-check` clean (once over the branch with `/code-check branch`)
 - [x] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] `/planning-archive` on completion
 
 Verification: read the rendered home page top to bottom as a newcomer: within the first screen it
 must say crate does both jobs; the receipt section's pasted output matches a fresh run.
