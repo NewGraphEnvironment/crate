@@ -41,33 +41,33 @@ also the pkgdown home page) still describes only the first:
 
 ## Phase 1: Say both jobs up front
 
-- [ ] Tagline names both: canonical schemas for changing inputs, provenance receipts for outputs (in step with the #45 title)
-- [ ] Opening paragraphs: keep the `crt_ingest()` / `crt_schema_conform()` paragraphs; add one naming receipts (one `receipt.json` per output, rebuild judged identical / equivalent / different) linking `vignette("receipt")`
-- [ ] Rename `## Example` to `## Reading a file that changed shape` and `## How it works` to `## How reading works`, so the ingest sections say which job they describe
-- [ ] Move `### Naming convention` (README.md:90-100, lists both `crt_schema_*` and `crt_receipt_*`) out of the reading section to its own `## Naming convention`
-- [ ] Update `CLAUDE.md:27` (repo section, above the soul marker), which points to README "How it works", to the new heading
+- [x] Tagline names both: canonical schemas for changing inputs, provenance receipts for outputs (in step with the #45 title)
+- [x] Opening paragraphs: keep the `crt_ingest()` / `crt_schema_conform()` paragraphs; add one naming receipts (one `receipt.json` per output, rebuild judged identical / equivalent / different) linking `vignette("receipt")`
+- [x] Rename `## Example` to `## Reading a file that changed shape` and `## How it works` to `## How reading works`, so the ingest sections say which job they describe
+- [x] Move `### Naming convention` (README.md:90-100, lists both `crt_schema_*` and `crt_receipt_*`) out of the reading section to its own `## Naming convention`
+- [x] Update `CLAUDE.md:27` (repo section, above the soul marker), which points to README "How it works", to the new heading
 
 ## Phase 2: A provenance receipts section
 
-- [ ] `## Provenance receipts` after the ingest example: what a receipt answers (the vignette's two questions / three verdicts, briefly); a short write, condensed from the vignette's write chunk (`vignettes/receipt.Rmd:209-233`, which writes from the worked case's own CSV); the worked-case `crt_receipt_compare()` call with its output pasted from a real run; links to `vignette("receipt")`, the published receipt schema (keep the github.io URL: it is the schema's `$id`) and `inst/extdata/receipt/vectors/v1.0.0/`; name the Python implementation in stacs
-- [ ] Remove the receipts bullet from "What crate handles today"
+- [x] `## Provenance receipts` after the ingest example: what a receipt answers (the vignette's two questions / three verdicts, briefly); a short write, condensed from the vignette's write chunk (`vignettes/receipt.Rmd:209-233`, which writes from the worked case's own CSV); the worked-case `crt_receipt_compare()` call with its output pasted from a real run; links to `vignette("receipt")`, the published receipt schema (keep the github.io URL: it is the schema's `$id`) and `inst/extdata/receipt/vectors/v1.0.0/`; name the Python implementation in stacs
+- [x] Remove the receipts bullet from "What crate handles today"
 
 ## Phase 3: The inventory describes schemas only
 
-- [ ] Move the STAC field schemas bullet to its own short `## STAC field schemas` section before "Sibling public packages"
-- [ ] "What crate handles today" and its closing "each addition" paragraph now cover only `file` / `schema_only` entries; check its intro sentence still reads right
+- [x] Move the STAC field schemas bullet to its own short `## STAC field schemas` section before "Sibling public packages"
+- [x] "What crate handles today" and its closing "each addition" paragraph now cover only `file` / `schema_only` entries; check its intro sentence still reads right
 
 ## Phase 4: Vignette clause (#49 follow-on)
 
-- [ ] `vignettes/receipt.Rmd` canonical-form list: a `Date` or `POSIXct` subclass (data.table's `IDate`) is spelled as its base class
+- [x] `vignettes/receipt.Rmd` canonical-form list: a `Date` or `POSIXct` subclass (data.table's `IDate`) is spelled as its base class
 
 ## Validation
 
-- [ ] Every relative link and path in the changed README resolves (`ls` each); the published schema URL answers 200 with redirects followed (`curl -sL -o /dev/null -w '%{http_code}'`; it 301s to www.newgraphenvironment.com, and the github.io form stays in the text)
-- [ ] Each README example's output, re-run with `devtools::load_all()`, is captured with `capture.output()`, prefixed `#> `, and every line found verbatim in README.md by script (the compare prints two sha256 hashes and 12-digit decimals an eye check would miss)
-- [ ] The vignette renders and the home page builds without warnings, both into temp destinations so nothing untracked lands in the tree (`rmarkdown::render(..., output_dir = tempdir())`; `pkgdown::build_home(preview = FALSE, override = list(destination = tempdir()))`); `git status` clean of render output afterwards
+- [x] Every relative link and path in the changed README resolves (`ls` each); the published schema URL answers 200 with redirects followed (`curl -sL -o /dev/null -w '%{http_code}'`; it 301s to www.newgraphenvironment.com, and the github.io form stays in the text)
+- [x] Each README example's output, re-run with `devtools::load_all()`, is captured with `capture.output()`, prefixed `#> `, and every line found verbatim in README.md by script (the compare prints two sha256 hashes and 12-digit decimals an eye check would miss)
+- [x] The vignette renders and the home page builds without warnings, both into temp destinations so nothing untracked lands in the tree (`rmarkdown::render(..., output_dir = tempdir())`; `pkgdown::build_home(preview = FALSE, override = list(destination = tempdir()))`); `git status` clean of render output afterwards
 - [ ] Tests unaffected (docs only); `/code-check` clean (once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
 Verification: read the rendered home page top to bottom as a newcomer: within the first screen it

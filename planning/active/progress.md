@@ -28,3 +28,13 @@ Start Phase 1 and run every phase to the PR (/code-check branch, /planning-archi
 /gh-pr-push). This message is the resume instruction that starts the run-to-PR
 mandate; the merge stays with me.
 ```
+
+## Session 2026-11-07 (resumed)
+
+- Resumed from park: branch already checked out in the main tree, up to date with origin and main
+- Phase 1: tagline names both jobs; receipts paragraph in the intro; `## Example` → `## Reading a file that changed shape`, `## How it works` → `## How reading works`; `## Naming convention` its own section; `CLAUDE.md:27` pointer updated
+- Phase 2: `## Provenance receipts` after the ingest example: two questions / three verdicts, a `crt_receipt_write()` (recipe_id output), the worked-case compare, the contract links and stacs; inventory bullet removed
+- Phase 3: `## STAC field schemas` section before siblings (carries the `receipt:` mirror sentence); inventory intro reads "Registered entries"
+- Phase 4: vignette canonical-form list gains the Date/POSIXct subclass clause
+- Validation: 11 relative links resolve; schema URL 200 with -L; 7 pasted output lines found verbatim by script; ingest example still TRUE; vignette renders with 0 warnings, home page builds with 0 warnings (both to tempdirs); 1973 tests pass, 0 failed
+- Found: `pkgdown::build_home()` creates untracked `pkgdown/favicon/` (realfavicongenerator) even with a temp destination; removed after each build
