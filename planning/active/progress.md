@@ -1,0 +1,1 @@
+- Phase 1: filed crate#55 (type-aware variant matching); added `vignettes/reading.Rmd` with live `crt_files()` and fixture-ingest chunks (renders); `_pkgdown.yml` articles; schemas README steps 5–6 take the decisions link and fixture path; CLAUDE.md naming section merged, reserved names dropped, line 27 points at `vignette("reading")`

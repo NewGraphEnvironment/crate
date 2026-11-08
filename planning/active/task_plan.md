@@ -38,12 +38,12 @@ What I found while exploring, which shaped the phases:
 
 ## Phase 1: Move content out of the README
 
-- [ ] File an issue for type-aware variant matching: match on column names and types at dispatch, from the README's caveat. Link it from the new vignette.
-- [ ] Add `vignettes/reading.Rmd`, "How reading works", beside `receipt.Rmd`. It carries the five-piece runtime (registry, schema YAML, handler, validation, type enforcement), the note that steps 4–5 are `crt_schema_conform()`, datetimes as instants, and the variant-matching caveat (linking the new issue, with no "planned" line). It has live chunks: `crt_files()` and both bundled `bcfp` fixtures through `crt_ingest()`. Run live, they cannot go stale. Repo files the site does not publish are linked by absolute GitHub URL.
-- [ ] Add `reading` to `_pkgdown.yml` `articles:`.
-- [ ] `inst/extdata/schemas/README.md` "Adding a new schema": fold in the fixture path in step 6, and link `decisions/README.md` in step 5.
-- [ ] `CLAUDE.md` "Naming convention": merge in the README's family list (the public `crt_schema_*` functions, the `crt_receipt_*` family, and `crt_table_fingerprint` named apart from `crt_schema_fingerprint`). Drop the reserved line and the Status paragraph's reserved mention.
-- [ ] `CLAUDE.md:27`: point the runtime at `vignette("reading")`, and the function families at "Naming convention" below.
+- [x] File an issue for type-aware variant matching (filed as crate#55): match on column names and types at dispatch, from the README's caveat. Link it from the new vignette.
+- [x] Add `vignettes/reading.Rmd`, "How reading works", beside `receipt.Rmd`. It carries the five-piece runtime (registry, schema YAML, handler, validation, type enforcement), the note that steps 4–5 are `crt_schema_conform()`, datetimes as instants, and the variant-matching caveat (linking the new issue, with no "planned" line). It has live chunks: `crt_files()` and both bundled `bcfp` fixtures through `crt_ingest()`. Run live, they cannot go stale. Repo files the site does not publish are linked by absolute GitHub URL.
+- [x] Add `reading` to `_pkgdown.yml` `articles:`.
+- [x] `inst/extdata/schemas/README.md` "Adding a new schema": fold in the fixture path in step 6, and link `decisions/README.md` in step 5.
+- [x] `CLAUDE.md` "Naming convention": merge in the README's family list (the public `crt_schema_*` functions, the `crt_receipt_*` family, and `crt_table_fingerprint` named apart from `crt_schema_fingerprint`). Drop the reserved line and the Status paragraph's reserved mention.
+- [x] `CLAUDE.md:27`: point the runtime at `vignette("reading")`, and the function families at "Naming convention" below.
 
 ## Phase 2: Rewrite the README
 
