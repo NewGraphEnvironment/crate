@@ -117,17 +117,17 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
 
 `access_check.csv`'s bytes differ, but the receipt says that file holds the `access_check` table, whose fingerprint agrees under the `1e-9` tolerance on `km`; `km_total` differs within its `1e-6`; the run identifiers and times are context, recorded and never part of an identity.
 
-crate holds the contract in a form any language can implement: the [receipt schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json) (also installed with crate), RFC 8785 canonical JSON, the table fingerprint, and test vectors in [`inst/extdata/receipt/vectors/`](inst/extdata/receipt/vectors/v1.0.0/README.md). The R implementation is `crt_receipt_write()`, `crt_receipt_read()`, `crt_receipt_validate()`, `crt_receipt_compare()`, `crt_receipt_keys()`, `crt_receipt_migrate()` and `crt_table_fingerprint()`; Python catalogues implement the same contract in `stacs.receipt` ([stacs](https://github.com/NewGraphEnvironment/stacs)) and pass the same vectors. `vignette("receipt")` is the contract's reference.
+crate holds the contract in a form any language can implement: the [receipt schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json) (also installed with crate), RFC 8785 canonical JSON, the table fingerprint, and test vectors in [`inst/extdata/receipt/vectors/`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/receipt/vectors/v1.0.0/README.md). The R implementation is `crt_receipt_write()`, `crt_receipt_read()`, `crt_receipt_validate()`, `crt_receipt_compare()`, `crt_receipt_keys()`, `crt_receipt_migrate()` and `crt_table_fingerprint()`. A Python implementation for STAC catalogues, passing the same vectors, is planned in stacs ([stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). `vignette("receipt")` is the contract's reference.
 
 ## How reading works
 
 When you call `crt_ingest("bcfp", "user_habitat_classification", path)`, five pieces wire together at runtime:
 
-1. **Registry** ([`inst/extdata/crate_registry.csv`](inst/extdata/crate_registry.csv)) — a CSV mapping each `(source, file_name)` pair to a handler function name and a schema YAML path. crate looks up "what do I know about this file?" here. Loaded by `crt_registry_load()`.
+1. **Registry** ([`inst/extdata/crate_registry.csv`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/crate_registry.csv)) — a CSV mapping each `(source, file_name)` pair to a handler function name and a schema YAML path. crate looks up "what do I know about this file?" here. Loaded by `crt_registry_load()`.
 
-2. **Schema YAML** ([`inst/extdata/schemas/bcfp/user_habitat_classification.yaml`](inst/extdata/schemas/bcfp/user_habitat_classification.yaml)) — declares the canonical column shape (names, types, required flags) AND each known upstream variant (a column-name set + a normalize-function id). Loaded by `crt_schema_read()`.
+2. **Schema YAML** ([`inst/extdata/schemas/bcfp/user_habitat_classification.yaml`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/bcfp/user_habitat_classification.yaml)) — declares the canonical column shape (names, types, required flags) AND each known upstream variant (a column-name set + a normalize-function id). Loaded by `crt_schema_read()`.
 
-3. **Handler** ([`R/crt_handler_bcfp_user_habitat_classification.R`](R/crt_handler_bcfp_user_habitat_classification.R)) — one function per `(source, file_name)`. crate matches the actual file columns against each variant's declared columns (first set-equal match wins), then dispatches the matched `variant_id` into the handler:
+3. **Handler** ([`R/crt_handler_bcfp_user_habitat_classification.R`](https://github.com/NewGraphEnvironment/crate/blob/main/R/crt_handler_bcfp_user_habitat_classification.R)) — one function per `(source, file_name)`. crate matches the actual file columns against each variant's declared columns (first set-equal match wins), then dispatches the matched `variant_id` into the handler:
    - `2026-04-26-wide` → identity passthrough (already canonical)
    - `pre-2026-04-26-long` → pivot long rows to wide canonical, mapping `habitat_ind` text values to integer indicators
 
@@ -151,11 +151,11 @@ Output types and required-cols ARE enforced via `crt_schema_apply()` and `crt_sc
 
 1. Author the schema YAML at `inst/extdata/schemas/<source>/<file_name>.yaml`
 2. Write a normalize handler at `R/crt_handler_<source>_<file_name>.R`
-3. Add a row to [`inst/extdata/crate_registry.csv`](inst/extdata/crate_registry.csv)
+3. Add a row to [`inst/extdata/crate_registry.csv`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/crate_registry.csv)
 4. Write a decision-log entry at `decisions/<source>/<YYYYMMDD>_<topic>.md` if the canonical-shape choice isn't self-evident
 5. Add tests + small synthetic fixtures at `inst/extdata/examples/<source>/<file_name>_<variant>.csv`
 
-See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) and [`decisions/README.md`](decisions/README.md) for the conventions on each.
+See [`inst/extdata/schemas/README.md`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md) and [`decisions/README.md`](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/README.md) for the conventions on each.
 
 ## Naming convention
 
@@ -185,15 +185,15 @@ Registered entries come in two kinds. `file` entries crate reads and normalizes;
 - `nge` — GPS tracks
   - `track_sessions` — one row per tracking session, carrying the evidence that its two clocks agree, and what the crew said about the session when they walked it (`track_name`, `track_type`, `track_description`, `named_by` — optional, because not every capture source has them)
   - `track_vertices` — one row per recorded position; non-spatial, so the geometry is reconstructable without a spatial dependency in the read path
-  - `track_annotations` — overrides for the crew-supplied columns, deliberately a separate table. Captured tables are immutable and a harvest only ever writes those, so a correction lives beside them; a non-key column here sharing a captured column's name overrides it where non-`NA`. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else's track. See the decision entries on [the two-table shape](decisions/nge/20260824_track_canonical_two_tables.md) and [captured naming and overrides](decisions/nge/20260902_track_naming_captured_and_overridden.md).
+  - `track_annotations` — overrides for the crew-supplied columns, deliberately a separate table. Captured tables are immutable and a harvest only ever writes those, so a correction lives beside them; a non-key column here sharing a captured column's name overrides it where non-`NA`. Keyed with a timestamp fingerprint so a reissued identifier fails loudly instead of silently renaming somebody else's track. See the decision entries on [the two-table shape](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260824_track_canonical_two_tables.md) and [captured naming and overrides](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260902_track_naming_captured_and_overridden.md).
 - `nge` — field forms
-  - `form_capture` — the envelope every captured field-form record carries (`project`, `form`, `record_id`, `source_version`, `schema_version`, `captured_at`), saying where a record came from and in what shape, and nothing about what any observation means. See the [decision entry](decisions/nge/20260901_form_capture_envelope.md).
+  - `form_capture` — the envelope every captured field-form record carries (`project`, `form`, `record_id`, `source_version`, `schema_version`, `captured_at`), saying where a record came from and in what shape, and nothing about what any observation means. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20260901_form_capture_envelope.md).
 
-More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a registry row, plus a handler when crate does the reading. See [`inst/extdata/schemas/README.md`](inst/extdata/schemas/README.md) for the format.
+More land as integration work surfaces. Each addition = a YAML in `inst/extdata/schemas/` + a registry row, plus a handler when crate does the reading. See [`inst/extdata/schemas/README.md`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md) for the format.
 
 ## STAC field schemas
 
-crate's pkgdown site also publishes JSON Schemas for the custom fields NGE's STAC catalogues write: `lidarbc`, `las` and `receipt`, at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. The `receipt:` fields mirror a receipt's `recipe_id` into an item. They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](decisions/nge/20261010_stac_field_schemas.md).
+crate's pkgdown site also publishes JSON Schemas for the custom fields NGE's STAC catalogues write: `lidarbc`, `las` and `receipt`, at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. The `receipt:` fields mirror a receipt's `recipe_id` into an item. They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261010_stac_field_schemas.md).
 
 ## Sibling public packages
 

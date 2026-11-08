@@ -19,8 +19,8 @@ and answered **identical**, **equivalent** within a declared tolerance, or **dif
 what differed.
 
 crate holds the contract in a form any language can implement (a JSON Schema, a canonical JSON
-rule, a fingerprint specification and test vectors) and one R implementation of it. Python
-catalogues implement the same contract in `stacs.receipt` and pass the same vectors
+rule, a fingerprint specification and test vectors) and one R implementation of it. A Python
+implementation for STAC catalogues, passing the same vectors, is planned in `stacs`
 ([crate#43](https://github.com/NewGraphEnvironment/crate/issues/43),
 [stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). This vignette is the
 contract's reference.
