@@ -14,13 +14,13 @@ has_jsonvalidate <- requireNamespace("jsonvalidate", quietly = TRUE)
 
 A receipt is one JSON file per output that says what the output is, how it was made, what came
 out, and where and when. Every package and catalogue that publishes a table, raster, model or STAC
-item writes its receipts in this one shape, so any rebuild can be compared with a reference copy
+item is to write its receipts in this one shape, so any rebuild can be compared with a reference copy
 and answered **identical**, **equivalent** within a declared tolerance, or **different**, naming
 what differed.
 
 crate holds the contract in a form any language can implement (a JSON Schema, a canonical JSON
-rule, a fingerprint specification and test vectors) and one R implementation of it. Python
-catalogues implement the same contract in `stacs.receipt` and pass the same vectors
+rule, a fingerprint specification and test vectors) and one R implementation of it. A Python
+implementation for STAC catalogues, passing the same vectors, is planned in `stacs`
 ([crate#43](https://github.com/NewGraphEnvironment/crate/issues/43),
 [stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). This vignette is the
 contract's reference.
@@ -175,7 +175,8 @@ r$recipe$recipe_id
   Without a tolerance it is written in the shortest round-trip form above. A zero has no sign.
   NaN and infinities are refused.
 - Dates are `YYYY-MM-DD`; datetimes are UTC `YYYY-MM-DDTHH:MM:SSZ`, and fractional seconds are
-  refused.
+  refused. A subclass of `Date` or `POSIXct`, such as data.table's `IDate`, is spelled as its base
+  class.
 - Rows are sorted by the UTF-8 bytes of each row's own canonical JSON.
 
 ```{r}
