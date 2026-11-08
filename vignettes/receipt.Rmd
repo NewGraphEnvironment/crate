@@ -14,7 +14,7 @@ has_jsonvalidate <- requireNamespace("jsonvalidate", quietly = TRUE)
 
 A receipt is one JSON file per output that says what the output is, how it was made, what came
 out, and where and when. Every package and catalogue that publishes a table, raster, model or STAC
-item writes its receipts in this one shape, so any rebuild can be compared with a reference copy
+item is to write its receipts in this one shape, so any rebuild can be compared with a reference copy
 and answered **identical**, **equivalent** within a declared tolerance, or **different**, naming
 what differed.
 

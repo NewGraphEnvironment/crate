@@ -193,7 +193,7 @@ More land as integration work surfaces. Each addition = a YAML in `inst/extdata/
 
 ## STAC field schemas
 
-crate's pkgdown site also publishes JSON Schemas for the custom fields NGE's STAC catalogues write: `lidarbc`, `las` and `receipt`, at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. The `receipt:` fields mirror a receipt's `recipe_id` into an item. They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261010_stac_field_schemas.md).
+crate's pkgdown site also publishes JSON Schemas for custom fields in NGE's STAC catalogues, `lidarbc`, `las` and `receipt`, at `https://newgraphenvironment.github.io/crate/stac/<prefix>/v<X.Y.Z>/schema.json` for items to list in `stac_extensions`. `receipt:` mirrors a receipt's `recipe_id` into an item; catalogues adopt it with receipts ([stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). They are not R schemas and not part of the package: they live in [`pkgdown/assets/stac/`](https://github.com/NewGraphEnvironment/crate/blob/main/pkgdown/assets/stac/README.md), and a released version is never edited. See the [decision entry](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/nge/20261010_stac_field_schemas.md).
 
 ## Sibling public packages
 
