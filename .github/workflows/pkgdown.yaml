@@ -30,6 +30,66 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The installed contract files -- the schema, the hashing vectors, the register with
+      # its compare.json, the mapping -- are frozen per version like the published ones
+      # (#58). A check against a copy in the same commit can be edited along with the file,
+      # and the latest tag can be cut from an edited commit, so each file is compared with
+      # the FIRST release tag that holds it. Every released file stays at its path with its
+      # bytes, and nothing is added to a released version directory. A contract file is any
+      # file in a version directory, inst/extdata/receipt/<part>/vX.Y.Z/, except its
+      # README.md (prose, revised in place), whatever the part is. One exemption, by
+      # name: compare.json moved from vectors/v1.0.0/ to register/v1.0.0/ in #58, bytes
+      # intact. Runs before R is set up, so it fails fast.
+      - name: Check released contract files against the release tags
+        run: |
+          set -euo pipefail
+          git fetch -q --depth=1 origin 'refs/tags/v*:refs/tags/v*'
+          tags=$(git tag --list 'v*' --sort=v:refname)
+          [ -n "$tags" ] || { echo "::error::no release tag to compare the contract files against"; exit 1; }
+          pat='^inst/extdata/receipt/[^/]+/v[0-9]+[.][0-9]+[.][0-9]+/[^/]+$'
+          moved_from=inst/extdata/receipt/vectors/v1.0.0/compare.json
+          moved_to=inst/extdata/receipt/register/v1.0.0/compare.json
+          # "<tag> <path>" for every tag, oldest first; then the first tag per path.
+          all=""
+          for t in $tags; do
+            files=$(git ls-tree -r --name-only "$t" -- inst/extdata/receipt)
+            hits=$(printf '%s\n' "$files" | grep -E "$pat" | grep -v '/README[.]md$' || true)
+            [ -z "$hits" ] || all="$all$(printf '%s\n' "$hits" | sed "s|^|$t |")"$'\n'
+          done
+          first=$(printf '%s' "$all" | awk 'NF == 2 && !($2 in seen) { seen[$2] = 1; print }')
+          [ -n "$first" ] || { echo "::error::no release tag holds a contract file; the pattern no longer matches the layout"; exit 1; }
+          released=$(printf '%s\n' "$first" | awk '{ print $2 }')
+          bad=0 n=0
+          while read -r t f; do
+            n=$((n + 1))
+            want=$(git rev-parse "$t:$f")
+            if [ -e "$f" ]; then
+              if [ "$(git hash-object "$f")" = "$want" ]; then
+                echo "unchanged since $t: $f"
+              else
+                echo "::error::$f differs from its release in $t. A released version is never edited; add a version directory"
+                bad=1
+              fi
+            elif [ "$f" = "$moved_from" ] && [ -e "$moved_to" ] && [ "$(git hash-object "$moved_to")" = "$want" ]; then
+              echo "moved, bytes unchanged since $t: $f -> $moved_to"
+            else
+              echo "::error::$f was released in $t and is gone. A released version stays"
+              bad=1
+            fi
+          done <<< "$first"
+          dirs=$(printf '%s\n' "$released" | sed 's|/[^/]*$||' | sort -u)
+          current=$(git ls-files -- inst/extdata/receipt)
+          current=$(printf '%s\n' "$current" | grep -E "$pat" | grep -v '/README[.]md$' || true)
+          for f in $current; do
+            d=${f%/*}
+            if printf '%s\n' "$dirs" | grep -qxF "$d" && ! printf '%s\n' "$released" | grep -qxF "$f"; then
+              echo "::error::$f was added to $d, a released version directory. Add a version directory instead"
+              bad=1
+            fi
+          done
+          [ "$bad" -eq 0 ]
+          echo "$n released contract file(s) checked"
+
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
@@ -77,7 +137,9 @@ jobs:
       # The STAC field schemas in pkgdown/assets/stac/ are fetched by every catalogue
       # build that validates, and published items name their URLs. The receipt schema in
       # pkgdown/assets/receipt/ is what every receipt's `receipt_version` refers to, and
-      # what other implementations validate against (#43). So each one must
+      # what other implementations validate against (#43). The register and the mapping
+      # beside it are what every comparison and every migrated receipt is computed from,
+      # each under its own version (#58). So each one must
       # reach the site as committed, and a version already on gh-pages must be
       # rebuilt byte for byte: an edit changes what published items mean, and a
       # deletion (clean: true below) breaks every build that validates them.
@@ -91,7 +153,8 @@ jobs:
           ref="${SCHEMAS_PUBLISHED_REF:-FETCH_HEAD}"
           [ "$ref" != FETCH_HEAD ] || git fetch -q --depth=1 origin gh-pages
           bad=0 n=0
-          for src in pkgdown/assets/stac/*/v*/schema.json pkgdown/assets/receipt/v*/schema.json; do
+          for src in pkgdown/assets/stac/*/v*/schema.json pkgdown/assets/receipt/v*/schema.json \
+                     pkgdown/assets/receipt/register/v*/register.csv pkgdown/assets/receipt/mapping/v*/mapping.csv; do
             [ -e "$src" ] || continue
             n=$((n + 1))
             rel="${src#pkgdown/assets/}"
@@ -99,11 +162,14 @@ jobs:
           done
           [ -n "$(ls pkgdown/assets/stac/*/v*/schema.json 2>/dev/null)" ] || { echo "::error::no STAC schemas under pkgdown/assets/stac/"; bad=1; }
           [ -n "$(ls pkgdown/assets/receipt/v*/schema.json 2>/dev/null)" ] || { echo "::error::no receipt schema under pkgdown/assets/receipt/"; bad=1; }
+          [ -n "$(ls pkgdown/assets/receipt/register/v*/register.csv 2>/dev/null)" ] || { echo "::error::no register under pkgdown/assets/receipt/register/"; bad=1; }
+          [ -n "$(ls pkgdown/assets/receipt/mapping/v*/mapping.csv 2>/dev/null)" ] || { echo "::error::no mapping under pkgdown/assets/receipt/mapping/"; bad=1; }
           # Assigned on their own lines so a bad ref stops the step under set -e; inside
           # the loop header its failure would read as "nothing published".
           git rev-parse -q --verify "$ref^{commit}" >/dev/null
           published=$(git ls-tree -r --name-only "$ref" -- stac receipt)
-          published=$(printf '%s\n' "$published" | grep -E '^(stac/[^/]+|receipt)/v[^/]+/schema\.json$' || true)
+          published=$(printf '%s\n' "$published" \
+            | grep -E '^((stac/[^/]+|receipt)/v[^/]+/schema\.json|receipt/register/v[^/]+/register\.csv|receipt/mapping/v[^/]+/mapping\.csv)$' || true)
           for rel in $published; do
             if [ ! -e "docs/$rel" ]; then
               echo "::error::$rel is published but no longer built. A released version stays; restore pkgdown/assets/$rel"
@@ -116,7 +182,7 @@ jobs:
             fi
           done
           [ "$bad" -eq 0 ]
-          echo "$n schema(s) built"
+          echo "$n contract file(s) built"
 
 
       # A skip here would be invisible, so assert rather than assume. Any

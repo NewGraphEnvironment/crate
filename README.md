@@ -37,7 +37,7 @@ One build was made twice from the same code, and its `km` column differed in the
 ```r
 wc <- system.file("extdata", "receipt", "examples", "worked_case", package = "crate")
 crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
-#> equivalent (receipts only)
+#> equivalent (receipts only; register v1.0.0)
 #>   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees
 #>   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees
 #>   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06

@@ -196,7 +196,19 @@ receipt_build <- function(dir, output, recipe, result, context, keys, lockfile, 
 
 `%||%` <- function(a, b) if (is.null(a)) b else a # nolint: object_name_linter.
 
+# Three versions, each moved by its own change (#58). The form is what a receipt carries in
+# `output.receipt_version`; the register decides what each difference does and is named on
+# a comparison; the mapping translates older records. A register or mapping change never
+# moves the form. Each is installed under inst/extdata/receipt/<part>/v<version>/ and
+# published at the same path under the site's receipt/.
 receipt_version <- function() "1.0.0"
+receipt_register_version <- function() "1.0.0"
+receipt_mapping_version <- function() "1.0.0"
+
+receipt_contract_file <- function(part, version, file) {
+  system.file("extdata", "receipt", part, paste0("v", version), file, package = "crate",
+              mustWork = TRUE)
+}
 
 # An empty list serializes as an array; the blocks' keyed collections are objects.
 receipt_object <- function(x) {
