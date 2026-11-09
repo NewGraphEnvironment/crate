@@ -139,7 +139,7 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
 }
 
 receipt_mapping <- function() {
-  path <- system.file("extdata", "receipt", "mapping.csv", package = "crate", mustWork = TRUE)
+  path <- receipt_contract_file("mapping", receipt_mapping_version(), "mapping.csv")
   m <- utils::read.csv(path, stringsAsFactors = FALSE, encoding = "UTF-8", na.strings = character())
   m
 }

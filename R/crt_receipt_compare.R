@@ -168,15 +168,19 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
   )
   structure(
     list(verdict = verdict, mode = if (used_bytes) "bytes" else "receipts",
-         differences = differences),
+         differences = differences, register = receipt_register_version(),
+         overrides = attr(register, "overrides")),
     class = "crt_receipt_comparison"
   )
 }
 
 #' @export
 print.crt_receipt_comparison <- function(x, ...) {
+  n <- length(x$overrides)
+  over <- if (n) paste0(", ", n, if (n == 1L) " field" else " fields",
+                        " overridden by the package's declaration") else ""
   cat(x$verdict, " (", if (x$mode == "bytes") "receipts and re-read tables" else "receipts only",
-      ")\n", sep = "")
+      "; register v", x$register, over, ")\n", sep = "")
   d <- x$differences
   for (i in seq_len(nrow(d))) {
     cat("  ", formatC(d$action[i], width = -6), " ", d$field[i], ": ", d$detail[i], "\n", sep = "")
@@ -185,16 +189,22 @@ print.crt_receipt_comparison <- function(x, ...) {
 }
 
 # The register, with a package's overrides applied.
+# `overrides` names the fields whose action the declaration changed; restating the
+# register's own action is not an override.
 receipt_register <- function(keys = NULL) {
-  path <- system.file("extdata", "receipt", "register.csv", package = "crate", mustWork = TRUE)
+  path <- receipt_contract_file("register", receipt_register_version(), "register.csv")
   r <- utils::read.csv(path, stringsAsFactors = FALSE, encoding = "UTF-8")
+  overrides <- character()
   if (!is.null(keys) && nrow(keys$register)) {
     unknown <- setdiff(keys$register$field, r$field)
     if (length(unknown)) {
       cli::cli_abort("The declaration's {.field register} names fields the receipt does not have: {.val {unknown}}.")
     }
-    r$action[match(keys$register$field, r$field)] <- keys$register$action
+    i <- match(keys$register$field, r$field)
+    overrides <- r$field[i][r$action[i] != keys$register$action]
+    r$action[i] <- keys$register$action
   }
+  attr(r, "overrides") <- sort(unique(overrides), method = "radix")
   r
 }
 

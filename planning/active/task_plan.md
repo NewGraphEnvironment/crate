@@ -83,13 +83,13 @@ set; the existing schema test already requires installed == published).
 
 ## Phase 2: Move and read
 
-- [ ] `git mv` register.csv, mapping.csv, compare.json into their version directories
-- [ ] Version constants; `receipt_register()` and `receipt_mapping()` read the versioned paths
-- [ ] `crt_receipt_compare()` returns `register` and `overrides`; `print()` header becomes e.g.
+- [x] `git mv` register.csv, mapping.csv, compare.json into their version directories
+- [x] Version constants; `receipt_register()` and `receipt_mapping()` read the versioned paths
+- [x] `crt_receipt_compare()` returns `register` and `overrides`; `print()` header becomes e.g.
   `different (receipts only; register v1.0.0)` / `...; register v1.0.0, 2 fields overridden by the package's declaration)`
-- [ ] `data-raw/receipt_vectors.R` writes `compare.json` to `register/v1.0.0/`; re-run it and
+- [x] `data-raw/receipt_vectors.R` writes `compare.json` to `register/v1.0.0/`; re-run it and
   `cmp` the output with the moved file (must be byte-identical); `receipt_vectors_crosscheck.py`
-  path updated and re-run
+  path updated and re-run (not needed: the crosscheck never reads compare.json)
 
 ## Phase 3: Publish and freeze
 
@@ -106,7 +106,7 @@ set; the existing schema test already requires installed == published).
 - [ ] roxygen in `crt_receipt_compare.R` (`@return` gains `register`, `overrides`; path) and `crt_receipt_migrate.R`
 - [ ] `vignettes/receipt.Rmd`: register/mapping paths, the published URLs, the three version
   numbers in one short paragraph, and where `compare.json` lives
-- [ ] `vectors/v1.0.0/README.md` (drop the compare row, point to `register/v1.0.0/`); new `register/v1.0.0/README.md`
+- [x] `vectors/v1.0.0/README.md` (drop the compare row, point to `register/v1.0.0/`); new `register/v1.0.0/README.md` (landed in Phase 2: the vector test's file set needs it)
 - [ ] `research/provenance_receipt.md`: the versioning decision; `CLAUDE.md` Status line
 - [ ] `devtools::document()`, `pkgdown::check_pkgdown()`
 

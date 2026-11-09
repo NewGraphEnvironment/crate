@@ -8,3 +8,4 @@
 - Scaffolded PWF baseline from issue #58 with approved phases
 - Next: start Phase 1
 - Phase 1: tests written first; 9 fail before the move (compare 4, vectors 2, migrate 1, schema 2), as intended
+- Phase 2: register.csv, mapping.csv, compare.json moved to `<part>/v1.0.0/`; version constants and `receipt_contract_file()` in `R/crt_receipt_write.R`; comparison carries `register` and `overrides`; `print()` names them. `data-raw/receipt_vectors.R` re-run: every vector file byte-identical (no diff). Register README and the vectors README trim pulled forward from Phase 4. Receipt tests: all pass except the two Phase 3 publishing tests
