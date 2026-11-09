@@ -1,10 +1,11 @@
 # crate <img src="man/figures/logo.png" align="right" height="139" alt="crate hex sticker" />
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/NewGraphEnvironment/crate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/NewGraphEnvironment/crate/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-> Canonical schemas for data that changes shape, and provenance receipts for what we build from it.
+> Canonical schemas for data that changes shape, and provenance receipts for outputs.
 
 crate declares a canonical shape for each file or table it registers. It reads a registered file to that shape whichever known layout arrives, so when upstream changes the file's columns or layout, the fix is made once in crate and code downstream keeps working; data read some other way is held to the same shape. Its provenance receipt, one JSON file beside an output, records how the output was made and what came out, so a rebuild can be compared with its reference copy and judged identical, equivalent within a declared tolerance, or different, naming what differed.
 

@@ -12,4 +12,6 @@ The README went from 201 lines of tutorial, inventory and unbuilt work to 80 lin
 
 - `gh repo edit NewGraphEnvironment/crate --description "<tagline>"` after the merge, so About changes when main's README does. Read it back with `gh api repos/NewGraphEnvironment/crate --jq .description`.
 
+Added after review (2026-11-09): an R-CMD-check badge, and the tagline now ends "provenance receipts for outputs". The old "for what we build from it" tied receipts to data read through crate's schemas, which the receipt contract does not require. The About owed below takes this new tagline.
+
 Closed by: PR (opened by /gh-pr-push) for #54
