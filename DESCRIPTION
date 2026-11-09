@@ -1,6 +1,6 @@
 Package: crate
 Title: Canonical Schemas for Changing Data and Provenance Receipts
-Version: 0.15.0
+Version: 0.15.1
 Date: 2026-11-09
 Authors@R: c(
     person("Allan", "Irvine", , "al@newgraphenvironment.com", role = c("aut", "cre"),
