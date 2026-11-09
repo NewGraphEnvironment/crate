@@ -47,8 +47,8 @@ Two schema-level keys:
 2. Write the YAML at `<source>/<file_name>.yaml`
 3. For a `file` entry, add a handler at `R/crt_handler_<source>_<file_name>.R` (per Convention C naming, locked in [crate#4](https://github.com/NewGraphEnvironment/crate/issues/4)). A `schema_only` entry has none.
 4. Add a registry row in `inst/extdata/crate_registry.csv`. Its `canonical_cols` lists the schema's **required** columns — it is informational, what `crt_files()` shows, and `test-crt_registry_integrity.R` only checks it never names a column the schema lacks. Optional (`required: false`) columns are declared in the YAML alone, so a reader wanting the full set reads the schema, not the registry.
-5. Write a decision log entry at `decisions/<source>/<YYYYMMDD>_<topic>.md` (root-level `decisions/`, not under `inst/`)
-6. Update tests in `tests/testthat/` — `test-crt_ingest.R` for a `file` entry, `test-crt_schema_conform.R` for a `schema_only` one
+5. Write a decision log entry at `decisions/<source>/<YYYYMMDD>_<topic>.md` (root-level `decisions/`, not under `inst/`) when the canonical-shape choice is not self-evident; see [`decisions/README.md`](https://github.com/NewGraphEnvironment/crate/blob/main/decisions/README.md) for the format
+6. Update tests in `tests/testthat/` — `test-crt_ingest.R` for a `file` entry, `test-crt_schema_conform.R` for a `schema_only` one — with, for a `file` entry, small synthetic fixtures at `inst/extdata/examples/<source>/<file_name>_<variant>.csv`
 
 The schema is the source of truth — crate's runtime validation reads it, and `test-crt_registry_integrity.R` walks every registered schema on every push, so a row without a YAML, a YAML without a row, or a type nothing implements fails the suite rather than the first caller.
 

@@ -25,6 +25,9 @@ reference:
       - crate-package
 
 articles:
+  - title: How reading works
+    contents:
+      - reading
   - title: Provenance receipts
     contents:
       - receipt

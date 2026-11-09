@@ -1,0 +1,111 @@
+---
+title: "How reading works"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How reading works}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(crate)
+```
+
+## What crate knows about
+
+Every file or table crate knows about is a row in its registry, keyed by a source family and a file name. A `file` entry is one crate reads and
+normalizes with `crt_ingest()`. A `schema_only` entry declares a canonical shape for data crate
+does not read, which you hold to that shape yourself with `crt_schema_conform()`.
+
+```{r files}
+crt_files()
+```
+
+## One call, either shape
+
+[bcfishpass](https://github.com/smnorris/bcfishpass) changed `user_habitat_classification.csv`
+on 2026-04-26 from a long format, one row per segment, species and habitat type with a text
+`habitat_ind` of `"t"` or `"f"`, to a wide format with integer `spawning` and `rearing` columns.
+crate ships a small fixture of each:
+
+```{r fixtures}
+long_path <- system.file(
+  "extdata/examples/bcfp/user_habitat_classification_long.csv",
+  package = "crate"
+)
+wide_path <- system.file(
+  "extdata/examples/bcfp/user_habitat_classification_wide.csv",
+  package = "crate"
+)
+names(readr::read_csv(long_path, show_col_types = FALSE))
+names(readr::read_csv(wide_path, show_col_types = FALSE))
+```
+
+The same call reads both to the canonical wide shape:
+
+```{r ingest}
+long <- crt_ingest("bcfp", "user_habitat_classification", long_path)
+wide <- crt_ingest("bcfp", "user_habitat_classification", wide_path)
+identical(names(long), names(wide))
+str(long[c("spawning", "rearing")])
+```
+
+## Five pieces at runtime
+
+When you call `crt_ingest("bcfp", "user_habitat_classification", path)`, five pieces wire
+together:
+
+1. **Registry**
+   ([`inst/extdata/crate_registry.csv`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/crate_registry.csv))
+   maps each `(source, file_name)` pair to its kind, its schema YAML and, for a `file` entry,
+   its handler function. It is what `crt_files()` prints above.
+2. **Schema YAML**
+   ([`inst/extdata/schemas/bcfp/user_habitat_classification.yaml`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/bcfp/user_habitat_classification.yaml))
+   declares the canonical columns (names, types, required flags) and each known upstream
+   variant: a set of column names and an id. `crt_schema_read()` loads it.
+3. **Handler**
+   ([`R/crt_handler_bcfp_user_habitat_classification.R`](https://github.com/NewGraphEnvironment/crate/blob/main/R/crt_handler_bcfp_user_habitat_classification.R)),
+   one function per `file` entry. crate matches the file's column names against each
+   variant's (the first set-equal match wins) and passes the matched variant's id to the
+   handler. Here `2026-04-26-wide` passes the data through, and `pre-2026-04-26-long` pivots
+   the long rows to wide, turning the `habitat_ind` text into integer indicators in the same
+   step.
+4. **Validation** (`crt_schema_validate()`) checks that every column the schema declares
+   `required: true` is present, and fails listing all that are missing.
+5. **Type enforcement** (`crt_schema_apply()`) coerces each declared column the data has to its
+   schema type (`integer`, `double`, `string`, `logical` or `datetime`). Whatever types a handler
+   returns, the schema's are the ones that come out, and readr's guesses (a double for an
+   integer column, a `Date` for a declared string) do not leak through.
+
+Steps 4 and 5 are `crt_schema_conform()`, which `crt_ingest()` calls rather than repeats, so a
+file crate reads and a data frame you bring get the same treatment. The handler,
+`crt_schema_read()`, `crt_schema_validate()` and `crt_schema_apply()` are internal: you call
+`crt_ingest()` or `crt_schema_conform()`, and they call the rest.
+
+## A datetime is an instant
+
+A `datetime` column is an instant, and crate never moves it. A `POSIXct` has its timezone
+attribute *stamped* to UTC rather than converted. Several readers return correct UTC instants
+with no timezone label, which R then renders in the session's zone, so they read as a clock in
+another timezone. Converting them to "fix" that rendering would put a whole-hour error into
+every join downstream. Stamping fixes the label, which was the only thing wrong.
+
+## Variant matching uses column names only
+
+`crt_ingest()` picks the upstream variant by the set of column names alone. It does not compare
+column types at that step, so an upstream file that kept its column names and changed a type would
+reach the handler misshapen. `crt_schema_apply()` then coerces the output, and some coercions
+turn a value into `NA` without an error (`as.integer("yes")`). Checking types at dispatch is
+[crate#55](https://github.com/NewGraphEnvironment/crate/issues/55).
+
+Required columns and output types are still enforced, by steps 4 and 5.
+
+## Registering a file or table
+
+How to add a `(source, file_name)` pair, a schema, a registry row, a handler for a `file` entry,
+a decision entry and tests with fixtures, is in
+[`inst/extdata/schemas/README.md`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/schemas/README.md).
