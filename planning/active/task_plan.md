@@ -112,9 +112,9 @@ set; the existing schema test already requires installed == published).
 
 ## Phase 5: Cross-repo
 
-- [ ] File the new crate issue: form v1.1.0 — `crt_receipt_read()` reads v1.0.0, and a migrated
+- [x] File the new crate issue: form v1.1.0 — `crt_receipt_read()` reads v1.0.0, and a migrated
   receipt records its mapping version; link it from 58
-- [ ] File a stacs issue: register/mapping/compare.json moved; pin them by published version URL
+- [x] File a stacs issue: register/mapping/compare.json moved; pin them by published version URL
   instead of tag + blob sha (stacs's tag pin keeps working until it re-vendors)
 
 ## Review fixes (Plan review, planning/active/review-plan.md)
@@ -129,12 +129,14 @@ set; the existing schema test already requires installed == published).
 
 ## Owed at the end (reported, done after merge)
 
+- [ ] Shared with #54 (PR #56), done by whichever merges second: README's pasted compare output gains `; register v1.0.0`, and the CLAUDE.md Status line keeps #58's register/mapping sentence (both PRs edit it)
+
 - [ ] Confirm `receipt/register/v1.0.0/register.csv` and `receipt/mapping/v1.0.0/mapping.csv`
   are served and byte-identical once Pages deploys (a gh-pages commit is not yet a served page)
 
 ## Validation
 
-- [ ] Tests pass
+- [x] Tests pass (devtools::test 1994 pass; R CMD check 0/0/0, 9 expected skips)
 - [ ] `/code-check` clean (once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion

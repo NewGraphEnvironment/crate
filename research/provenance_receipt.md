@@ -200,7 +200,7 @@ from the form's vectors to the register's directory; the four hashing vector fil
 form. The rules, including that a code change moving an expected verdict is a new register
 version, are in `pkgdown/assets/receipt/CHANGELOG.md`.
 
-Not yet decided: reading older form versions in `crt_receipt_read()`, and recording the mapping
+Open in crate#62: reading older form versions in `crt_receipt_read()`, and recording the mapping
 version on a migrated receipt. Both need the first form change (v1.1.0), and they go together:
 the bump before the reader would make every published v1.0.0 receipt unreadable.
 
