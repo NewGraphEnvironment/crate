@@ -8,9 +8,10 @@ reference copy and answered **identical**, **equivalent** within a
 declared tolerance, or **different**, naming what differed.
 
 crate holds the contract in a form any language can implement (a JSON
-Schema, a canonical JSON rule, a fingerprint specification and test
-vectors) and one R implementation of it. A Python implementation for
-STAC catalogues, passing the same vectors, is planned in `stacs`
+Schema, a canonical JSON rule, a fingerprint specification, a register
+of what each difference does, a mapping from older records, and test
+vectors) and one R implementation of it. `stacs.receipt` is a Python
+implementation for STAC catalogues that runs the same vectors
 ([crate#43](https://github.com/NewGraphEnvironment/crate/issues/43),
 [stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)).
 This vignette is the contract’s reference.
@@ -71,7 +72,7 @@ answers `equivalent`:
 ``` r
 
 crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
-#> equivalent (receipts only)
+#> equivalent (receipts only; register v1.0.0)
 #>   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees
 #>   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees
 #>   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06
@@ -137,6 +138,18 @@ names(r)
 The schema is published at
 `https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json`
 and installed with crate. A published version is never edited.
+
+**Three parts of the contract are versioned, each on its own**
+([crate#58](https://github.com/NewGraphEnvironment/crate/issues/58)).
+The schema is the receipt’s form, and its version is the one a receipt
+carries in `output.receipt_version`. The register decides what a
+difference in each field does to a comparison, and a comparison names
+the register version it was judged under. The mapping turns an older
+record into a receipt. A change to the register or the mapping is a new
+version of that part only: it never moves the number on a receipt,
+because a receipt’s form has not changed. Each register version covers
+one form version. The rules and every release are in the
+[changelog](https://newgraphenvironment.github.io/crate/receipt/CHANGELOG.md).
 
 ## What goes where, and why
 
@@ -312,11 +325,15 @@ reads the receipt register, one row per field, to decide what a
 difference in each does: `refuse` makes the verdict `different`, `warn`
 is reported without changing it, and `record` is listed only. Every
 recipe field refuses, because `recipe_id` covers it; every context field
-is recorded.
+is recorded. Register v1.0.0 is published at
+`https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv`
+and installed with crate, and every comparison names the version it
+read, with any field a package’s declaration overrode.
 
 ``` r
 
-reg <- read.csv(system.file("extdata", "receipt", "register.csv", package = "crate"))
+reg <- read.csv(system.file("extdata", "receipt", "register", "v1.0.0", "register.csv",
+                            package = "crate", mustWork = TRUE))
 table(reg$action)
 #> 
 #> record refuse   warn 
@@ -355,7 +372,9 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"),
 [`crt_receipt_migrate()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_migrate.md)
 reads a record written before its package moved to receipts through the
 mapping table, so it stays readable while writers converge forward, each
-when it is next touched. A migrated receipt claims no recipe identity,
+when it is next touched. Mapping v1.0.0 is published at
+`https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv`
+and installed with crate. A migrated receipt claims no recipe identity,
 and keeps what it cannot place in `context.legacy`:
 
 ``` r
@@ -395,15 +414,26 @@ they mirror: a part’s `sha256` is `file:checksum`, its `bytes`
 
 Every implementation runs the files in
 `inst/extdata/receipt/vectors/v1.0.0/` and must produce each expected
-value byte for byte: number spellings, canonical JSON, `recipe_id`s,
-table fingerprints, and receipt pairs with their verdicts. Doubles are
-given as IEEE 754 bits, so no decimal parser stands between a vector and
-its value.
+value byte for byte: number spellings, canonical JSON, `recipe_id`s and
+table fingerprints. These test the hashing, which the form defines, so
+they are versioned with the form. Doubles are given as IEEE 754 bits, so
+no decimal parser stands between a vector and its value.
 
 ``` r
 
-vec <- system.file("extdata", "receipt", "vectors", "v1.0.0", package = "crate")
+vec <- system.file("extdata", "receipt", "vectors", "v1.0.0", package = "crate", mustWork = TRUE)
 list.files(vec)
-#> [1] "compare.json"     "fingerprint.json" "jcs.json"         "numbers.json"    
-#> [5] "README.md"        "recipe_id.json"
+#> [1] "fingerprint.json" "jcs.json"         "numbers.json"     "README.md"       
+#> [5] "recipe_id.json"
+```
+
+Receipt pairs with their verdicts test the register, so they sit with
+it, in `inst/extdata/receipt/register/v1.0.0/compare.json`:
+
+``` r
+
+reg_dir <- system.file("extdata", "receipt", "register", "v1.0.0", package = "crate",
+                       mustWork = TRUE)
+list.files(reg_dir)
+#> [1] "compare.json" "README.md"    "register.csv"
 ```

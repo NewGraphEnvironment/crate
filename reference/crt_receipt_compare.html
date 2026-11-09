@@ -70,7 +70,10 @@ the two builds' tables to re-read.</p></dd>
 or <code>"bytes"</code>; and <code>differences</code>, a tibble with one row per field that differed:
 <code>side</code> (<code>output</code>, <code>recipe</code>, <code>result</code> or <code>context</code>), <code>field</code>, <code>action</code> (<code>refuse</code>,
 <code>warn</code>, <code>record</code>, or <code>within</code> for a difference inside its tolerance), and
-<code>detail</code>.</p>
+<code>detail</code>; <code>register</code>, the version of the register the verdict was judged under;
+and <code>overrides</code>, the action the declaration in <code>keys</code> gave each field whose action
+it changed, named by field (empty when it changed none). It lists every such field,
+whether or not that field differed in this comparison.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -80,11 +83,17 @@ or <code>"bytes"</code>; and <code>differences</code>, a tibble with one row per
 the tolerance the output declares.</p></li>
 <li><p><code>different</code>: another recipe, or a result value past its tolerance.</p></li>
 </ul><p>What a difference in each field does comes from the receipt register
-(<code>inst/extdata/receipt/register.csv</code>), one row per field: <code>refuse</code> makes the
+(<code>inst/extdata/receipt/register/v1.0.0/register.csv</code>, published at
+<code>https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv</code>),
+one row per field: <code>refuse</code> makes the
 verdict <code>different</code>, <code>warn</code> is reported without changing it, and <code>record</code> is
 listed only. Every recipe field refuses, because <code>recipe_id</code> covers it; every
 context field is recorded, because the machine and the toolchain are never part
 of an identity.</p>
+<p>A verdict is a function of the register's rows, so the register is versioned on its
+own (crate#58) and every comparison names the version it was judged under. A row
+change is a new register version; it never moves the version a receipt carries, which
+is its form's.</p>
     </div>
     <div class="section level2">
     <h2 id="receipts-or-bytes">Receipts or bytes<a class="anchor" aria-label="anchor" href="#receipts-or-bytes"></a></h2>
@@ -106,7 +115,7 @@ names no table, such as a raster nobody fingerprinted, is <code>different</code>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">wc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"examples"</span>, <span class="st">"worked_case"</span>, package <span class="op">=</span> <span class="st">"crate"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">crt_receipt_compare</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_1"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_2"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> equivalent (receipts only)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> equivalent (receipts only; register v1.0.0)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06</span>

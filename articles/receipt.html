@@ -67,10 +67,10 @@ reference copy and answered <strong>identical</strong>,
 <strong>equivalent</strong> within a declared tolerance, or
 <strong>different</strong>, naming what differed.</p>
 <p>crate holds the contract in a form any language can implement (a JSON
-Schema, a canonical JSON rule, a fingerprint specification and test
-vectors) and one R implementation of it. A Python implementation for
-STAC catalogues, passing the same vectors, is planned in
-<code>stacs</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/43" class="external-link">crate#43</a>,
+Schema, a canonical JSON rule, a fingerprint specification, a register
+of what each difference does, a mapping from older records, and test
+vectors) and one R implementation of it. <code>stacs.receipt</code> is a
+Python implementation for STAC catalogues that runs the same vectors (<a href="https://github.com/NewGraphEnvironment/crate/issues/43" class="external-link">crate#43</a>,
 <a href="https://github.com/NewGraphEnvironment/stacs/issues/12" class="external-link">stacs#12</a>).
 This vignette is the contract’s reference.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -147,7 +147,7 @@ with its receipt:</p>
 <code>equivalent</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/crt_receipt_compare.html">crt_receipt_compare</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_1"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_2"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; equivalent (receipts only)</span></span>
+<span><span class="co">#&gt; equivalent (receipts only; register v1.0.0)</span></span>
 <span><span class="co">#&gt;   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees</span></span>
 <span><span class="co">#&gt;   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees</span></span>
 <span><span class="co">#&gt;   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06</span></span>
@@ -320,6 +320,16 @@ key</td>
 <p>The schema is published at
 <code>https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json</code>
 and installed with crate. A published version is never edited.</p>
+<p><strong>Three parts of the contract are versioned, each on its
+own</strong> (<a href="https://github.com/NewGraphEnvironment/crate/issues/58" class="external-link">crate#58</a>).
+The schema is the receipt’s form, and its version is the one a receipt
+carries in <code>output.receipt_version</code>. The register decides
+what a difference in each field does to a comparison, and a comparison
+names the register version it was judged under. The mapping turns an
+older record into a receipt. A change to the register or the mapping is
+a new version of that part only: it never moves the number on a receipt,
+because a receipt’s form has not changed. Each register version covers
+one form version. The rules and every release are in the <a href="https://newgraphenvironment.github.io/crate/receipt/CHANGELOG.md">changelog</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="what-goes-where-and-why">What goes where, and why<a class="anchor" aria-label="anchor" href="#what-goes-where-and-why"></a>
@@ -500,9 +510,14 @@ row per field, to decide what a difference in each does:
 <code>refuse</code> makes the verdict <code>different</code>,
 <code>warn</code> is reported without changing it, and
 <code>record</code> is listed only. Every recipe field refuses, because
-<code>recipe_id</code> covers it; every context field is recorded.</p>
+<code>recipe_id</code> covers it; every context field is recorded.
+Register v1.0.0 is published at
+<code>https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv</code>
+and installed with crate, and every comparison names the version it
+read, with any field a package’s declaration overrode.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"register.csv"</span>, package <span class="op">=</span> <span class="st">"crate"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"register"</span>, <span class="st">"v1.0.0"</span>, <span class="st">"register.csv"</span>,</span>
+<span>                            package <span class="op">=</span> <span class="st">"crate"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">reg</span><span class="op">$</span><span class="va">action</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; record refuse   warn </span></span>
@@ -536,9 +551,11 @@ receipt, compares their cells, and reports which it did:</p>
 </h2>
 <p><code><a href="../reference/crt_receipt_migrate.html">crt_receipt_migrate()</a></code> reads a record written before its
 package moved to receipts through the mapping table, so it stays
-readable while writers converge forward, each when it is next touched. A
-migrated receipt claims no recipe identity, and keeps what it cannot
-place in <code>context.legacy</code>:</p>
+readable while writers converge forward, each when it is next touched.
+Mapping v1.0.0 is published at
+<code>https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv</code>
+and installed with crate. A migrated receipt claims no recipe identity,
+and keeps what it cannot place in <code>context.legacy</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"examples"</span>, <span class="st">"legacy"</span>, <span class="st">"link_manifest.json"</span>,</span>
 <span>                   package <span class="op">=</span> <span class="st">"crate"</span><span class="op">)</span></span>
@@ -577,14 +594,23 @@ crate publishes at
 <p>Every implementation runs the files in
 <code>inst/extdata/receipt/vectors/v1.0.0/</code> and must produce each
 expected value byte for byte: number spellings, canonical JSON,
-<code>recipe_id</code>s, table fingerprints, and receipt pairs with
-their verdicts. Doubles are given as IEEE 754 bits, so no decimal parser
-stands between a vector and its value.</p>
+<code>recipe_id</code>s and table fingerprints. These test the hashing,
+which the form defines, so they are versioned with the form. Doubles are
+given as IEEE 754 bits, so no decimal parser stands between a vector and
+its value.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"vectors"</span>, <span class="st">"v1.0.0"</span>, package <span class="op">=</span> <span class="st">"crate"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"vectors"</span>, <span class="st">"v1.0.0"</span>, package <span class="op">=</span> <span class="st">"crate"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">vec</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "compare.json"     "fingerprint.json" "jcs.json"         "numbers.json"    </span></span>
-<span><span class="co">#&gt; [5] "README.md"        "recipe_id.json"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "fingerprint.json" "jcs.json"         "numbers.json"     "README.md"       </span></span>
+<span><span class="co">#&gt; [5] "recipe_id.json"</span></span></code></pre></div>
+<p>Receipt pairs with their verdicts test the register, so they sit with
+it, in
+<code>inst/extdata/receipt/register/v1.0.0/compare.json</code>:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reg_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"register"</span>, <span class="st">"v1.0.0"</span>, package <span class="op">=</span> <span class="st">"crate"</span>,</span>
+<span>                       mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">reg_dir</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "compare.json" "README.md"    "register.csv"</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
