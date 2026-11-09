@@ -7,17 +7,17 @@ cff-version: 1.2.0
 message: If you use crate, please cite it by its DOI, 10.5281/zenodo.23289273.
 type: software
 license: MIT
-title: 'crate: Canonical Schemas and Data Governance for Changing Data'
-version: 0.15.0
+title: 'crate: Canonical Schemas for Changing Data and Provenance Receipts'
+version: 0.15.1
 doi: 10.5281/zenodo.23289273
-abstract: 'Source-explicit dispatcher and declarative schemas for canonicalizing heterogeneous
-  data inputs across the New Graph Environment ecosystem. Ships canonical-shape schemas,
-  decision logs, and adapter functions that insulate downstream consumers (link, fresh,
-  reporting repos) from upstream-shape variability. First instance: bcfishpass override
-  CSVs. Also holds the provenance receipt contract: a JSON Schema, RFC 8785 canonical
-  JSON, a table fingerprint and test vectors, with R functions that write receipts
-  and compare two builds as identical, equivalent within a declared tolerance, or
-  different.'
+abstract: 'Declares a canonical shape for each file or table it registers, reads a
+  registered file to that shape whichever known layout arrives, and holds data read
+  some other way to the same shape, so a change in a registered file''s columns or
+  layout is fixed once in crate rather than in every reader downstream. Also holds
+  the provenance receipt contract: a JSON Schema, RFC 8785 canonical JSON, a table
+  fingerprint and test vectors, with R functions that write receipts and compare two
+  builds as identical, equivalent within a declared tolerance, or different. Under
+  active development.'
 authors:
 - family-names: Irvine
   given-names: Allan
@@ -25,14 +25,14 @@ authors:
   orcid: https://orcid.org/0000-0002-3495-2128
   affiliation: New Graph Environment Ltd.
 preferred-citation:
-  title: 'crate: Canonical Schemas and Data Governance for Changing Data'
+  title: 'crate: Canonical Schemas for Changing Data and Provenance Receipts'
   authors:
   - family-names: Irvine
     given-names: Allan
     email: al@newgraphenvironment.com
     orcid: https://orcid.org/0000-0002-3495-2128
     affiliation: New Graph Environment Ltd.
-  version: 0.15.0
+  version: 0.15.1
   date-released: '2026-11-09'
   url: https://newgraphenvironment.github.io/crate/
   repository-code: https://github.com/NewGraphEnvironment/crate
