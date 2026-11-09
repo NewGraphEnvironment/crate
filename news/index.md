@@ -1,5 +1,19 @@
 # Changelog
 
+## crate 0.15.1 (2026-11-09)
+
+- The README, which is also the pkgdown home page, is now the opening,
+  one example of each of crate’s jobs with its real output, and
+  pointers: Learn more, Ecosystem, Citation and License. How a
+  registered file is read (the runtime, datetimes as instants, and how a
+  variant is matched) moved to a new
+  [`vignette("reading")`](https://newgraphenvironment.github.io/crate/articles/reading.md),
+  and how to register a new file or table to
+  `inst/extdata/schemas/README.md`. The DESCRIPTION `Title` is now
+  “Canonical Schemas for Changing Data and Provenance Receipts”. No code
+  change
+  ([\#54](https://github.com/NewGraphEnvironment/crate/issues/54)).
+
 ## crate 0.15.0 (2026-11-09)
 
 - The receipt register and mapping are versioned on their own, apart

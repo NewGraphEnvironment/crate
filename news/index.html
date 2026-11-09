@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,10 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.15.1" id="crate-0151-2026-11-09">crate 0.15.1 (2026-11-09)<a class="anchor" aria-label="anchor" href="#crate-0151-2026-11-09"></a></h2>
+<ul><li>The README, which is also the pkgdown home page, is now the opening, one example of each of crate’s jobs with its real output, and pointers: Learn more, Ecosystem, Citation and License. How a registered file is read (the runtime, datetimes as instants, and how a variant is matched) moved to a new <code><a href="../articles/reading.html">vignette("reading")</a></code>, and how to register a new file or table to <code>inst/extdata/schemas/README.md</code>. The DESCRIPTION <code>Title</code> is now “Canonical Schemas for Changing Data and Provenance Receipts”. No code change (<a href="https://github.com/NewGraphEnvironment/crate/issues/54" class="external-link">#54</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.15.0" id="crate-0150-2026-11-09">crate 0.15.0 (2026-11-09)<a class="anchor" aria-label="anchor" href="#crate-0150-2026-11-09"></a></h2>
 <ul><li>The receipt register and mapping are versioned on their own, apart from the receipt’s form. <code>register.csv</code> and <code>mapping.csv</code> moved to <code>inst/extdata/receipt/register/v1.0.0/</code> and <code>inst/extdata/receipt/mapping/v1.0.0/</code> (rows unchanged), and are published at <code>https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv</code> and <code>.../receipt/mapping/v1.0.0/mapping.csv</code>, with a changelog at <code>.../receipt/CHANGELOG.md</code> stating the rules. <code>compare.json</code> tests the register’s actions, so it moved from <code>vectors/v1.0.0/</code> to <code>register/v1.0.0/</code>, byte for byte. A receipt’s <code>receipt_version</code> still names its form only, so a register or mapping change never moves it. <code><a href="../reference/crt_receipt_compare.html">crt_receipt_compare()</a></code> now returns <code>register</code>, the version the verdict was judged under, and <code>overrides</code>, the action a package’s declaration gave each field it changed; <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> names both. A released contract file can no longer change: the pkgdown workflow compares each with the first release tag that holds it (<a href="https://github.com/NewGraphEnvironment/crate/issues/58" class="external-link">#58</a>).</li>
