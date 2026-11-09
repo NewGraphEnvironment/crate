@@ -12,6 +12,6 @@ The receipt register and mapping are now versioned on their own, separately from
 ## Owed
 
 - Shared with #54 (PR #56), done by whichever merges second: README's pasted compare output gains `; register v1.0.0`, and the CLAUDE.md Status line keeps #58's register/mapping sentence (both PRs edit it)
-- Confirm `receipt/register/v1.0.0/register.csv` and `receipt/mapping/v1.0.0/mapping.csv` are served and byte-identical once Pages deploys (a gh-pages commit is not yet a served page)
+- Confirm `receipt/register/v1.0.0/register.csv` and `receipt/mapping/v1.0.0/mapping.csv` are served and byte-identical once Pages deploys (a gh-pages commit is not yet a served page) — done 2026-11-09: both, and `receipt/CHANGELOG.md`, return 200 and byte-identical to `pkgdown/assets/receipt/` after the v0.15.0 deploy (gh-pages built from 60933ef)
 
 Closed by: PR for #58 (branch 58-register-csv-and-mapping-csv-are-unversi)
