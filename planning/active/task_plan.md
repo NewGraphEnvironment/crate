@@ -127,6 +127,13 @@ set; the existing schema test already requires installed == published).
 - [x] R-CMD-check expected skips: nine
 - [x] README pasted `print()` output and contract list; stale "planned" stacs claims in README, vignette, CLAUDE.md
 
+## Code-check fixes (/code-check branch, review-round1..4.md)
+
+- [x] Round 1: the STAC receipt README named the old mapping path
+- [x] Round 2: the generator refuses to rewrite a released vector file; SHA-256 pins; changelog test refuses duplicates
+- [x] Round 3 (inside round 2's fix): pins share a tree with their files; pkgdown step compares with the release tags
+- [x] Round 4 (inside round 3's fix): first-tag reference, the one named move, file-list check, layout-derived frozen set; pins cover the schema
+
 ## Owed at the end (reported, done after merge)
 
 - [ ] Shared with #54 (PR #56), done by whichever merges second: README's pasted compare output gains `; register v1.0.0`, and the CLAUDE.md Status line keeps #58's register/mapping sentence (both PRs edit it)
@@ -137,8 +144,8 @@ set; the existing schema test already requires installed == published).
 ## Validation
 
 - [x] Tests pass (devtools::test 1994 pass; R CMD check 0/0/0, 9 expected skips)
-- [ ] `/code-check` clean (once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
+- [x] `/code-check` clean (once over the branch with `/code-check branch`): four rounds; rounds 3 and 4 found defects inside the previous fix; ended by the enumeration in findings.md
+- [x] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 
 How each change is proved: the new tests go red before the move and green after; mutate a
