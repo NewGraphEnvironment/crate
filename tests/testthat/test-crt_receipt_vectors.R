@@ -52,6 +52,30 @@ test_that("every vector file has a runner", {
   expect_setequal(list.files(register_dir()), c("README.md", "register.csv", "compare.json"))
 })
 
+# Released files never change (pkgdown/assets/receipt/CHANGELOG.md). A test that runs
+# them against crate's own output cannot see an edit made together with the code change
+# that moved them, so each released file's bytes are pinned here, and a new version
+# directory adds its rows (#58).
+test_that("every released contract file has the bytes it was released with", {
+  released <- c(
+    "vectors/v1.0.0/fingerprint.json" = "e78889f39885007cc4073f5cad3d608bf80ce3aa647db0d3b72294ec36d5e806",
+    "vectors/v1.0.0/jcs.json" = "e1cf99f542e8df07baa78f4d0147c83d37807514710b265dfe0ae774d3c84cd3",
+    "vectors/v1.0.0/numbers.json" = "5f5c146d4fdd4534e0f84af056a2104fecedcf36426e7ff4cfb27bdc16938a7a",
+    "vectors/v1.0.0/recipe_id.json" = "3dd279efb59158aa4591f6f619d6ecb273c9e7b104b716dd479ba9229b212e96",
+    "register/v1.0.0/compare.json" = "916f30136c42ce823d55d560138cb6860ab28f0d1bb314a54433c858ac53bc27",
+    "register/v1.0.0/register.csv" = "f60f171dbae277d3c5b54999d76b2a53d49e1e0cfba725ac36091a9fbd28b4d2",
+    "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef"
+  )
+  root <- system.file("extdata", "receipt", package = "crate", mustWork = TRUE)
+  on_disk <- list.files(root, pattern = "[.](json|csv)$", recursive = TRUE)
+  on_disk <- on_disk[grepl("^(vectors|register|mapping)/v[^/]+/[^/]+$", on_disk)]
+  expect_setequal(on_disk, names(released))
+  for (f in names(released)) {
+    expect_identical(digest::digest(file = file.path(root, f), algo = "sha256"), released[[f]],
+                     info = f)
+  }
+})
+
 test_that("numbers.json: RFC 8785 number spelling", {
   cases <- read_vectors("numbers.json")
   expect_gt(length(cases), 2600)

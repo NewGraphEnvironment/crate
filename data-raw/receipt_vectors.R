@@ -59,11 +59,20 @@ from_bits <- function(hex) {
 register_dir <- file.path("inst", "extdata", "receipt", "register",
                           paste0("v", crate:::receipt_register_version()))
 
+# A released file is never rewritten: a regeneration that would change its bytes stops
+# here, so a code change that moves an expected value needs a new version directory (a
+# new version constant), not an edit (#58).
 write_vectors <- function(cases, file, dir = out_dir) {
   path <- file.path(dir, file)
   txt <- jsonlite::toJSON(cases, auto_unbox = TRUE, pretty = TRUE, null = "null",
                           na = "null", digits = NA)
-  writeLines(enc2utf8(as.character(txt)), path, useBytes = TRUE)
+  new <- tempfile(fileext = ".json")
+  writeLines(enc2utf8(as.character(txt)), new, useBytes = TRUE)
+  if (file.exists(path) && !identical(unname(tools::md5sum(path)), unname(tools::md5sum(new)))) {
+    stop(path, " is released and this run would change it. Add a version directory ",
+         "(bump the version constant) instead of rewriting a released file.", call. = FALSE)
+  }
+  file.copy(new, path, overwrite = TRUE)
   message("wrote ", path, " (", length(cases), " cases)")
 }
 

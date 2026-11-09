@@ -109,7 +109,9 @@ test_that("the receipt changelog has one entry per published version", {
   log <- readLines(file.path(root, "CHANGELOG.md"), encoding = "UTF-8")
   heads <- grep("^## ", log, value = TRUE)
   entries <- unlist(lapply(names(published), function(p) paste(p, paste0("v", published[[p]]))))
-  expect_setequal(sub("^## ((form|register|mapping) v[0-9.]+)( .*)?$", "\\1", heads), entries)
+  named <- sub("^## ((form|register|mapping) v[0-9.]+)( .*)?$", "\\1", heads)
+  expect_false(anyDuplicated(named) > 0)
+  expect_setequal(named, entries)
   for (h in which(startsWith(log, "## register "))) {
     nxt <- c(which(startsWith(log, "## ")), length(log) + 1L)
     body <- log[seq(h + 1L, min(nxt[nxt > h]) - 1L)]
@@ -121,7 +123,8 @@ test_that("the receipt changelog has one entry per published version", {
   expect_length(h, 1L)
   nxt <- c(which(startsWith(log, "## ")), length(log) + 1L)
   body <- log[seq(h + 1L, min(nxt[nxt > h]) - 1L)]
-  expect_true(any(grepl(paste0("covers form v", crate:::receipt_version(), "[.]"), body, fixed = FALSE)))
+  covers <- regmatches(body, regexpr("covers form v[0-9]+\\.[0-9]+\\.[0-9]+", body))
+  expect_identical(sub("covers form v", "", covers), crate:::receipt_version())
 })
 
 test_that("the example receipt validates", {

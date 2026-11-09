@@ -62,3 +62,15 @@ Found while implementing the contract in Python: https://github.com/NewGraphEnvi
 | compare.json back in the vectors dir | vectors | 2 |
 
 Freeze gate (pkgdown.yaml) in a scratch repo against gh-pages f7dbbbc: clean rc=0; published and unchanged rc=0; edited release rc=1; dropped release rc=1; copy not reaching the site rc=1.
+
+## Code-check round 2 guards (each in a fresh worktree)
+
+| mutation | result |
+|---|---|
+| compare.json hand-edited | vectors: 2 failing |
+| installed mapping.csv row edited | vectors: 1 failing |
+| stray released file | vectors: 2 failing |
+| duplicate changelog heading | schema: 1 failing |
+| "covers form v1.0.0 only." (correct wording) | schema: 0 failing |
+| current register covers wrong form | schema: 1 failing |
+| code change moves a verdict, then `data-raw/receipt_vectors.R` | 1 refusal, 0 inst files changed |
