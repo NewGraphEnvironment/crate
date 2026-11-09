@@ -50,4 +50,4 @@ different.
 
 - [`crate`](https://newgraphenvironment.github.io/crate/reference/crate-package.md)
   [`crate-package`](https://newgraphenvironment.github.io/crate/reference/crate-package.md)
-  : crate: Canonical Schemas and Data Governance for Changing Data
+  : crate: Canonical Schemas for Changing Data and Provenance Receipts
