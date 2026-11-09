@@ -93,11 +93,11 @@ set; the existing schema test already requires installed == published).
 
 ## Phase 3: Publish and freeze
 
-- [ ] Copies under `pkgdown/assets/receipt/{register,mapping}/v1.0.0/`
-- [ ] `pkgdown/assets/receipt/CHANGELOG.md`: the rules (any row change is a new version; a
+- [x] Copies under `pkgdown/assets/receipt/{register,mapping}/v1.0.0/`
+- [x] `pkgdown/assets/receipt/CHANGELOG.md`: the rules (any row change is a new version; a
   register row's `action` changing changes published verdicts; a released version is never
   edited) and v1.0.0 entries, naming the form version register v1.0.0 covers
-- [ ] `.github/workflows/pkgdown.yaml` freeze gate: extend the globs and the `published` regex
+- [x] `.github/workflows/pkgdown.yaml` freeze gate: extend the globs and the `published` regex
   to `receipt/{register,mapping}/v*/*.csv`; prove it against both answers locally with
   `SCHEMAS_PUBLISHED_REF` (an edited copy fails, an untouched one passes)
 

@@ -77,7 +77,9 @@ jobs:
       # The STAC field schemas in pkgdown/assets/stac/ are fetched by every catalogue
       # build that validates, and published items name their URLs. The receipt schema in
       # pkgdown/assets/receipt/ is what every receipt's `receipt_version` refers to, and
-      # what other implementations validate against (#43). So each one must
+      # what other implementations validate against (#43). The register and the mapping
+      # beside it are what every comparison and every migrated receipt is computed from,
+      # each under its own version (#58). So each one must
       # reach the site as committed, and a version already on gh-pages must be
       # rebuilt byte for byte: an edit changes what published items mean, and a
       # deletion (clean: true below) breaks every build that validates them.
@@ -91,7 +93,8 @@ jobs:
           ref="${SCHEMAS_PUBLISHED_REF:-FETCH_HEAD}"
           [ "$ref" != FETCH_HEAD ] || git fetch -q --depth=1 origin gh-pages
           bad=0 n=0
-          for src in pkgdown/assets/stac/*/v*/schema.json pkgdown/assets/receipt/v*/schema.json; do
+          for src in pkgdown/assets/stac/*/v*/schema.json pkgdown/assets/receipt/v*/schema.json \
+                     pkgdown/assets/receipt/register/v*/register.csv pkgdown/assets/receipt/mapping/v*/mapping.csv; do
             [ -e "$src" ] || continue
             n=$((n + 1))
             rel="${src#pkgdown/assets/}"
@@ -99,11 +102,14 @@ jobs:
           done
           [ -n "$(ls pkgdown/assets/stac/*/v*/schema.json 2>/dev/null)" ] || { echo "::error::no STAC schemas under pkgdown/assets/stac/"; bad=1; }
           [ -n "$(ls pkgdown/assets/receipt/v*/schema.json 2>/dev/null)" ] || { echo "::error::no receipt schema under pkgdown/assets/receipt/"; bad=1; }
+          [ -n "$(ls pkgdown/assets/receipt/register/v*/register.csv 2>/dev/null)" ] || { echo "::error::no register under pkgdown/assets/receipt/register/"; bad=1; }
+          [ -n "$(ls pkgdown/assets/receipt/mapping/v*/mapping.csv 2>/dev/null)" ] || { echo "::error::no mapping under pkgdown/assets/receipt/mapping/"; bad=1; }
           # Assigned on their own lines so a bad ref stops the step under set -e; inside
           # the loop header its failure would read as "nothing published".
           git rev-parse -q --verify "$ref^{commit}" >/dev/null
           published=$(git ls-tree -r --name-only "$ref" -- stac receipt)
-          published=$(printf '%s\n' "$published" | grep -E '^(stac/[^/]+|receipt)/v[^/]+/schema\.json$' || true)
+          published=$(printf '%s\n' "$published" \
+            | grep -E '^((stac/[^/]+|receipt)/v[^/]+/schema\.json|receipt/register/v[^/]+/register\.csv|receipt/mapping/v[^/]+/mapping\.csv)$' || true)
           for rel in $published; do
             if [ ! -e "docs/$rel" ]; then
               echo "::error::$rel is published but no longer built. A released version stays; restore pkgdown/assets/$rel"
@@ -116,7 +122,7 @@ jobs:
             fi
           done
           [ "$bad" -eq 0 ]
-          echo "$n schema(s) built"
+          echo "$n contract file(s) built"
 
 
       # A skip here would be invisible, so assert rather than assume. Any
