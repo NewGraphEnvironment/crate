@@ -7,3 +7,4 @@
 - Created branch `58-register-csv-and-mapping-csv-are-unversi` off origin/main (af8574b)
 - Scaffolded PWF baseline from issue #58 with approved phases
 - Next: start Phase 1
+- Phase 1: tests written first; 9 fail before the move (compare 4, vectors 2, migrate 1, schema 2), as intended

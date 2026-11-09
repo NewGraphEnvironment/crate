@@ -5,8 +5,14 @@ vectors_dir <- function() {
   system.file("extdata", "receipt", "vectors", "v1.0.0", package = "crate", mustWork = TRUE)
 }
 
+# compare.json tests the register, so it is versioned with the register, not the form (#58).
+register_dir <- function() {
+  system.file("extdata", "receipt", "register", "v1.0.0", package = "crate", mustWork = TRUE)
+}
+
 read_vectors <- function(file) {
-  jsonlite::read_json(file.path(vectors_dir(), file), simplifyVector = FALSE)
+  dir <- if (file == "compare.json") register_dir() else vectors_dir()
+  jsonlite::read_json(file.path(dir, file), simplifyVector = FALSE)
 }
 
 vector_bits <- function(hex) {
@@ -41,8 +47,8 @@ decode_table <- function(tbl) {
 # A runner per file, so a vector file added with no runner fails here.
 test_that("every vector file has a runner", {
   expect_setequal(list.files(vectors_dir()),
-                  c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json",
-                    "compare.json"))
+                  c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json"))
+  expect_setequal(list.files(register_dir()), c("README.md", "register.csv", "compare.json"))
 })
 
 test_that("numbers.json: RFC 8785 number spelling", {

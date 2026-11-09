@@ -72,14 +72,14 @@ set; the existing schema test already requires installed == published).
 
 ## Phase 1: Tests first (fail until Phase 2/3)
 
-- [ ] `test-crt_receipt_compare.R`: the comparison carries `register` (the version) and
+- [x] `test-crt_receipt_compare.R`: the comparison carries `register` (the version) and
   `overrides` (fields the declaration changed, empty when none); `print()` names both
-- [ ] Register test reads the versioned path and checks its rows against the fields of the form
+- [x] Register test reads the versioned path and checks its rows against the fields of the form
   version that register version covers (generalise `schema_fields()` from its hard-coded v1.0.0)
-- [ ] `test-crt_receipt_migrate.R` mapping test reads the versioned path
-- [ ] `test-crt_receipt_vectors.R` reads `compare.json` from `register/v<current>/`
-- [ ] Published-copy test (`test-crt_receipt_schema.R` pattern): `pkgdown/assets/receipt/{register,mapping}/v*/` set-equal and byte-identical to `inst/`
-- [ ] CHANGELOG test: every published version directory (form, register, mapping) has an entry
+- [x] `test-crt_receipt_migrate.R` mapping test reads the versioned path
+- [x] `test-crt_receipt_vectors.R` reads `compare.json` from `register/v<current>/`
+- [x] Published-copy test (`test-crt_receipt_schema.R` pattern): `pkgdown/assets/receipt/{register,mapping}/v*/` set-equal and byte-identical to `inst/`
+- [x] CHANGELOG test: every published version directory (form, register, mapping) has an entry
 
 ## Phase 2: Move and read
 
