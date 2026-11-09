@@ -2,9 +2,11 @@
 #'
 #' Reads a `manifest.json` or `provenance.json` written before its package moved to
 #' receipts, through the receipt mapping table
-#' (`inst/extdata/receipt/mapping.csv`), so existing records stay readable in the
-#' receipt's keys while writers converge forward, each when it is next touched
-#' (crate#43).
+#' (`inst/extdata/receipt/mapping/v1.0.0/mapping.csv`, published at
+#' `https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv`),
+#' so existing records stay readable in the receipt's keys while writers converge
+#' forward, each when it is next touched (crate#43). The mapping is versioned on its own
+#' (crate#58): a row change is a new mapping version, and never moves the receipt's form.
 #'
 #' A migrated receipt has no recipe identity: an older record lacks fields a recipe
 #' needs (resolved settings, a seed, inputs' own ids), so `recipe.recipe_id` is null,
@@ -139,7 +141,7 @@ crt_receipt_migrate <- function(x, format, section = NULL, name = NULL, time = N
 }
 
 receipt_mapping <- function() {
-  path <- system.file("extdata", "receipt", "mapping.csv", package = "crate", mustWork = TRUE)
+  path <- receipt_contract_file("mapping", receipt_mapping_version(), "mapping.csv")
   m <- utils::read.csv(path, stringsAsFactors = FALSE, encoding = "UTF-8", na.strings = character())
   m
 }

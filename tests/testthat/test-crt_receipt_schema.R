@@ -60,6 +60,73 @@ test_that("the published copy is byte-identical to the installed schema", {
   }
 })
 
+# The register and the mapping are published beside the schema, each under its own
+# version (#58): a verdict is a function of the register's rows and a migrated receipt of
+# the mapping's, so an implementation in any language fetches the exact rows by URL.
+test_that("the published register and mapping are byte-identical to the installed ones", {
+  pkg <- testthat::test_path("..", "..")
+  if (!file.exists(file.path(pkg, "_pkgdown.yml"))) {
+    testthat::skip("source tree not available (R CMD check)")
+  }
+  # crate::: because the pkgdown workflow runs this file with test_file(), crate unattached.
+  current <- c(register = crate:::receipt_register_version(),
+               mapping = crate:::receipt_mapping_version())
+  for (part in names(current)) {
+    file <- paste0(part, ".csv")
+    pub_dir <- file.path(pkg, "pkgdown", "assets", "receipt", part)
+    inst_dir <- file.path(pkg, "inst", "extdata", "receipt", part)
+    published <- list.files(pub_dir, recursive = TRUE)
+    installed <- list.files(inst_dir, pattern = paste0("^", part, "\\.csv$"), recursive = TRUE)
+    expect_setequal(published, installed)
+    expect_true(all(grepl(paste0("^v[0-9]+\\.[0-9]+\\.[0-9]+/", part, "\\.csv$"), published)),
+                info = part)
+    expect_true(paste0("v", current[[part]], "/", file) %in% published, info = part)
+    for (rel in published) {
+      expect_identical(readBin(file.path(pub_dir, rel), "raw", 1e6),
+                       readBin(file.path(inst_dir, rel), "raw", 1e6), info = rel)
+    }
+  }
+})
+
+# Every published version of the form, the register and the mapping has a changelog
+# entry, every entry names a published version, each register entry names a published
+# form version it covers, and the current register covers the current form.
+test_that("the receipt changelog has one entry per published version", {
+  pkg <- testthat::test_path("..", "..")
+  if (!file.exists(file.path(pkg, "_pkgdown.yml"))) {
+    testthat::skip("source tree not available (R CMD check)")
+  }
+  root <- file.path(pkg, "pkgdown", "assets", "receipt")
+  versions <- function(dir, file) {
+    sub("^v", "", dirname(list.files(dir, pattern = paste0("^", file, "$"), recursive = TRUE)))
+  }
+  published <- list(
+    form = versions(root, "schema.json"),
+    register = versions(file.path(root, "register"), "register.csv"),
+    mapping = versions(file.path(root, "mapping"), "mapping.csv")
+  )
+  published$form <- published$form[!grepl("/", published$form)]
+  log <- readLines(file.path(root, "CHANGELOG.md"), encoding = "UTF-8")
+  heads <- grep("^## ", log, value = TRUE)
+  entries <- unlist(lapply(names(published), function(p) paste(p, paste0("v", published[[p]]))))
+  named <- sub("^## ((form|register|mapping) v[0-9.]+)( .*)?$", "\\1", heads)
+  expect_false(anyDuplicated(named) > 0)
+  expect_setequal(named, entries)
+  for (h in which(startsWith(log, "## register "))) {
+    nxt <- c(which(startsWith(log, "## ")), length(log) + 1L)
+    body <- log[seq(h + 1L, min(nxt[nxt > h]) - 1L)]
+    covers <- regmatches(body, regexpr("covers form v[0-9]+\\.[0-9]+\\.[0-9]+", body))
+    expect_length(covers, 1L)
+    expect_true(sub("covers form v", "", covers) %in% published$form, info = log[h])
+  }
+  h <- which(startsWith(log, paste0("## register v", crate:::receipt_register_version(), " ")))
+  expect_length(h, 1L)
+  nxt <- c(which(startsWith(log, "## ")), length(log) + 1L)
+  body <- log[seq(h + 1L, min(nxt[nxt > h]) - 1L)]
+  covers <- regmatches(body, regexpr("covers form v[0-9]+\\.[0-9]+\\.[0-9]+", body))
+  expect_identical(sub("covers form v", "", covers), crate:::receipt_version())
+})
+
 test_that("the example receipt validates", {
   schema <- receipt_schema_path()
   ok <- receipt_valid(receipt_example(), schema)

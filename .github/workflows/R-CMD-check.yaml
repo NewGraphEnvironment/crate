@@ -52,9 +52,10 @@ jobs:
           upload-snapshots: true
           build_args: 'c("--no-manual")'
 
-      # A skip is invisible in a green tick. Six are expected under R CMD check, all
+      # A skip is invisible in a green tick. Nine are expected under R CMD check, all
       # because the test needs the source tree, which check does not have:
       #   - test-stac_schemas.R (5): "source tree not available (R CMD check)"
+      #   - test-crt_receipt_schema.R (3): the same reason (published copies, changelog)
       #   - test-crt_registry_integrity.R (1): "not running in the source tree"
       # Both run in full in the last step. Any other reason is new and was chosen by
       # nobody, so it gets a warning annotation on the run summary: visible without
@@ -105,7 +106,7 @@ jobs:
             }
           }
           if (!length(reasons)) {
-            cat("::warning::No skip block in", length(outs), ".Rout file(s); six",
+            cat("::warning::No skip block in", length(outs), ".Rout file(s); nine",
                 "source-tree skips are expected. Read the check log.\n")
           }
           for (r in setdiff(reasons, known)) {

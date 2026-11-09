@@ -37,9 +37,11 @@ A receipt, as a list, invisibly when \code{path} is given. Compare it with
 \description{
 Reads a \code{manifest.json} or \code{provenance.json} written before its package moved to
 receipts, through the receipt mapping table
-(\code{inst/extdata/receipt/mapping.csv}), so existing records stay readable in the
-receipt's keys while writers converge forward, each when it is next touched
-(crate#43).
+(\code{inst/extdata/receipt/mapping/v1.0.0/mapping.csv}, published at
+\verb{https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv}),
+so existing records stay readable in the receipt's keys while writers converge
+forward, each when it is next touched (crate#43). The mapping is versioned on its own
+(crate#58): a row change is a new mapping version, and never moves the receipt's form.
 }
 \details{
 A migrated receipt has no recipe identity: an older record lacks fields a recipe

@@ -1,6 +1,9 @@
 # data-raw/receipt_vectors.R
 #
-# Writes the receipt test vectors to inst/extdata/receipt/vectors/v1.0.0/ (#43).
+# Writes the receipt test vectors (#43): the hashing vectors to
+# inst/extdata/receipt/vectors/v1.0.0/, versioned with the receipt form, and compare.json
+# to inst/extdata/receipt/register/v1.0.0/, versioned with the register whose actions it
+# records (#58).
 #
 # The vectors are the contract's executable half: every implementation of the receipt
 # (crate in R, stacs in Python, anything else) runs the same files and must produce
@@ -9,9 +12,10 @@
 # recomputes them with Python's rfc8785 and an independent implementation of the table
 # canonical form.
 #
-# A released vector set is frozen with its schema version: change a vector only by
-# adding a new version directory. Re-running this script must leave the files byte for
-# byte as committed, which the vectors test checks for the expected values.
+# A released vector set is frozen with its version (the form's, or for compare.json the
+# register's): change a vector only by adding a new version directory. Re-running this
+# script must leave the files byte for byte as committed, which the vectors test checks
+# for the expected values.
 #
 # Formats (all files UTF-8 JSON, one array of cases each):
 #
@@ -36,7 +40,7 @@
 
 devtools::load_all(quiet = TRUE)
 
-out_dir <- file.path("inst", "extdata", "receipt", "vectors", "v1.0.0")
+out_dir <- file.path("inst", "extdata", "receipt", "vectors", paste0("v", crate:::receipt_version()))
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 bits_of <- function(x) {
@@ -52,11 +56,23 @@ from_bits <- function(hex) {
   }, 0, USE.NAMES = FALSE)
 }
 
-write_vectors <- function(cases, file) {
-  path <- file.path(out_dir, file)
+register_dir <- file.path("inst", "extdata", "receipt", "register",
+                          paste0("v", crate:::receipt_register_version()))
+
+# A released file is never rewritten: a regeneration that would change its bytes stops
+# here, so a code change that moves an expected value needs a new version directory (a
+# new version constant), not an edit (#58).
+write_vectors <- function(cases, file, dir = out_dir) {
+  path <- file.path(dir, file)
   txt <- jsonlite::toJSON(cases, auto_unbox = TRUE, pretty = TRUE, null = "null",
                           na = "null", digits = NA)
-  writeLines(enc2utf8(as.character(txt)), path, useBytes = TRUE)
+  new <- tempfile(fileext = ".json")
+  writeLines(enc2utf8(as.character(txt)), new, useBytes = TRUE)
+  if (file.exists(path) && !identical(unname(tools::md5sum(path)), unname(tools::md5sum(new)))) {
+    stop(path, " is released and this run would change it. Add a version directory ",
+         "(bump the version constant) instead of rewriting a released file.", call. = FALSE)
+  }
+  file.copy(new, path, overwrite = TRUE)
   message("wrote ", path, " (", length(cases), " cases)")
 }
 
@@ -274,4 +290,4 @@ compare <- list(
   pair("fingerprints differ, receipts only", b1, moved_fingerprint),
   pair("a migrated receipt", b1, migrated)
 )
-write_vectors(compare, "compare.json")
+write_vectors(compare, "compare.json", dir = register_dir)

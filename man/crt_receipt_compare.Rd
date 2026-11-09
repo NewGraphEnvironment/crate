@@ -21,7 +21,10 @@ A list of class \code{crt_receipt_comparison}: \code{verdict}; \code{mode}, \cod
 or \code{"bytes"}; and \code{differences}, a tibble with one row per field that differed:
 \code{side} (\code{output}, \code{recipe}, \code{result} or \code{context}), \code{field}, \code{action} (\code{refuse},
 \code{warn}, \code{record}, or \code{within} for a difference inside its tolerance), and
-\code{detail}.
+\code{detail}; \code{register}, the version of the register the verdict was judged under;
+and \code{overrides}, the action the declaration in \code{keys} gave each field whose action
+it changed, named by field (empty when it changed none). It lists every such field,
+whether or not that field differed in this comparison.
 }
 \description{
 Judges a rebuild against its reference copy and answers with one of three
@@ -36,11 +39,18 @@ the tolerance the output declares.
 }
 
 What a difference in each field does comes from the receipt register
-(\code{inst/extdata/receipt/register.csv}), one row per field: \code{refuse} makes the
+(\code{inst/extdata/receipt/register/v1.0.0/register.csv}, published at
+\verb{https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv}),
+one row per field: \code{refuse} makes the
 verdict \code{different}, \code{warn} is reported without changing it, and \code{record} is
 listed only. Every recipe field refuses, because \code{recipe_id} covers it; every
 context field is recorded, because the machine and the toolchain are never part
 of an identity.
+
+A verdict is a function of the register's rows, so the register is versioned on its
+own (crate#58) and every comparison names the version it was judged under. A row
+change is a new register version; it never moves the version a receipt carries, which
+is its form's.
 }
 \section{Receipts or bytes}{
 

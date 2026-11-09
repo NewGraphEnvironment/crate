@@ -5,8 +5,15 @@ vectors_dir <- function() {
   system.file("extdata", "receipt", "vectors", "v1.0.0", package = "crate", mustWork = TRUE)
 }
 
+# compare.json tests the register, so it is versioned with the register, not the form (#58).
+register_dir <- function() {
+  system.file("extdata", "receipt", "register", paste0("v", crate:::receipt_register_version()),
+              package = "crate", mustWork = TRUE)
+}
+
 read_vectors <- function(file) {
-  jsonlite::read_json(file.path(vectors_dir(), file), simplifyVector = FALSE)
+  dir <- if (file == "compare.json") register_dir() else vectors_dir()
+  jsonlite::read_json(file.path(dir, file), simplifyVector = FALSE)
 }
 
 vector_bits <- function(hex) {
@@ -41,8 +48,38 @@ decode_table <- function(tbl) {
 # A runner per file, so a vector file added with no runner fails here.
 test_that("every vector file has a runner", {
   expect_setequal(list.files(vectors_dir()),
-                  c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json",
-                    "compare.json"))
+                  c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json"))
+  expect_setequal(list.files(register_dir()), c("README.md", "register.csv", "compare.json"))
+})
+
+# Released files never change (pkgdown/assets/receipt/CHANGELOG.md). A test that runs
+# them against crate's own output cannot see an edit made together with the code change
+# that moved them, so each file's bytes are pinned here, and a new version directory adds
+# its rows (#58). These pins live in the same tree as the files, so they are the backstop
+# for R CMD check only: the pkgdown workflow compares the same files with the first
+# release tag that holds each, which a commit cannot edit. A contract file is any file in
+# inst/extdata/receipt/<part>/vX.Y.Z/ except its README.md. A mismatch here means a
+# released file changed: restore it, never update its pin.
+test_that("every released contract file has the bytes it was released with", {
+  released <- c(
+    "schema/v1.0.0/schema.json" = "c13454ce8617b10257b3f3118c16f88d1604107fe832728768c91e6041b0ed74",
+    "vectors/v1.0.0/fingerprint.json" = "e78889f39885007cc4073f5cad3d608bf80ce3aa647db0d3b72294ec36d5e806",
+    "vectors/v1.0.0/jcs.json" = "e1cf99f542e8df07baa78f4d0147c83d37807514710b265dfe0ae774d3c84cd3",
+    "vectors/v1.0.0/numbers.json" = "5f5c146d4fdd4534e0f84af056a2104fecedcf36426e7ff4cfb27bdc16938a7a",
+    "vectors/v1.0.0/recipe_id.json" = "3dd279efb59158aa4591f6f619d6ecb273c9e7b104b716dd479ba9229b212e96",
+    "register/v1.0.0/compare.json" = "916f30136c42ce823d55d560138cb6860ab28f0d1bb314a54433c858ac53bc27",
+    "register/v1.0.0/register.csv" = "f60f171dbae277d3c5b54999d76b2a53d49e1e0cfba725ac36091a9fbd28b4d2",
+    "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef"
+  )
+  root <- system.file("extdata", "receipt", package = "crate", mustWork = TRUE)
+  on_disk <- list.files(root, recursive = TRUE)
+  on_disk <- on_disk[grepl("^[^/]+/v[0-9]+[.][0-9]+[.][0-9]+/[^/]+$", on_disk) &
+                       basename(on_disk) != "README.md"]
+  expect_setequal(on_disk, names(released))
+  for (f in names(released)) {
+    expect_identical(digest::digest(file = file.path(root, f), algo = "sha256"), released[[f]],
+                     info = f)
+  }
 })
 
 test_that("numbers.json: RFC 8785 number spelling", {
