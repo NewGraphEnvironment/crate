@@ -33,46 +33,62 @@ jobs:
       # The installed contract files -- the schema, the hashing vectors, the register with
       # its compare.json, the mapping -- are frozen per version like the published ones
       # (#58). A check against a copy in the same commit can be edited along with the file,
-      # so compare each with the latest release tag, the way the published files are
-      # compared with gh-pages. A released file that moved with its bytes intact is a
-      # warning (compare.json left vectors/ for register/ in #58); an edit or a deletion
-      # fails. Runs before R is set up, so it fails fast.
-      - name: Check released contract files against the latest release tag
+      # and the latest tag can be cut from an edited commit, so each file is compared with
+      # the FIRST release tag that holds it. Every released file stays at its path with its
+      # bytes, and nothing is added to a released version directory. A contract file is any
+      # file in a version directory, inst/extdata/receipt/<part>/vX.Y.Z/, except its
+      # README.md (prose, revised in place), whatever the part is. One exemption, by
+      # name: compare.json moved from vectors/v1.0.0/ to register/v1.0.0/ in #58, bytes
+      # intact. Runs before R is set up, so it fails fast.
+      - name: Check released contract files against the release tags
         run: |
           set -euo pipefail
           git fetch -q --depth=1 origin 'refs/tags/v*:refs/tags/v*'
-          tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
-          [ -n "$tag" ] || { echo "::error::no release tag to compare the contract files against"; exit 1; }
-          pat='^inst/extdata/receipt/(schema|vectors|register|mapping)/v[^/]+/[^/]+[.](json|csv)$'
-          released=$(git ls-tree -r --name-only "$tag" -- inst/extdata/receipt)
-          released=$(printf '%s\n' "$released" | grep -E "$pat" || true)
-          [ -n "$released" ] || { echo "::error::$tag holds no released contract files; the pattern no longer matches the layout"; exit 1; }
-          current=$(git ls-files -- inst/extdata/receipt)
-          current=$(printf '%s\n' "$current" | grep -E "$pat" || true)
-          bad=0
-          for rel in $released; do
-            if [ -e "$rel" ]; then
-              if git show "$tag:$rel" | cmp -s - "$rel"; then
-                echo "unchanged since $tag: $rel"
+          tags=$(git tag --list 'v*' --sort=v:refname)
+          [ -n "$tags" ] || { echo "::error::no release tag to compare the contract files against"; exit 1; }
+          pat='^inst/extdata/receipt/[^/]+/v[0-9]+[.][0-9]+[.][0-9]+/[^/]+$'
+          moved_from=inst/extdata/receipt/vectors/v1.0.0/compare.json
+          moved_to=inst/extdata/receipt/register/v1.0.0/compare.json
+          # "<tag> <path>" for every tag, oldest first; then the first tag per path.
+          all=""
+          for t in $tags; do
+            files=$(git ls-tree -r --name-only "$t" -- inst/extdata/receipt)
+            hits=$(printf '%s\n' "$files" | grep -E "$pat" | grep -v '/README[.]md$' || true)
+            [ -z "$hits" ] || all="$all$(printf '%s\n' "$hits" | sed "s|^|$t |")"$'\n'
+          done
+          first=$(printf '%s' "$all" | awk 'NF == 2 && !($2 in seen) { seen[$2] = 1; print }')
+          [ -n "$first" ] || { echo "::error::no release tag holds a contract file; the pattern no longer matches the layout"; exit 1; }
+          released=$(printf '%s\n' "$first" | awk '{ print $2 }')
+          bad=0 n=0
+          while read -r t f; do
+            n=$((n + 1))
+            want=$(git rev-parse "$t:$f")
+            if [ -e "$f" ]; then
+              if [ "$(git hash-object "$f")" = "$want" ]; then
+                echo "unchanged since $t: $f"
               else
-                echo "::error::$rel differs from $tag. A released version is never edited; add a version directory"
+                echo "::error::$f differs from its release in $t. A released version is never edited; add a version directory"
                 bad=1
               fi
+            elif [ "$f" = "$moved_from" ] && [ -e "$moved_to" ] && [ "$(git hash-object "$moved_to")" = "$want" ]; then
+              echo "moved, bytes unchanged since $t: $f -> $moved_to"
             else
-              want=$(git rev-parse "$tag:$rel")
-              to=""
-              for cand in $current; do
-                if [ "$(git hash-object "$cand")" = "$want" ]; then to=$cand; break; fi
-              done
-              if [ -n "$to" ]; then
-                echo "::warning::$rel (released in $tag) moved to $to with its bytes unchanged"
-              else
-                echo "::error::$rel was released in $tag and is gone. A released version stays"
-                bad=1
-              fi
+              echo "::error::$f was released in $t and is gone. A released version stays"
+              bad=1
+            fi
+          done <<< "$first"
+          dirs=$(printf '%s\n' "$released" | sed 's|/[^/]*$||' | sort -u)
+          current=$(git ls-files -- inst/extdata/receipt)
+          current=$(printf '%s\n' "$current" | grep -E "$pat" | grep -v '/README[.]md$' || true)
+          for f in $current; do
+            d=${f%/*}
+            if printf '%s\n' "$dirs" | grep -qxF "$d" && ! printf '%s\n' "$released" | grep -qxF "$f"; then
+              echo "::error::$f was added to $d, a released version directory. Add a version directory instead"
+              bad=1
             fi
           done
           [ "$bad" -eq 0 ]
+          echo "$n released contract file(s) checked"
 
       - uses: r-lib/actions/setup-pandoc@v2
 

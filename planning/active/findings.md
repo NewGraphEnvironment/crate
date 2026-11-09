@@ -92,3 +92,23 @@ Enumeration of every frozen file in the contract and its independent reference (
 | `inst/extdata/receipt/mapping/v*/mapping.csv` | latest release tag once released |
 
 The one gap is inherent: register.csv and mapping.csv v1.0.0 are first released by this PR, so no deploy or tag holds them at their new paths yet. Their bytes equal the unversioned files at v0.12.0 through v0.14.1 (blob shas checked, and by round 3). Not frozen by design: READMEs and CHANGELOGs (prose, revised in place).
+
+## Code-check round 4: defects inside round 3's fix, and the terminal enumeration
+
+Round 4 found three defects in round 3's tag check, all the same mechanism (a reference or a population set by hand where the claim was written): a generic move exemption, no check on files added to a released directory, and a "latest tag" reference that the next release could reset to edited bytes. The fix compares each file with the FIRST tag holding it (every released file has had one blob since v0.12.0, measured across all 19 tags), exempts only the named compare.json pair, checks released directories' file lists, and takes the frozen set from the layout (any file in `inst/extdata/receipt/<part>/vX.Y.Z/` except README.md) instead of a hand list of parts and extensions. The in-package pins follow the same rule and now include the schema (its pin equals its bytes at v0.12.0).
+
+Enumeration of every way a frozen contract file can change, with its guard and the mutation that proved it (isolated scratch clones; step script extracted from the YAML):
+
+| change | guard | mutation | result |
+|---|---|---|---|
+| edited in place | first-tag compare | numbers.json; schema; register.csv after a release | rc=1 each |
+| edited, then a new tag cut | first-tag reference | numbers.json edited and tagged v0.15.0 | rc=1 |
+| edited together with its in-tree pin | tag compare (not in-tree) | compare.json + pin (round 3) | rc=1 |
+| deleted | gone check | jcs.json | rc=1 |
+| moved within or across parts | only the named pair exempt | jcs.json to vectors/v2.0.0; schema to mapping/v9.9.9; mapping.csv to v1.0.1 | rc=1 each |
+| the exempt move, bytes edited | byte check on the target | compare.json edited at register/v1.0.0 | rc=1 |
+| file added to a released directory | file-list check | extra.json, extra.yaml in vectors/v1.0.0; extra.json in register/v1.0.0 after a release | rc=1 each |
+| a new part released, then edited | layout-derived pattern | stac/v1.0.0/stac.json | rc=1 |
+| README in a released directory edited | prose, not frozen (by design) | vectors/v1.0.0/README.md | rc=0 |
+| nothing changed | | branch; simulated release | rc=0 |
+| published copy diverges from gh-pages | pkgdown freeze gate (Phase 3) | edited, dropped, not reaching the site | rc=1 each |

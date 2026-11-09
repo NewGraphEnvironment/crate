@@ -56,11 +56,13 @@ test_that("every vector file has a runner", {
 # them against crate's own output cannot see an edit made together with the code change
 # that moved them, so each file's bytes are pinned here, and a new version directory adds
 # its rows (#58). These pins live in the same tree as the files, so they are the backstop
-# for R CMD check only: the pkgdown workflow compares the same files with the latest
-# release tag, which a commit cannot edit. A mismatch here means a released file changed:
-# restore it, never update its pin.
+# for R CMD check only: the pkgdown workflow compares the same files with the first
+# release tag that holds each, which a commit cannot edit. A contract file is any file in
+# inst/extdata/receipt/<part>/vX.Y.Z/ except its README.md. A mismatch here means a
+# released file changed: restore it, never update its pin.
 test_that("every released contract file has the bytes it was released with", {
   released <- c(
+    "schema/v1.0.0/schema.json" = "c13454ce8617b10257b3f3118c16f88d1604107fe832728768c91e6041b0ed74",
     "vectors/v1.0.0/fingerprint.json" = "e78889f39885007cc4073f5cad3d608bf80ce3aa647db0d3b72294ec36d5e806",
     "vectors/v1.0.0/jcs.json" = "e1cf99f542e8df07baa78f4d0147c83d37807514710b265dfe0ae774d3c84cd3",
     "vectors/v1.0.0/numbers.json" = "5f5c146d4fdd4534e0f84af056a2104fecedcf36426e7ff4cfb27bdc16938a7a",
@@ -70,8 +72,9 @@ test_that("every released contract file has the bytes it was released with", {
     "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef"
   )
   root <- system.file("extdata", "receipt", package = "crate", mustWork = TRUE)
-  on_disk <- list.files(root, pattern = "[.](json|csv)$", recursive = TRUE)
-  on_disk <- on_disk[grepl("^(vectors|register|mapping)/v[^/]+/[^/]+$", on_disk)]
+  on_disk <- list.files(root, recursive = TRUE)
+  on_disk <- on_disk[grepl("^[^/]+/v[0-9]+[.][0-9]+[.][0-9]+/[^/]+$", on_disk) &
+                       basename(on_disk) != "README.md"]
   expect_setequal(on_disk, names(released))
   for (f in names(released)) {
     expect_identical(digest::digest(file = file.path(root, f), algo = "sha256"), released[[f]],
