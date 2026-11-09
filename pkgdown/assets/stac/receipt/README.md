@@ -6,7 +6,7 @@
 - **Scope:** Item, Asset, Collection
 - **Owner:** New Graph Environment
 
-The identity fields of an output's provenance receipt ([crate#43](https://github.com/NewGraphEnvironment/crate/issues/43)) that no published STAC extension covers. The receipt itself, `receipt.json`, is published beside the item as an asset with role `metadata`; these fields mirror its identity into the item so a STAC client or a pgstac queryable can read it without fetching the receipt. A receipt field that has a standard STAC home uses it: a part's SHA-256 is `file:checksum` (multihash `1220…`), its size `file:size`, the producing software `processing:software`, and the build time `processing:datetime`. crate's receipt mapping table (`inst/extdata/receipt/mapping.csv`) lists each pairing.
+The identity fields of an output's provenance receipt ([crate#43](https://github.com/NewGraphEnvironment/crate/issues/43)) that no published STAC extension covers. The receipt itself, `receipt.json`, is published beside the item as an asset with role `metadata`; these fields mirror its identity into the item so a STAC client or a pgstac queryable can read it without fetching the receipt. A receipt field that has a standard STAC home uses it: a part's SHA-256 is `file:checksum` (multihash `1220…`), its size `file:size`, the producing software `processing:software`, and the build time `processing:datetime`. crate's receipt mapping table lists each pairing: [mapping v1.0.0](https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv), installed with crate as `inst/extdata/receipt/mapping/v1.0.0/mapping.csv`.
 
 - [JSON Schema](v1.0.0/schema.json)
 - [Example item](examples/item.json)
