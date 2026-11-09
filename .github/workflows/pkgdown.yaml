@@ -30,6 +30,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The installed contract files -- the schema, the hashing vectors, the register with
+      # its compare.json, the mapping -- are frozen per version like the published ones
+      # (#58). A check against a copy in the same commit can be edited along with the file,
+      # so compare each with the latest release tag, the way the published files are
+      # compared with gh-pages. A released file that moved with its bytes intact is a
+      # warning (compare.json left vectors/ for register/ in #58); an edit or a deletion
+      # fails. Runs before R is set up, so it fails fast.
+      - name: Check released contract files against the latest release tag
+        run: |
+          set -euo pipefail
+          git fetch -q --depth=1 origin 'refs/tags/v*:refs/tags/v*'
+          tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          [ -n "$tag" ] || { echo "::error::no release tag to compare the contract files against"; exit 1; }
+          pat='^inst/extdata/receipt/(schema|vectors|register|mapping)/v[^/]+/[^/]+[.](json|csv)$'
+          released=$(git ls-tree -r --name-only "$tag" -- inst/extdata/receipt)
+          released=$(printf '%s\n' "$released" | grep -E "$pat" || true)
+          [ -n "$released" ] || { echo "::error::$tag holds no released contract files; the pattern no longer matches the layout"; exit 1; }
+          current=$(git ls-files -- inst/extdata/receipt)
+          current=$(printf '%s\n' "$current" | grep -E "$pat" || true)
+          bad=0
+          for rel in $released; do
+            if [ -e "$rel" ]; then
+              if git show "$tag:$rel" | cmp -s - "$rel"; then
+                echo "unchanged since $tag: $rel"
+              else
+                echo "::error::$rel differs from $tag. A released version is never edited; add a version directory"
+                bad=1
+              fi
+            else
+              want=$(git rev-parse "$tag:$rel")
+              to=""
+              for cand in $current; do
+                if [ "$(git hash-object "$cand")" = "$want" ]; then to=$cand; break; fi
+              done
+              if [ -n "$to" ]; then
+                echo "::warning::$rel (released in $tag) moved to $to with its bytes unchanged"
+              else
+                echo "::error::$rel was released in $tag and is gone. A released version stays"
+                bad=1
+              fi
+            fi
+          done
+          [ "$bad" -eq 0 ]
+
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2

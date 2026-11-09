@@ -74,3 +74,21 @@ Freeze gate (pkgdown.yaml) in a scratch repo against gh-pages f7dbbbc: clean rc=
 | "covers form v1.0.0 only." (correct wording) | schema: 0 failing |
 | current register covers wrong form | schema: 1 failing |
 | code change moves a verdict, then `data-raw/receipt_vectors.R` | 1 refusal, 0 inst files changed |
+
+## Code-check round 3: a defect inside round 2's fix, and the enumeration
+
+Round 3 found that round 2's SHA-256 pins live in the same tree as the files they pin, so one commit can edit both (mechanism: a frozen-file rule checked only against a reference in the same commit). Fix: a pkgdown workflow step compares every released contract file with the latest release tag; the pins stay as the R CMD check backstop. Mutations (fresh worktrees, step script extracted from the YAML): moved compare.json edited rc=1; numbers.json edited rc=1; jcs.json gone rc=1; installed schema edited rc=1; compare.json edited together with its pin rc=1; unmutated branch rc=0 with one move warning.
+
+Enumeration of every frozen file in the contract and its independent reference (one outside the commit under review):
+
+| frozen file | independent reference |
+|---|---|
+| `pkgdown/assets/stac/*/v*/schema.json` | gh-pages (freeze gate) |
+| `pkgdown/assets/receipt/v*/schema.json` | gh-pages (freeze gate) |
+| `pkgdown/assets/receipt/{register,mapping}/v*/*.csv` | gh-pages (freeze gate), from their first deploy |
+| `inst/extdata/receipt/schema/v*/schema.json` | latest release tag (new step); also byte-identical to the published copy (test) |
+| `inst/extdata/receipt/vectors/v*/*.json` | latest release tag (new step) |
+| `inst/extdata/receipt/register/v*/{register.csv,compare.json}` | latest release tag once released; compare.json now via its move from `vectors/` (bytes equal v0.14.1) |
+| `inst/extdata/receipt/mapping/v*/mapping.csv` | latest release tag once released |
+
+The one gap is inherent: register.csv and mapping.csv v1.0.0 are first released by this PR, so no deploy or tag holds them at their new paths yet. Their bytes equal the unversioned files at v0.12.0 through v0.14.1 (blob shas checked, and by round 3). Not frozen by design: READMEs and CHANGELOGs (prose, revised in place).

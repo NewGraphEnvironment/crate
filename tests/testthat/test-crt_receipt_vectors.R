@@ -54,8 +54,11 @@ test_that("every vector file has a runner", {
 
 # Released files never change (pkgdown/assets/receipt/CHANGELOG.md). A test that runs
 # them against crate's own output cannot see an edit made together with the code change
-# that moved them, so each released file's bytes are pinned here, and a new version
-# directory adds its rows (#58).
+# that moved them, so each file's bytes are pinned here, and a new version directory adds
+# its rows (#58). These pins live in the same tree as the files, so they are the backstop
+# for R CMD check only: the pkgdown workflow compares the same files with the latest
+# release tag, which a commit cannot edit. A mismatch here means a released file changed:
+# restore it, never update its pin.
 test_that("every released contract file has the bytes it was released with", {
   released <- c(
     "vectors/v1.0.0/fingerprint.json" = "e78889f39885007cc4073f5cad3d608bf80ce3aa647db0d3b72294ec36d5e806",
