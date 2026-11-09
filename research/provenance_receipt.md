@@ -3,6 +3,8 @@
 crate#43. The design of `receipt.json`, kept here and revised in place while the branch builds it.
 It becomes the vignette (`vignettes/receipt.Rmd`) once the R API is stable.
 
+**Verified:** 2026-11-09 (versioning, crate#58) · **Issues:** crate#43, crate#58
+
 ## Why
 
 Every package and catalogue that publishes an output records how it was made, each in its own
@@ -183,6 +185,25 @@ still lists each recipe field, as `refuse`, so the report names the field, and i
 none is anything else. Result fields refuse unless within tolerance. `warn` fields are reported
 without changing the verdict (`output.receipt_version`, `output.schema`). `record` fields are listed only: all of `context`.
 
+**A receipt's version is its form's; the register and the mapping are versioned on their own**
+(crate#58). A verdict is a function of the register's rows and a migrated receipt of the mapping's,
+so each is frozen under its own version directory (`inst/extdata/receipt/register/v1.0.0/`,
+`mapping/v1.0.0/`) and published at the same path under the site's `receipt/`. The number a
+receipt carries in `output.receipt_version` answers what fields it has, so a register or mapping
+change never moves it: tying the register to it would make a one-row action change a new form,
+and `crt_receipt_read()` reads only the current form, so every receipt already written would stop
+reading. Two receipts of one shape must not `warn` at each other because the rulebook moved
+between them. The comparison names the register version it judged under, and the declared action
+of each field a package overrode. A register version covers one form version (a form change brings
+a register change; not the reverse). `compare.json` records the register's actions, so it moved
+from the form's vectors to the register's directory; the four hashing vector files stay with the
+form. The rules, including that a code change moving an expected verdict is a new register
+version, are in `pkgdown/assets/receipt/CHANGELOG.md`.
+
+Not yet decided: reading older form versions in `crt_receipt_read()`, and recording the mapping
+version on a migrated receipt. Both need the first form change (v1.1.0), and they go together:
+the bump before the reader would make every published v1.0.0 receipt unreadable.
+
 **Only plain values are serialized; every other R class is refused.** Lists, character, double,
 integer and logical vectors, factors (as their labels) and `I()`; a table's columns may also be
 `Date` or `POSIXct`. Any other class or attribute (octmode, hexmode, `ts`, a `units` attribute, S4,
@@ -214,7 +235,7 @@ settings), so a migrated receipt sets `recipe_id` to `null` and `output.migrated
 source format, and the comparison reports `recipe: unknown` rather than inventing an identity.
 
 **The mapping table covers what migrate reads, not the whole census.** The census holds 887
-fields in 227 record formats across 26 repos. `inst/extdata/receipt/mapping.csv` maps every
+fields in 227 record formats across 26 repos. `inst/extdata/receipt/mapping/v1.0.0/mapping.csv` maps every
 field of the formats `crt_receipt_migrate()` reads (link's `manifest.json`, floodplains'
 `provenance.json`), STAC's keys (`file:checksum`, `file:size`, `processing:software`,
 `processing:datetime`) beside the receipt keys they mirror, and the names most repos share
@@ -284,9 +305,11 @@ Without the `km` tolerance the same pair is `different`, naming
 ## Test vectors
 
 Committed under `inst/extdata/receipt/vectors/v1.0.0/` and versioned with the schema: JCS inputs
-with their exact bytes, recipes with their `recipe_id`, tables with their fingerprint, and receipt
-pairs with their verdict. crate's tests run every file, and stacs' CI runs the same files at a
-pinned crate tag.
+with their exact bytes, recipes with their `recipe_id`, and tables with their fingerprint. Receipt
+pairs with their verdict test the register, so they are in
+`inst/extdata/receipt/register/v1.0.0/compare.json` (crate#58; moved byte-identical, the one edit
+to a frozen vector directory, whose hashing files did not change). crate's tests run every file,
+and stacs' CI runs the same files at a pinned crate tag.
 
 ## Not in v1
 

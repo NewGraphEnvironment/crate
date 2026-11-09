@@ -45,3 +45,20 @@ Found while implementing the contract in Python: https://github.com/NewGraphEnvi
 
 | Error | Resolution |
 |-------|------------|
+
+## Mutation table (2026-11-09, each in a fresh worktree of c6f7eff)
+
+| mutation | test file | failing tests |
+|---|---|---|
+| none (baseline) | schema | 0 |
+| published register row edited | schema | 1 |
+| changelog register entry removed | schema | 1 |
+| register entry names no form | schema | 1 |
+| changelog names an unpublished version | schema | 1 |
+| extra published version with no installed copy | schema | 2 |
+| current mapping version points at no directory | schema | 1 |
+| overrides keep restated actions | compare | 1 |
+| print drops the register | compare | 2 |
+| compare.json back in the vectors dir | vectors | 2 |
+
+Freeze gate (pkgdown.yaml) in a scratch repo against gh-pages f7dbbbc: clean rc=0; published and unchanged rc=0; edited release rc=1; dropped release rc=1; copy not reaching the site rc=1.

@@ -54,7 +54,7 @@ test_that("the worked case is equivalent, and names what moved", {
 test_that("a comparison names the register version it was judged under", {
   x <- crt_receipt_compare(wc_dir("build_1"), wc_dir("build_2"))
   expect_identical(x$register, "1.0.0")
-  expect_identical(x$overrides, character())
+  expect_identical(x$overrides, stats::setNames(character(), character()))
   expect_output(print(x), "^equivalent \\(receipts only; register v1\\.0\\.0\\)")
 })
 
@@ -237,12 +237,12 @@ test_that("a declaration's register changes what a difference does outside the r
   writeLines(c("receipt_keys: 1", "output: link_evidence", "register:", "  output.schema: refuse"), yml)
   x <- crt_receipt_compare(a, b, keys = crt_receipt_keys(yml))
   expect_identical(x$verdict, "different")
-  expect_identical(x$overrides, "output.schema")
+  expect_identical(x$overrides, c(output.schema = "refuse"))
   expect_output(print(x), "register v1\\.0\\.0, 1 field overridden by the package's declaration\\)")
   # Restating the register's own action is not an override.
   writeLines(c("receipt_keys: 1", "output: link_evidence", "register:", "  output.schema: warn"), yml)
   x <- crt_receipt_compare(a, b, keys = crt_receipt_keys(yml))
-  expect_identical(x$overrides, character())
+  expect_identical(x$overrides, stats::setNames(character(), character()))
   expect_output(print(x), "register v1\\.0\\.0\\)")
   writeLines(c("receipt_keys: 1", "output: link_evidence", "register:", "  output.bogus: refuse"), yml)
   expect_error(crt_receipt_compare(a, b, keys = crt_receipt_keys(yml)), "does not have|not have")
@@ -259,14 +259,17 @@ test_that("it refuses arguments it cannot compare", {
 
 # The current register, by its versioned path (#58).
 register <- function() {
-  utils::read.csv(system.file("extdata", "receipt", "register", "v1.0.0", "register.csv",
+  utils::read.csv(system.file("extdata", "receipt", "register",
+                              paste0("v", crate:::receipt_register_version()), "register.csv",
                               package = "crate", mustWork = TRUE), stringsAsFactors = FALSE)
 }
 
 # Every field path in the receipt schema: a keyed collection contributes its own path
 # (a key on one side only) and its children under `*`.
+# The fields of the current form, which the current register covers.
 schema_fields <- function() {
-  s <- jsonlite::read_json(system.file("extdata", "receipt", "schema", "v1.0.0", "schema.json",
+  s <- jsonlite::read_json(system.file("extdata", "receipt", "schema",
+                                       paste0("v", crate:::receipt_version()), "schema.json",
                                        package = "crate", mustWork = TRUE))
   deref <- function(node) {
     while (!is.null(node$`$ref`)) node <- s$definitions[[sub("^#/definitions/", "", node$`$ref`)]]

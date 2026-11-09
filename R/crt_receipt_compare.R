@@ -9,11 +9,18 @@
 #' * `different`: another recipe, or a result value past its tolerance.
 #'
 #' What a difference in each field does comes from the receipt register
-#' (`inst/extdata/receipt/register.csv`), one row per field: `refuse` makes the
+#' (`inst/extdata/receipt/register/v1.0.0/register.csv`, published at
+#' `https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv`),
+#' one row per field: `refuse` makes the
 #' verdict `different`, `warn` is reported without changing it, and `record` is
 #' listed only. Every recipe field refuses, because `recipe_id` covers it; every
 #' context field is recorded, because the machine and the toolchain are never part
 #' of an identity.
+#'
+#' A verdict is a function of the register's rows, so the register is versioned on its
+#' own (crate#58) and every comparison names the version it was judged under. A row
+#' change is a new register version; it never moves the version a receipt carries, which
+#' is its form's.
 #'
 #' @section Receipts or bytes:
 #' A comparison of receipts alone compares what the writers claimed. A table whose
@@ -39,7 +46,10 @@
 #'   or `"bytes"`; and `differences`, a tibble with one row per field that differed:
 #'   `side` (`output`, `recipe`, `result` or `context`), `field`, `action` (`refuse`,
 #'   `warn`, `record`, or `within` for a difference inside its tolerance), and
-#'   `detail`.
+#'   `detail`; `register`, the version of the register the verdict was judged under;
+#'   and `overrides`, the action the declaration in `keys` gave each field whose action
+#'   it changed, named by field (empty when it changed none). It lists every such field,
+#'   whether or not that field differed in this comparison.
 #'
 #' @examples
 #' wc <- system.file("extdata", "receipt", "examples", "worked_case", package = "crate")
@@ -189,22 +199,23 @@ print.crt_receipt_comparison <- function(x, ...) {
 }
 
 # The register, with a package's overrides applied.
-# `overrides` names the fields whose action the declaration changed; restating the
-# register's own action is not an override.
+# `overrides` is the declared action of each field whose action the declaration changed,
+# named by field; restating the register's own action is not an override.
 receipt_register <- function(keys = NULL) {
   path <- receipt_contract_file("register", receipt_register_version(), "register.csv")
   r <- utils::read.csv(path, stringsAsFactors = FALSE, encoding = "UTF-8")
-  overrides <- character()
+  overrides <- stats::setNames(character(), character())
   if (!is.null(keys) && nrow(keys$register)) {
     unknown <- setdiff(keys$register$field, r$field)
     if (length(unknown)) {
       cli::cli_abort("The declaration's {.field register} names fields the receipt does not have: {.val {unknown}}.")
     }
     i <- match(keys$register$field, r$field)
-    overrides <- r$field[i][r$action[i] != keys$register$action]
+    changed <- r$action[i] != keys$register$action
+    overrides <- stats::setNames(keys$register$action[changed], r$field[i][changed])
     r$action[i] <- keys$register$action
   }
-  attr(r, "overrides") <- sort(unique(overrides), method = "radix")
+  attr(r, "overrides") <- overrides[order(names(overrides), method = "radix")]
   r
 }
 

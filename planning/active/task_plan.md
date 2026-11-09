@@ -103,12 +103,12 @@ set; the existing schema test already requires installed == published).
 
 ## Phase 4: Docs
 
-- [ ] roxygen in `crt_receipt_compare.R` (`@return` gains `register`, `overrides`; path) and `crt_receipt_migrate.R`
-- [ ] `vignettes/receipt.Rmd`: register/mapping paths, the published URLs, the three version
+- [x] roxygen in `crt_receipt_compare.R` (`@return` gains `register`, `overrides`; path) and `crt_receipt_migrate.R`
+- [x] `vignettes/receipt.Rmd`: register/mapping paths, the published URLs, the three version
   numbers in one short paragraph, and where `compare.json` lives
 - [x] `vectors/v1.0.0/README.md` (drop the compare row, point to `register/v1.0.0/`); new `register/v1.0.0/README.md` (landed in Phase 2: the vector test's file set needs it)
-- [ ] `research/provenance_receipt.md`: the versioning decision; `CLAUDE.md` Status line
-- [ ] `devtools::document()`, `pkgdown::check_pkgdown()`
+- [x] `research/provenance_receipt.md`: the versioning decision; `CLAUDE.md` Status line
+- [x] `devtools::document()`, `pkgdown::check_pkgdown()`
 
 ## Phase 5: Cross-repo
 
@@ -116,6 +116,16 @@ set; the existing schema test already requires installed == published).
   receipt records its mapping version; link it from 58
 - [ ] File a stacs issue: register/mapping/compare.json moved; pin them by published version URL
   instead of tag + blob sha (stacs's tag pin keeps working until it re-vendors)
+
+## Review fixes (Plan review, planning/active/review-plan.md)
+
+- [x] Published-copy test calls internals as `crate:::` (the pkgdown step runs it with crate unattached; reproduced)
+- [x] `overrides` carries each field's declared action, named by field
+- [x] Version constants instead of a literal v1.0.0 in data-raw and the tests
+- [x] Changelog test: the current register covers the current form
+- [x] CHANGELOG rule: a code change that moves an expected verdict or a transform is a new version
+- [x] R-CMD-check expected skips: nine
+- [x] README pasted `print()` output and contract list; stale "planned" stacs claims in README, vignette, CLAUDE.md
 
 ## Owed at the end (reported, done after merge)
 

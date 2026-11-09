@@ -7,7 +7,8 @@ vectors_dir <- function() {
 
 # compare.json tests the register, so it is versioned with the register, not the form (#58).
 register_dir <- function() {
-  system.file("extdata", "receipt", "register", "v1.0.0", package = "crate", mustWork = TRUE)
+  system.file("extdata", "receipt", "register", paste0("v", crate:::receipt_register_version()),
+              package = "crate", mustWork = TRUE)
 }
 
 read_vectors <- function(file) {

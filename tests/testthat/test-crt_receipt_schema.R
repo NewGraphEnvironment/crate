@@ -68,7 +68,9 @@ test_that("the published register and mapping are byte-identical to the installe
   if (!file.exists(file.path(pkg, "_pkgdown.yml"))) {
     testthat::skip("source tree not available (R CMD check)")
   }
-  current <- c(register = receipt_register_version(), mapping = receipt_mapping_version())
+  # crate::: because the pkgdown workflow runs this file with test_file(), crate unattached.
+  current <- c(register = crate:::receipt_register_version(),
+               mapping = crate:::receipt_mapping_version())
   for (part in names(current)) {
     file <- paste0(part, ".csv")
     pub_dir <- file.path(pkg, "pkgdown", "assets", "receipt", part)
@@ -87,8 +89,8 @@ test_that("the published register and mapping are byte-identical to the installe
 })
 
 # Every published version of the form, the register and the mapping has a changelog
-# entry, every entry names a published version, and each register entry names a published
-# form version it covers.
+# entry, every entry names a published version, each register entry names a published
+# form version it covers, and the current register covers the current form.
 test_that("the receipt changelog has one entry per published version", {
   pkg <- testthat::test_path("..", "..")
   if (!file.exists(file.path(pkg, "_pkgdown.yml"))) {
@@ -115,6 +117,11 @@ test_that("the receipt changelog has one entry per published version", {
     expect_length(covers, 1L)
     expect_true(sub("covers form v", "", covers) %in% published$form, info = log[h])
   }
+  h <- which(startsWith(log, paste0("## register v", crate:::receipt_register_version(), " ")))
+  expect_length(h, 1L)
+  nxt <- c(which(startsWith(log, "## ")), length(log) + 1L)
+  body <- log[seq(h + 1L, min(nxt[nxt > h]) - 1L)]
+  expect_true(any(grepl(paste0("covers form v", crate:::receipt_version(), "[.]"), body, fixed = FALSE)))
 })
 
 test_that("the example receipt validates", {

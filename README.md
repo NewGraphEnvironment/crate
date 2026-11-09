@@ -107,7 +107,7 @@ One link build's evidence was built twice from the same code. The `access_check`
 
 ```r
 crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
-#> equivalent (receipts only)
+#> equivalent (receipts only; register v1.0.0)
 #>   within result.parts[access_check.csv].bytes: 124 vs 128; table access_check agrees
 #>   within result.parts[access_check.csv].sha256: "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2" vs "6801fb7bb092626441fd804d5ffbf8c4c05213ff18fa7c7ca524a9c2aa32f5e4"; table access_check agrees
 #>   within result.summary[km_total]: 47.3767792597 vs 47.376779259805; within 1e-06
@@ -117,7 +117,7 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"))
 
 `access_check.csv`'s bytes differ, but the receipt says that file holds the `access_check` table, whose fingerprint agrees under the `1e-9` tolerance on `km`; `km_total` differs within its `1e-6`; the run identifiers and times are context, recorded and never part of an identity.
 
-crate holds the contract in a form any language can implement: the [receipt schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json) (also installed with crate), RFC 8785 canonical JSON, the table fingerprint, and test vectors in [`inst/extdata/receipt/vectors/`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/receipt/vectors/v1.0.0/README.md). The R implementation is `crt_receipt_write()`, `crt_receipt_read()`, `crt_receipt_validate()`, `crt_receipt_compare()`, `crt_receipt_keys()`, `crt_receipt_migrate()` and `crt_table_fingerprint()`. A Python implementation for STAC catalogues, passing the same vectors, is planned in stacs ([stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). `vignette("receipt")` is the contract's reference.
+crate holds the contract in a form any language can implement: the [receipt schema](https://newgraphenvironment.github.io/crate/receipt/v1.0.0/schema.json) (also installed with crate), RFC 8785 canonical JSON, the table fingerprint, the [register](https://newgraphenvironment.github.io/crate/receipt/register/v1.0.0/register.csv) that decides what each difference does, the [mapping](https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv) from older records, and test vectors in [`inst/extdata/receipt/vectors/`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/extdata/receipt/vectors/v1.0.0/README.md). The R implementation is `crt_receipt_write()`, `crt_receipt_read()`, `crt_receipt_validate()`, `crt_receipt_compare()`, `crt_receipt_keys()`, `crt_receipt_migrate()` and `crt_table_fingerprint()`. stacs has a Python implementation for STAC catalogues that runs the same vectors ([stacs#12](https://github.com/NewGraphEnvironment/stacs/issues/12)). `vignette("receipt")` is the contract's reference.
 
 ## How reading works
 

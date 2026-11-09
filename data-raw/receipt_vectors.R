@@ -13,8 +13,9 @@
 # canonical form.
 #
 # A released vector set is frozen with its version (the form's, or for compare.json the
-# register's): change a vector only by adding a new version directory. Re-running this script must leave the files byte for
-# byte as committed, which the vectors test checks for the expected values.
+# register's): change a vector only by adding a new version directory. Re-running this
+# script must leave the files byte for byte as committed, which the vectors test checks
+# for the expected values.
 #
 # Formats (all files UTF-8 JSON, one array of cases each):
 #
@@ -39,7 +40,7 @@
 
 devtools::load_all(quiet = TRUE)
 
-out_dir <- file.path("inst", "extdata", "receipt", "vectors", "v1.0.0")
+out_dir <- file.path("inst", "extdata", "receipt", "vectors", paste0("v", crate:::receipt_version()))
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 bits_of <- function(x) {
@@ -55,7 +56,8 @@ from_bits <- function(hex) {
   }, 0, USE.NAMES = FALSE)
 }
 
-register_dir <- file.path("inst", "extdata", "receipt", "register", "v1.0.0")
+register_dir <- file.path("inst", "extdata", "receipt", "register",
+                          paste0("v", crate:::receipt_register_version()))
 
 write_vectors <- function(cases, file, dir = out_dir) {
   path <- file.path(dir, file)

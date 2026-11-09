@@ -133,12 +133,14 @@ test_that("it refuses what it cannot read", {
 })
 
 test_that("every mapping row points at a receipt field", {
-  m <- utils::read.csv(system.file("extdata", "receipt", "mapping", "v1.0.0", "mapping.csv",
+  m <- utils::read.csv(system.file("extdata", "receipt", "mapping",
+                                   paste0("v", crate:::receipt_mapping_version()), "mapping.csv",
                                    package = "crate", mustWork = TRUE),
                        stringsAsFactors = FALSE, na.strings = character())
   expect_identical(names(m), c("source_format", "source_field", "receipt_key", "transform", "stac_key", "note"))
   expect_false(anyDuplicated(paste(m$source_format, m$source_field)) > 0)
-  reg <- utils::read.csv(system.file("extdata", "receipt", "register", "v1.0.0", "register.csv",
+  reg <- utils::read.csv(system.file("extdata", "receipt", "register",
+                                     paste0("v", crate:::receipt_register_version()), "register.csv",
                                      package = "crate", mustWork = TRUE),
                          stringsAsFactors = FALSE)$field
   for (k in m$receipt_key) {

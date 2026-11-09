@@ -21,6 +21,11 @@ Rules:
   the form. A register or mapping change leaves the form alone, so it never moves the number
   a receipt carries.
 - **Each register version names the form version it covers.**
+- **A change in the code that reads a part is a change in that part.** A comparison's verdict
+  also depends on rules in code (when a fingerprint difference is `within`, what makes a recipe
+  unknown), and a migration on the mapping's transforms. A code change that moves any expected
+  value in a register version's `compare.json`, or changes what a mapping transform produces, is
+  a new register or mapping version, even when no row changes.
 
 ## register v1.0.0 (2026-11-09)
 
