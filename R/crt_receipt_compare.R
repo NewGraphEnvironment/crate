@@ -154,8 +154,8 @@ crt_receipt_compare <- function(a, b, tables = NULL, keys = NULL) {
     tol <- receipt_summary_tolerance(a, b, nm)
     va <- a$result$summary[[nm]]
     vb <- b$result$summary[[nm]]
-    # A receipt list from crt_receipt_write() holds NA where one read from disk holds
-    # NULL; both are null, and a null has no distance from anything.
+    # A receipt built in memory holds NA where one read from disk holds NULL; both are
+    # null, and a null has no distance from anything.
     num <- function(v) is.numeric(v) && length(v) == 1L && !is.na(v)
     if (!is.null(tol) && num(va) && num(vb) && abs(va - vb) <= tol) {
       d$action[i] <- "within"
@@ -352,9 +352,9 @@ receipt_reread_numeric <- function(df, tolerance) {
   df
 }
 
-# One value in two receipts, compared as the receipts hash it: a receipt returned by
-# crt_receipt_write() holds a tolerance of 1 as a double in the caller's order, the
-# same receipt read from disk as 1L in key order.
+# One value in two receipts, compared as the receipts hash it: a receipt built in memory
+# holds a tolerance of 1 as a double in the caller's order, the same receipt read from
+# disk as 1L in key order.
 receipt_same <- function(x, y) {
   identical(crt_receipt_jcs(x), crt_receipt_jcs(y))
 }

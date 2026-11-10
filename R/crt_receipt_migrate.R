@@ -2,8 +2,8 @@
 #'
 #' Reads a `manifest.json` or `provenance.json` written before its package moved to
 #' receipts, through the receipt mapping table
-#' (`inst/extdata/receipt/mapping/v1.0.0/mapping.csv`, published at
-#' `https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv`),
+#' (`inst/extdata/receipt/mapping/v1.1.0/mapping.csv`, published at
+#' `https://newgraphenvironment.github.io/crate/receipt/mapping/v1.1.0/mapping.csv`),
 #' so existing records stay readable in the receipt's keys while writers converge
 #' forward, each when it is next touched (crate#43). The mapping is versioned on its own
 #' (crate#58): a row change is a new mapping version, and never moves the receipt's form.

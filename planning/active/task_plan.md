@@ -90,10 +90,10 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
       in `findings.md`
 
 ## Phase 6: Docs and follow-on issues
-- [ ] `vignettes/receipt.Rmd`: a "STAC items" section (a `crt_receipt_stac()` example, what an
+- [x] `vignettes/receipt.Rmd`: a "STAC items" section (a `crt_receipt_stac()` example, what an
       unmatched part and an unmatched asset mean, the receipt asset's checksum), and the test-vector
       section names `mapping/v1.1.0/stac.json`
-- [ ] `CLAUDE.md`: add `crt_receipt_stac` to the receipt family, and mapping v1.1.0 to the status line
+- [x] `CLAUDE.md`: add `crt_receipt_stac` to the receipt family, and mapping v1.1.0 to the status line
 - [ ] File a knowledge issue: `crt_receipt_write()` now returns the digest, so read the receipt with
       `crt_receipt_read()` (4 call sites)
 - [ ] Edit the body of stacs#15 (re-vendor from versioned paths), or file a new stacs issue: vendor

@@ -32,3 +32,8 @@
 - Phase 5: the crosscheck recomputes `stac.json` independently (0 mismatches; planted mismatches
   caught); mutation shows the R runner guards omit-on-null and the unmatched-asset error; stacs
   agrees on 11 of 13 cases, and the 2 divergences are in findings for the stacs issue
+- Phase 6 docs: the vignette's "STAC items" section (renders; shows a migrated item without
+  `receipt:recipe_id`), the test-vector section names `stac.json`, and the stale mapping v1.0.0
+  mentions (review item 4: migrate roxygen, vignette, the STAC README, research) and the stale
+  comments (item 7, `crt_receipt_compare.R`) are fixed. The research file gains its provenance line
+  and drops `crt_receipt_stac()` from "Not in v1". CLAUDE.md names the function and `stac.json`
