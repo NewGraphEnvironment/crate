@@ -105,8 +105,8 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
 ## Validation
 - [x] Tests pass
 - [x] `/code-check` clean (once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] PWF checkboxes match landed work
+- [x] `/planning-archive` on completion
 
 How each change is proved:
 - `devtools::test()` (FAIL and ERROR both 0), `lintr::lint_package()` with no new lints against
