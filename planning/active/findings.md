@@ -120,3 +120,11 @@ Found while implementing the contract in Python: https://github.com/NewGraphEnvi
 
 | Error | Resolution |
 |-------|------------|
+
+## crt_receipt_stac() checks what it publishes, not the whole receipt (2026-11-10)
+
+The gate default was to validate against the form schema first. `crt_receipt_validate()` needs
+jsonvalidate (Suggests, V8 underneath), so that would make a Suggests package a requirement of
+the catalogue path. Instead it checks each value it mirrors: `recipe_id` and part `sha256` as 64
+lower-case hex, `context.time` as an ISO UTC time, a version as a non-empty string, `bytes` as a
+whole number of at least 0. Null in a file and NA in memory both count as absent.

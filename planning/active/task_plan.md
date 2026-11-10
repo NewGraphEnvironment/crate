@@ -61,13 +61,13 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
       `data-raw/receipt_examples.R`, tests, `vignettes/receipt.Rmd`
 
 ## Phase 3: `crt_receipt_stac()` (#59)
-- [ ] `R/crt_receipt_stac.R`: `crt_receipt_stac(receipt, assets = NULL, receipt_asset = NULL,
+- [x] `R/crt_receipt_stac.R`: `crt_receipt_stac(receipt, assets = NULL, receipt_asset = NULL,
       receipt_sha256 = NULL)` takes a receipt as a path or a list, like `crt_receipt_compare()`, and
       `assets` as a named character vector (asset key → href relative to the item). It returns
       `list(stac_extensions, properties, assets)`, with the extension URLs in the example item's
       order (file, processing, receipt) and only those whose fields are present. Runnable example on
       the worked case
-- [ ] `devtools::document()`; `pkgdown::check_pkgdown()` (`starts_with("crt_receipt_")` covers it)
+- [x] `devtools::document()`; `pkgdown::check_pkgdown()` (`starts_with("crt_receipt_")` covers it)
 
 ## Phase 4: Mapping v1.1.0 and `stac.json`
 - [ ] `inst/extdata/receipt/mapping/v1.1.0/mapping.csv`: the v1.0.0 rows, with notes stating

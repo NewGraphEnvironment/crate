@@ -14,3 +14,7 @@
 - Phase 2: `crt_receipt_write()` returns the SHA-256 of the bytes it wrote (hashed from the temp
   file before the rename), invisibly. Callers moved: the vignette, `data-raw/receipt_examples.R`,
   the roxygen example. `crt_receipt_migrate(path =)` still returns the receipt (not in scope)
+- Phase 3: `crt_receipt_stac()` in `R/crt_receipt_stac.R`; all 40 expectations of
+  `test-crt_receipt_stac.R` pass; example runs; `check_pkgdown()` clean. **Plan correction:** it does
+  not call `crt_receipt_validate()` first, because that needs jsonvalidate (Suggests, pulls V8), and
+  a catalogue builder should not need it. It checks each field it publishes instead, as stacs does
