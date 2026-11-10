@@ -265,6 +265,18 @@ the receipt as built in memory, which held `NA` where the file holds `null`; the
 so the digest that names it is the return value, and `crt_receipt_read()` gives back what was
 written.
 
+**What a reading checks, and how the vectors are made** (crate#59 review). A reading checks the
+values it publishes, the keys it publishes (a repository name, the receipt asset's key) and what
+decides them (`output.receipt_version`, `output.migrated_from` by its presence as the form schema's
+`if` reads it, `recipe.recipe_id`, `context.time`), and validates nothing else: a whole-receipt check
+is the form schema's. Absent and `null` are different states: an absent block is empty, a present
+`null` is refused. A refusal is a code, carried on R's condition (`crate_stac_refused`) and named in
+`stac.json`, so implementations are compared by code, never by message. The cases are generated,
+every path the mapping reads crossed with every state, and a test derives those paths from
+`mapping.csv` apart from the generator. Hand-written cases were the mechanism behind four review
+rounds of findings: each round found the cases narrower than the claim, including an enumeration
+read off the very code it checked.
+
 **One R implementation, one written contract** (*issue*). Producers that cannot call R implement
 the contract and pass the same test vectors: stacs (stacs#12) for the Python catalogues.
 
