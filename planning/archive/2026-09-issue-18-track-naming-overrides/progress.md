@@ -24,6 +24,6 @@
   sample and `schema_only` list gain `form_capture`), NEWS, CLAUDE.md status refresh +
   the reshape-don't-accrete rule, schemas README registry rule, YAML decision refs.
   `/code-check` round 4 on this diff
-- Phase 4: trap#28 (consumer changes + breakage inventory + pin bump), rfp#255
+- Phase 4: an internal issue (consumer changes + breakage inventory + pin bump), an internal issue
   (roxygen lags CSV), crate#18 body rewritten with a Decided section
 - Next: commit Phase 3+4, `/planning-archive`, `/gh-pr-push`

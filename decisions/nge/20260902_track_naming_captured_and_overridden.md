@@ -29,7 +29,7 @@ detect it from the frame alone; the reader must abort on it.
 
 ## Trigger
 
-rfp#186 added the four columns to the position-tracking layer it deploys
+An internal issue added the four columns to the position-tracking layer it deploys
 (`rfp_tracking_fields_add()`, `rfp_qgs_tracking_fields_add()`), so a crew can
 name a session in the field rather than reconstructing it off a map weeks later.
 Measured on a real project's layer: four sessions, three carrying a
@@ -183,9 +183,9 @@ still deferred for the reason given there: nothing reads it yet.
 
 - `schemas/nge/track_sessions.yaml`, `schemas/nge/track_annotations.yaml`
 - crate#18 — this decision
-- rfp#186 — the four fields, and the safety argument for adding them
+- An internal issue — the four fields, and the safety argument for adding them
 - `rfp/inst/lookups/rfp_tracking_fields.csv` — the field set's source of truth
-- trap#14 — where the annotation table came from
-- trap#28 — the consumer changes this decision requires
-- rfp#255 — the roxygen/lookup disagreement found on the way
+- An internal issue — where the annotation table came from
+- An internal issue — the consumer changes this decision requires
+- An internal issue — the roxygen/lookup disagreement found on the way
 - `20260824_track_canonical_two_tables.md` — the decision this amends

@@ -12,12 +12,12 @@ annotation table was seeded empty) showed almost nothing to break; that reasonin
 became the "reshape, don't accrete" rule in CLAUDE.md. Two things the plan review
 caught changed the contract: `crt_schema_conform()` leaves absent optional columns
 absent, so the *reader* must always emit all four or stacked snapshots drift; and
-trap pins `crate@v0.3.0`, so the consumer change is a follow-up (trap#28) gated on
+trap pins `crate@v0.3.0`, so the consumer change is a follow-up gated on
 a crate release. No R code changed — YAML, registry, tests, and prose only.
 
 ## Measurement
 rfp's shipped lookup carries six `track_type` values with `day log` as default;
-its roxygen (and the issue body quoting it) carried five with no default — rfp#255.
+its roxygen (and the issue body quoting it) carried five with no default — an internal issue.
 Restore-the-bug on both new guards: flipping one naming column to `required: true`
 refuses the plugin-shaped frame; renaming `track_type` in one YAML fails the
 parity test at the set-equality and type assertions. Suite 228 → 235 passing.

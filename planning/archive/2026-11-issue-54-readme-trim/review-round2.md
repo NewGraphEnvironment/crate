@@ -24,7 +24,7 @@
   - registry columns: inst/extdata/crate_registry.csv
 
   Only the heading in finding 2 failed.
-- **Ecosystem.** All ten rows match soul#416's decided table, including fly's softened row ("select photos that cover a study area"). flooded's and drift's READMEs still carry the old "optimal coverage", and soul#416 records that as known.
+- **Ecosystem.** All ten rows match an internal issue's decided table, including fly's softened row ("select photos that cover a study area"). flooded's and drift's READMEs still carry the old "optimal coverage", and an internal issue records that as known.
 - **Links.** decisions/README.md (new in inst/extdata/schemas/README.md) returns 200, and so do the reference anchors. CLAUDE.md is removed before the pkgdown deploy (`rm -f CLAUDE.md`, .github/workflows/pkgdown.yaml:71). `CLAUDE.html` 404s on the live site, so the CLAUDE.md edit does not publish.
 - **.Rbuildignore** covers `planning`, `pkgdown`, `CLAUDE.md`, `decisions` and `research`. The new vignette is a real vignette under `vignettes/` and builds offline.
 

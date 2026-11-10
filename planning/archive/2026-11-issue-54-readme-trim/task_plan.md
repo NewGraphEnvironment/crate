@@ -18,7 +18,7 @@ Our README convention: a README is the opening, a short example with its real ou
 
 ## Context
 
-After crate#52 (PR #53), `README.md` is 201 lines of tutorial, contributor guide and inventory. It lists 5 of the 14 entries `crt_files()` returns, prints the whole `crt_files()` tibble, gives a 25-line `crt_receipt_write()` call and a full function list, and describes work that has not shipped ("planned v0.1.x", "reserved future families", "planned in stacs"). That breaks soul's `conventions/readme.md`, which I read in full for this plan (soul#416 notes that #52's plan never did). The issue has no comments. Branch `54-readme-carries-a-tutorial-an-inventory-a` will come off origin/main at af8574b.
+After crate#52 (PR #53), `README.md` is 201 lines of tutorial, contributor guide and inventory. It lists 5 of the 14 entries `crt_files()` returns, prints the whole `crt_files()` tibble, gives a 25-line `crt_receipt_write()` call and a full function list, and describes work that has not shipped ("planned v0.1.x", "reserved future families", "planned in stacs"). That breaks soul's `conventions/readme.md`, which I read in full for this plan (an internal issue notes that #52's plan never did). The issue has no comments. Branch `54-readme-carries-a-tutorial-an-inventory-a` will come off origin/main at af8574b.
 
 What I found while exploring, which shaped the phases:
 - `CLAUDE.md` already has a "Naming convention" section above the soul marker. It is stale: it is missing the public `crt_schema_*` and `crt_receipt_*` families, and it has its own reserved line. `CLAUDE.md:27` points at the README's "How reading works" and "Naming convention".
@@ -29,7 +29,7 @@ What I found while exploring, which shaped the phases:
 
 ## Decided at the gate
 
-- **Ecosystem** (user, 2026-11-08): the nine rows soul#416 decided on 2026-10-15, worded exactly as decided (fresh, link, wet, flooded, drift, floodplains, stac_floodplains_bc, cd, fly), plus a bold crate row. All link `https://www.newgraphenvironment.com/<repo>/`. gq, fpr and ngr are dropped.
+- **Ecosystem** (user, 2026-11-08): the nine rows an internal issue decided on 2026-10-15, worded exactly as decided (fresh, link, wet, flooded, drift, floodplains, stac_floodplains_bc, cd, fly), plus a bold crate row. All link `https://www.newgraphenvironment.com/<repo>/`. gq, fpr and ngr are dropped.
 - **Reserved names** (user, 2026-11-08): dropped everywhere. That means the README's list, CLAUDE.md's "Reserved future families" line, and the Status paragraph's "`crt_schema_version` / `crt_schema_migrate` reserved for future".
 - **Tagline and About** keep today's tagline: "Canonical schemas for data that changes shape, and provenance receipts for what we build from it." The GitHub About is set to the same text.
 - **Title** changes to "Canonical Schemas for Changing Data and Provenance Receipts" (58 characters). The current Title, set in #45, leaves receipts out.

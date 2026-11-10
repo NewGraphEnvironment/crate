@@ -78,7 +78,7 @@ and none of the four. The schema is what is out of date.
 ## Phase 3: Decision entry, README, NEWS, CLAUDE.md
 
 - [x] `decisions/nge/20260902_track_naming_captured_and_overridden.md` in the
-      README's format: Decision; Trigger (rfp#186, four sessions measured, three named);
+      README's format: Decision; Trigger (an internal issue, four sessions measured, three named);
       Rationale (captured beats annotated for anything sayable at walk time; override
       rule; open-string `track_type`; partial set = drift); Alternatives (rename the
       annotation column; drop annotation `track_name`; crate-owned enum; variant-aware
@@ -110,11 +110,11 @@ and none of the four. The schema is what is out of date.
       `NA`-filled (plan review B1); the Mergin reader aborts on a partial set; fixtures
       and the example move off `notes`; `working.trp_track_annotations` (empty)
       reseeded; crate pin bumped (G1). Filed as
-      [trap#28](https://github.com/NewGraphEnvironment/trap/issues/28) with the full
+      an internal issue with the full
       breakage inventory.
 - [x] rfp issue: roxygen table in `rfp_tracking_fields_add()` disagrees with the
       shipped lookup (`reach walk…` vs `day log…`; `track_description` missing). Filed
-      as [rfp#255](https://github.com/NewGraphEnvironment/rfp/issues/255).
+      as an internal issue.
 - [x] crate#18 body: rewritten — stale `track_type` table corrected (A3), the three
       "Open" items replaced by a "Decided" section, follow-ups linked.
 

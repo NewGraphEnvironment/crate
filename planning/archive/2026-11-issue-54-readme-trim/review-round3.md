@@ -106,7 +106,7 @@ It shows up wherever the branch rewrote a sentence it carried over, because a re
 31. L55 "JSON Schemas for custom fields in New Graph Environment's STAC catalogues" — set {lidarbc, las, receipt}; no catalogue carries `receipt:`; stacs#12 OPEN — **FAIL** (finding 2)
 32. L55 "published on this site" — pkgdown serves /crate/stac/; true on the home page, ambiguous on GitHub — pass (noted under finding 2)
 33. L61 crate row "Canonical schemas for data that changes shape, and provenance receipts for outputs" — gate decision; matches the tagline — pass
-34. L62 fresh row — soul#416 decided wording (gate; verified R2) — pass
+34. L62 fresh row — an internal issue decided wording (gate; verified R2) — pass
 35. L63 link row — same — pass
 36. L64 wet row — same — pass
 37. L65 flooded row — same — pass

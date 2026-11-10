@@ -20,10 +20,10 @@ reason so it is not re-proposed.
 ## Trigger
 
 trap is harvesting five field forms off Mergin
-(NewGraphEnvironment/trap#2), and it has a date on it: a July 2026 capture of 49
+(an internal issue), and it has a date on it: a July 2026 capture of 49
 records sits in live forms that have to be rebuilt to a wider schema before a
 field session running Sept 21–29. Until those records are harvested, the rebuild
-that fixes the form is the operation that erases them (NewGraphEnvironment/rfp#218).
+that fixes the form is the operation that erases them.
 
 #13 is the real answer — canonical schemas for the whole form family, five forms
 of roughly thirty columns each, plus a predicate for whether a record can answer
@@ -90,5 +90,5 @@ both. Nothing has to be un-decided.
 
 - #14 — this entry
 - #13 — canonical schemas for field forms
-- NewGraphEnvironment/trap#2 — the harvest that needs it
-- NewGraphEnvironment/rfp#218 — why the harvest is time-boxed
+- An internal issue — the harvest that needs it
+- An internal issue — why the harvest is time-boxed

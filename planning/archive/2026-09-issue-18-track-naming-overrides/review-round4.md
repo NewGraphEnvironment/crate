@@ -71,8 +71,8 @@ No bug, security or data-loss issue. Three prose-precision items, all low:
   `decisions/nge/20260902_track_naming_captured_and_overridden.md`, which
   exists at that path; the integrity test's decisions-exist check passes in
   the source tree.
-- **Issue references.** crate#18 (open, this issue), rfp#186 (closed, "Add
-  editable fields to the position tracking layer"), trap#14 (closed, "Move the
+- **Issue references.** crate#18 (open, this issue), an internal issue (closed, "Add
+  editable fields to the position tracking layer"), an internal issue (closed, "Move the
   tracking schema into crate; decide where annotations live"), crate#9,
   crate#4 — all exist with titles matching how they are cited.
 - **Claims about trap, against its current source.** `trp_track_annotate()`

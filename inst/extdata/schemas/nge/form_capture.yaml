@@ -159,7 +159,7 @@ forward_compat:
       the diff, and enough of those is how a real change stops being noticed.
 
       It belongs in the consumer's manifest alongside the source version, which
-      is text and diffs as one line. See #14 and NewGraphEnvironment/trap#2.
+      is text and diffs as one line. See #14 and an internal issue.
   - cols:
       - captured_by
     note: >
