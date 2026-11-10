@@ -49,3 +49,12 @@
   ended the class by enumerating every value `crt_receipt_stac()` reads (16, both readings) against
   its guard, the form schema and the pinned classes: findings.md. `stac.json` is 46 cases (37
   refusals); stacs agrees on 31 and stacs#15 lists the 15
+- `/code-check branch` round 3 (spawned 17:01Z): seven findings, two inside round 2's fix (the
+  no-time case was an invalid receipt pinned as valid; the Python reading let a null receipt
+  through). Mechanism, per the reviewer: both readings mirrored the schema's types but not its
+  `required`, its migrated `if`, null versus absent, or the keys that are published, and the R runner
+  accepted any error. Fixed: `recipe_id` refused when missing unless migrated and when set on a
+  migrated receipt; `context.time` required; a present `null` block refused; an empty repository
+  name and `receipt_asset` refused; R's refusal reason pinned per code; the README states what a
+  reading checks (published values and keys, and what decides them) and that duplicate keys are
+  outside the contract (I-JSON). `stac.json` is 61 cases

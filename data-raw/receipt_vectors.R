@@ -66,6 +66,7 @@ write_vectors <- function(cases, file, dir = out_dir) {
   path <- file.path(dir, file)
   txt <- jsonlite::toJSON(cases, auto_unbox = TRUE, pretty = TRUE, null = "null",
                           na = "null", digits = NA)
+  txt <- gsub("\"__crate_empty_key__\"", "\"\"", txt, fixed = TRUE)
   new <- tempfile(fileext = ".json")
   writeLines(enc2utf8(as.character(txt)), new, useBytes = TRUE)
   if (file.exists(path) && !identical(unname(tools::md5sum(path)), unname(tools::md5sum(new)))) {
@@ -327,10 +328,23 @@ crt_receipt_migrate(file.path("inst", "extdata", "receipt", "examples", "legacy"
 migrated_receipt <- crt_receipt_read(migrated_path)
 stopifnot(is.null(migrated_receipt$recipe$recipe_id))
 
-# One value set to one the mapping must refuse. A change inside the recipe gets a recipe_id
-# that matches it, so the case is refused for that value alone and not for a stale identity.
+# One value set to one the mapping must refuse: NULL deletes the key, json_null writes a
+# null. A change inside the recipe gets a recipe_id that matches it, so the case is refused
+# for that value alone and not for a stale identity.
+json_null <- quote(json_null)
 bad <- function(r, path, value) {
-  r[[path]] <- value
+  if (is.symbol(value)) {
+    n <- length(path)
+    if (n == 1) {
+      r[path] <- list(NULL)
+    } else {
+      parent <- r[[path[-n]]]
+      parent[path[n]] <- list(NULL)
+      r[[path[-n]]] <- parent
+    }
+  } else {
+    r[[path]] <- value
+  }
   if (length(path) > 1 && path[1] == "recipe" && !identical(path, c("recipe", "recipe_id"))) r <- rehash(r)
   r
 }
@@ -358,6 +372,18 @@ field_cases <- function(path, error, assets, values) {
               error = error)
   })
 }
+# jsonlite writes an empty key as its position ("3"), so the case carries a sentinel that
+# write_vectors() turns back into "" in the JSON text
+empty_key <- function(case) {
+  nm <- names(case$receipt$recipe$code)
+  names(case$receipt$recipe$code)[nm == ""] <- "__crate_empty_key__"
+  case
+}
+# A repository added to recipe.code under a name `[[<-` cannot write, such as ""
+within_code <- function(r, name, entry) {
+  r$recipe$code <- c(r$recipe$code, stats::setNames(list(entry), name))
+  r
+}
 all_parts <- list(access = "access_check.csv", visits_link = "visits_link.csv",
                   visits_species = "visits_species.csv", walks = "walks.csv")
 stac <- list(
@@ -369,7 +395,6 @@ stac <- list(
   stac_case("a migrated receipt: no receipt:recipe_id, never a null one", migrated_receipt),
   stac_case("a repository with no version is left out of processing:software", no_link_version),
   stac_case("no repository has a version: no processing:software", no_versions),
-  stac_case("no context.time: no processing:datetime", bad(b1, c("context", "time"), NULL)),
   stac_case("an asset whose href names no part is refused", b1, list(data = "floodplain.tif"),
             error = "href_not_a_part"),
   stac_case("a receipt asset needs its digest", b1, NULL, "receipt", error = "receipt_asset_without_digest"),
@@ -390,10 +415,16 @@ stac <- list(
   field_cases(c("recipe", "recipe_id"), "recipe_id_not_sha256", NULL,
               list(`not a SHA-256` = "abc", `upper case` = toupper(b1$recipe$recipe_id),
                    `followed by a newline` = paste0(b1$recipe$recipe_id, "\n"), `a number` = 1L)),
+  # Only a migrated receipt has no recipe identity, and it never has one
+  field_cases(c("recipe", "recipe_id"), "recipe_id_missing", NULL,
+              list(`missing on a receipt not migrated` = NULL, `null on a receipt not migrated` = json_null)),
+  stac_case("recipe.recipe_id set on a migrated receipt: refused",
+            bad(migrated_receipt, c("recipe", "recipe_id"), b1$recipe$recipe_id), error = "recipe_id_on_migrated"),
   field_cases(c("context", "time"), "time_not_utc", NULL,
               list(`with a space for T` = "2026-11-04 18:22:05", `with an offset for Z` = "2026-11-04T18:22:05+00:00",
                    `followed by a newline` = "2026-11-04T18:22:05Z\n",
-                   `in Arabic-Indic digits` = "\u0662\u0660\u0662\u0666-11-04T18:22:05Z", `a number` = 1L)),
+                   `in Arabic-Indic digits` = "\u0662\u0660\u0662\u0666-11-04T18:22:05Z", `a number` = 1L,
+                   `missing` = NULL, `null` = json_null)),
   field_cases(c("recipe", "code", "link", "version"), "version_not_string", NULL,
               list(`a number` = 1L, `empty` = "", `true` = TRUE)),
   field_cases(c("result", "parts", "walks.csv", "bytes"), "bytes_not_whole", list(walks = "walks.csv"),
@@ -404,10 +435,23 @@ stac <- list(
   # A block or entry that is present but not an object is refused, never read as absent:
   # an item stripped of its identity would pass for one with none
   stac_case("the receipt an array: refused", list(b1$output), error = "block_not_object"),
+  stac_case("the receipt null: refused", NULL, error = "block_not_object"),
+  field_cases("output", "block_not_object", NULL, list(`an array` = list("x"), `null` = json_null)),
+  field_cases("recipe", "block_not_object", NULL, list(`null` = json_null)),
+  field_cases("context", "block_not_object", NULL, list(`null` = json_null)),
+  field_cases(c("result", "parts"), "block_not_object", NULL, list(`null` = json_null)),
+  field_cases(c("recipe", "code", "link"), "block_not_object", NULL, list(`null` = json_null)),
+  field_cases(c("result", "parts", "walks.csv"), "block_not_object", list(walks = "walks.csv"),
+              list(`null` = json_null)),
+  # Published keys: a repository's name keys processing:software, and receipt_asset an asset
+  empty_key(stac_case("a repository with an empty name: refused",
+                      rehash(within_code(b1, "", list(commit = strrep("c", 40), dirty = FALSE, version = "9.9"))),
+                      error = "repo_name_empty")),
+  stac_case("an empty receipt_asset: refused", b1, NULL, "", b1_sha256, error = "receipt_asset_empty"),
   field_cases("recipe", "block_not_object", NULL, list(`an array` = list(b1$recipe$recipe_id))),
   field_cases("result", "block_not_object", NULL, list(`a string` = "parts")),
   field_cases(c("recipe", "code"), "block_not_object", NULL,
-              list(`an array` = list(b1$recipe$code$link), `a string` = "link")),
+              list(`an array` = list(b1$recipe$code$link), `a string` = "link", `null` = json_null)),
   field_cases(c("recipe", "code", "link"), "block_not_object", NULL,
               list(`a string` = "0.31.2")),
   field_cases(c("context"), "block_not_object", NULL, list(`a string` = "")),

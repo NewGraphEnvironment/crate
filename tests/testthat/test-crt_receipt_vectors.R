@@ -77,8 +77,8 @@ test_that("every released contract file has the bytes it was released with", {
     "register/v1.0.0/compare.json" = "916f30136c42ce823d55d560138cb6860ab28f0d1bb314a54433c858ac53bc27",
     "register/v1.0.0/register.csv" = "f60f171dbae277d3c5b54999d76b2a53d49e1e0cfba725ac36091a9fbd28b4d2",
     "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef",
-    "mapping/v1.1.0/mapping.csv" = "adb2e62b082556cb33b7a3aa32645f26974c5e0f82ed620e17bba525fe4630fb",
-    "mapping/v1.1.0/stac.json" = "74455d4bc05bae15a1c6a3d82469d8fa9fea1e6f6b0333cd8cc2cbf4ea7f220d"
+    "mapping/v1.1.0/mapping.csv" = "7da313b9192b8287fd63754826af2e5bee900904304d7595ae811a5368b320b9",
+    "mapping/v1.1.0/stac.json" = "8b6ea5c0973eaacf2f3a089322f289235ad1537eb9668722bd9a90692f7b7e01"
   )
   root <- system.file("extdata", "receipt", package = "crate", mustWork = TRUE)
   on_disk <- list.files(root, recursive = TRUE)
@@ -155,6 +155,16 @@ test_that("compare.json: verdict and the fields that differed", {
 test_that("stac.json: the item fields each receipt maps to, or a refusal", {
   cases <- read_vectors("stac.json")
   expect_gt(length(cases), 10)
+  # What crate's own message names for each code: a case must be refused for its own reason,
+  # not by an error further on that happens to fire (round 3 of the #59 review)
+  reason <- c(href_not_a_part = "not a part", receipt_asset_without_digest = "needs",
+              digest_without_receipt_asset = "no .receipt_asset", receipt_asset_in_assets = "both in",
+              receipt_asset_empty = "receipt_asset. is empty", digest_not_sha256 = "receipt_sha256 must be",
+              recipe_id_not_sha256 = "recipe.recipe_id must be", recipe_id_missing = "recipe.recipe_id is missing",
+              recipe_id_on_migrated = "recipe.recipe_id is set on a migrated", time_not_utc = "context.time is not",
+              version_not_string = "version is not a version string", repo_name_empty = "empty name",
+              bytes_not_whole = "bytes is not a whole number", part_sha256_not_sha256 = "sha256 must be",
+              block_not_object = "not an object")
   for (cs in cases) {
     call <- function() {
       crt_receipt_stac(cs$receipt, assets = if (length(cs$assets)) unlist(cs$assets),
@@ -162,7 +172,8 @@ test_that("stac.json: the item fields each receipt maps to, or a refusal", {
     }
     if (!is.null(cs$error)) {
       expect_null(cs$expected, info = cs$name)
-      expect_error(call(), info = cs$name)
+      expect_true(cs$error %in% names(reason), info = cs$name)
+      expect_error(call(), reason[[cs$error]], info = cs$name)
       next
     }
     expect_identical(crate:::crt_receipt_jcs(call()), crate:::crt_receipt_jcs(cs$expected), info = cs$name)
@@ -177,5 +188,6 @@ test_that("stac.json: the item fields each receipt maps to, or a refusal", {
   expect_setequal(vapply(cases, function(cs) if (is.null(cs$error)) "" else cs$error, ""),
                   c("", "href_not_a_part", "receipt_asset_without_digest", "digest_without_receipt_asset",
                     "receipt_asset_in_assets", "digest_not_sha256", "recipe_id_not_sha256", "time_not_utc",
-                    "version_not_string", "bytes_not_whole", "part_sha256_not_sha256", "block_not_object"))
+                    "version_not_string", "bytes_not_whole", "part_sha256_not_sha256", "block_not_object",
+                    "recipe_id_missing", "recipe_id_on_migrated", "repo_name_empty", "receipt_asset_empty"))
 })

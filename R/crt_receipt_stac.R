@@ -9,11 +9,13 @@
 #' vectors in `mapping/v1.1.0/stac.json`, so two of them agree on every item.
 #'
 #' @section What it mirrors:
-#' * `properties`: `receipt:recipe_id` from `recipe.recipe_id`, left out when that is
-#'   null (a migrated receipt claims no recipe identity, and the item never publishes a
-#'   null one); `processing:datetime` from `context.time`; `processing:software`, one
-#'   entry per repository in `recipe.code` that has a `version`, and left out when none
-#'   has.
+#' * `properties`: `receipt:recipe_id` from `recipe.recipe_id`, left out for a migrated
+#'   receipt (`output.migrated_from`), which claims no recipe identity, and refused when
+#'   missing on any other: the item never publishes a null one; `processing:datetime`
+#'   from `context.time`, which is required; `processing:software`, one entry per
+#'   repository in `recipe.code` that has a `version`, and left out when none has.
+#' * A block or entry present but not an object, `null` included, is refused, never read
+#'   as absent.
 #' * `assets`: for each asset in `assets`, the part its href names, as `file:checksum`
 #'   (multihash: `1220` and the part's `sha256`) and `file:size` (its `bytes`). A part
 #'   no asset names is not mirrored, since an item may publish fewer files than the
@@ -60,6 +62,7 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
   assets <- stac_assets_arg(assets)
   if (!is.null(receipt_asset)) {
     chk::chk_string(receipt_asset)
+    if (!nzchar(receipt_asset)) cli::cli_abort("{.arg receipt_asset} is empty: an asset needs a key.")
     if (receipt_asset %in% names(assets)) {
       cli::cli_abort(c(
         "Asset {.val {receipt_asset}} is both in {.arg assets} and the {.arg receipt_asset}.",
@@ -77,24 +80,40 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
   }
   if (!is.null(receipt_sha256)) stac_sha256(receipt_sha256, "receipt_sha256")
 
+  output <- stac_block(receipt, "output")
   recipe <- stac_block(receipt, "recipe")
   result <- stac_block(receipt, "result")
   context <- stac_block(receipt, "context")
 
   props <- list()
+  # Only a migrated receipt has no recipe identity, and it never has one: the form's rule,
+  # checked here because an item without the field reads as built from a migrated receipt
+  migrated <- "migrated_from" %in% names(output)
   id <- recipe[["recipe_id"]]
-  if (!stac_absent(id)) props[["receipt:recipe_id"]] <- stac_sha256(id, "recipe.recipe_id")
-  time <- context[["time"]]
-  if (!stac_absent(time)) {
-    utc <- "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
-    if (!(is.character(time) && length(time) == 1L && grepl(utc, time))) {
-      cli::cli_abort("{.field context.time} is not an ISO 8601 UTC time: {.val {format(time)}}.")
+  if (stac_absent(id)) {
+    if (!migrated) {
+      cli::cli_abort(c(
+        "{.field recipe.recipe_id} is missing, and the receipt was not migrated.",
+        "i" = "Only a migrated receipt ({.field output.migrated_from}) has no recipe identity."
+      ))
     }
-    props[["processing:datetime"]] <- time
+  } else {
+    if (migrated) {
+      cli::cli_abort("{.field recipe.recipe_id} is set on a migrated receipt, which claims no recipe identity.")
+    }
+    props[["receipt:recipe_id"]] <- stac_sha256(id, "recipe.recipe_id")
   }
+  time <- context[["time"]]
+  utc <- "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+  if (stac_absent(time) || !(is.character(time) && length(time) == 1L && grepl(utc, time))) {
+    cli::cli_abort("{.field context.time} is not an ISO 8601 UTC time: {.val {format(time)}}.")
+  }
+  props[["processing:datetime"]] <- time
   code <- stac_block(recipe, "code", "recipe.code")
   software <- list()
   for (repo in names(code)) {
+    # A repository's name is published as a key of processing:software
+    if (!nzchar(repo)) cli::cli_abort("{.field recipe.code} has a repository with an empty name.")
     v <- stac_block(code, repo, paste0("recipe.code[", repo, "]"))[["version"]]
     if (stac_absent(v)) next
     if (!(is.character(v) && length(v) == 1L && nzchar(v))) {
@@ -140,10 +159,11 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
 # Null in a file is NULL; in a receipt built in memory it is NA.
 stac_absent <- function(v) is.null(v) || (is.atomic(v) && length(v) == 1L && is.na(v))
 
+# A block or entry: absent is empty, and anything present must be an object, `null` included.
 # A JSON object reads as a named list, `{}` as one with no names; an array has none at all.
 stac_block <- function(x, name, where = name) {
+  if (!name %in% names(x)) return(list())
   v <- x[[name]]
-  if (is.null(v)) return(list())
   if (!is.list(v) || is.null(names(v))) cli::cli_abort("{.field {where}} is present but not an object.")
   v
 }

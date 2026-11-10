@@ -1078,136 +1078,6 @@
     "error": null
   },
   {
-    "name": "no context.time: no processing:datetime",
-    "receipt": {
-      "context": {
-        "inputs": {},
-        "lockfile_sha256": null,
-        "run": {
-          "link_run_id": "20261104T181900Z-bulk"
-        },
-        "session": null,
-        "toolchain": {
-          "R": "4.5.2"
-        }
-      },
-      "output": {
-        "name": "link_evidence",
-        "receipt_version": "1.0.0",
-        "schema": null,
-        "scope": "BULK"
-      },
-      "recipe": {
-        "code": {
-          "knowledge": {
-            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
-            "dirty": false,
-            "version": "0.14.0"
-          },
-          "link": {
-            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
-            "dirty": false,
-            "version": "0.31.2"
-          }
-        },
-        "config": {
-          "files": {
-            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
-          },
-          "settings": {
-            "species": [
-              "CO",
-              "CH",
-              "ST"
-            ],
-            "watershed_group": "BULK"
-          }
-        },
-        "inputs": {
-          "flow": {
-            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
-          },
-          "fwa_stream_networks": {
-            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
-          }
-        },
-        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
-        "seed": null
-      },
-      "result": {
-        "fingerprint": {
-          "access_check": {
-            "rows": 4,
-            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
-          },
-          "visits_link": {
-            "rows": 4,
-            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
-          },
-          "visits_species": {
-            "rows": 5,
-            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
-          },
-          "walks": {
-            "rows": 3,
-            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
-          }
-        },
-        "parts": {
-          "access_check.csv": {
-            "bytes": 124,
-            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
-            "table": "access_check"
-          },
-          "visits_link.csv": {
-            "bytes": 57,
-            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
-            "table": "visits_link"
-          },
-          "visits_species.csv": {
-            "bytes": 100,
-            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
-            "table": "visits_species"
-          },
-          "walks.csv": {
-            "bytes": 46,
-            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
-            "table": "walks"
-          }
-        },
-        "summary": {
-          "km_total": 47.3767792597,
-          "rows": 4
-        },
-        "tolerance": {
-          "summary": {
-            "km_total": 1e-06
-          },
-          "tables": {
-            "access_check": {
-              "km": 1e-09
-            }
-          }
-        }
-      }
-    },
-    "assets": {},
-    "receipt_asset": null,
-    "receipt_sha256": null,
-    "expected": {
-      "stac_extensions": ["https://stac-extensions.github.io/processing/v1.2.0/schema.json", "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"],
-      "properties": {
-        "receipt:recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
-        "processing:software": {
-          "knowledge": "0.14.0",
-          "link": "0.31.2"
-        }
-      },
-      "assets": {}
-    },
-    "error": null
-  },
-  {
     "name": "an asset whose href names no part is refused",
     "receipt": {
       "context": {
@@ -2543,6 +2413,349 @@
     "error": "recipe_id_not_sha256"
   },
   {
+    "name": "recipe.recipe_id missing on a receipt not migrated: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "recipe_id_missing"
+  },
+  {
+    "name": "recipe.recipe_id null on a receipt not migrated: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": null,
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "recipe_id_missing"
+  },
+  {
+    "name": "recipe.recipe_id set on a migrated receipt: refused",
+    "receipt": {
+      "context": {
+        "legacy": {
+          "configs": {
+            "default": {
+              "config_hashes": [
+                "e3b0c44298fc1c149afbf4c8996fb924"
+              ],
+              "exported": "2026-11-01T17:04:12Z",
+              "exported_by": {
+                "contract_md5": "0cc175b9c0f1b6a831c399e269772661",
+                "link_dirty": false,
+                "link_sha": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+                "link_version": "0.31.2"
+              },
+              "run_uids": [
+                "9b2f6c1e"
+              ],
+              "runs": [
+                {
+                  "date_start": "2026-11-01T16:30:00Z",
+                  "run_id": "20261101T163000Z-bulk"
+                }
+              ]
+            }
+          },
+          "datasets": [
+            {
+              "dataset": "habitat/fwa/v1/segment",
+              "schema": {
+                "cols": [
+                  "segment_id",
+                  "watershed_group_code",
+                  "species_code",
+                  "spawning",
+                  "rearing"
+                ],
+                "file": "inst/extdata/schemas/habitat_fwa_v1_segment.yaml",
+                "package": "link"
+              }
+            }
+          ],
+          "files": [
+            {
+              "bytes": 2210,
+              "key": "provenance/default.csv",
+              "md5": "4a8a08f09d37b73795649038408b5f33"
+            }
+          ],
+          "manifest_version": 1,
+          "parts": [
+            {
+              "bytes": 912455,
+              "code": "BULK",
+              "config": "default",
+              "dataset": "habitat/fwa/v1/segment",
+              "drainage": "Skeena",
+              "key": "segment/config=default/species=CO/part-BULK.parquet",
+              "md5": "92eb5ffee6ae2fec3ad71c777531578f",
+              "rows": 18342,
+              "species": "CO",
+              "wsgs": "BULK"
+            }
+          ]
+        },
+        "time": "2026-11-01T17:04:12Z"
+      },
+      "output": {
+        "migrated_from": "link manifest.json",
+        "name": "habitat/fwa/v1",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": null
+      },
+      "recipe": {
+        "code": {
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977"
+      },
+      "result": {
+        "fingerprint": {},
+        "parts": {},
+        "summary": {},
+        "tolerance": {
+          "summary": {},
+          "tables": {}
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "recipe_id_on_migrated"
+  },
+  {
     "name": "context.time with a space for T: refused",
     "receipt": {
       "context": {
@@ -3037,6 +3250,247 @@
         },
         "session": null,
         "time": 1,
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "time_not_utc"
+  },
+  {
+    "name": "context.time missing: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "time_not_utc"
+  },
+  {
+    "name": "context.time null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": null,
         "toolchain": {
           "R": "4.5.2"
         }
@@ -4632,6 +5086,1027 @@
     "error": "block_not_object"
   },
   {
+    "name": "the receipt null: refused",
+    "receipt": null,
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "output an array: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": [
+        "x"
+      ],
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "output null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": null,
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "recipe null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": null,
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "context null: refused",
+    "receipt": {
+      "context": null,
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "result.parts null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": null,
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "recipe.code.link null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": null
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "d960c9d2a32cb01429db2bbe64a9d33be4ec9ff5e8692ffeebdee13e7c6dce9a",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "result.parts.walks.csv null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": null
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {
+      "walks": "walks.csv"
+    },
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "a repository with an empty name: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          },
+          "": {
+            "commit": "cccccccccccccccccccccccccccccccccccccccc",
+            "dirty": false,
+            "version": "9.9"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "9061f96731d9dd5127f41583478f0c323cdc52a84657a8bf99d859844fe1db85",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "repo_name_empty"
+  },
+  {
+    "name": "an empty receipt_asset: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": {
+          "knowledge": {
+            "commit": "3f1c2a9e8b7d6c5f4e3d2c1b0a9f8e7d6c5b4a39",
+            "dirty": false,
+            "version": "0.14.0"
+          },
+          "link": {
+            "commit": "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0",
+            "dirty": false,
+            "version": "0.31.2"
+          }
+        },
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "b06f982dd07b5e44edf586519e5d6ab60b29715a051c3827fba647230636f977",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": "",
+    "receipt_sha256": "0a51e33a6fbea388844c577746bad6ce10293291fc2185fa84e34a1f9d94a44c",
+    "expected": null,
+    "error": "receipt_asset_empty"
+  },
+  {
     "name": "recipe an array: refused",
     "receipt": {
       "context": {
@@ -4945,6 +6420,116 @@
           }
         },
         "recipe_id": "473963932ced3be15556c323e8e91a1150fb1f6dee0e3ae18c860d94805e9e1b",
+        "seed": null
+      },
+      "result": {
+        "fingerprint": {
+          "access_check": {
+            "rows": 4,
+            "sha256": "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
+          },
+          "visits_link": {
+            "rows": 4,
+            "sha256": "3eaeffc2123edd359b987a312d97a24548657b9fa60c3e391a8ff0a9657a3427"
+          },
+          "visits_species": {
+            "rows": 5,
+            "sha256": "5004a660fa2cea88322b92623dffbf83456395693536c095914430b7df53c840"
+          },
+          "walks": {
+            "rows": 3,
+            "sha256": "9ac5394f5ec3b05e6f6ee55f72c129a4a4e2d6d42788eb0592e2f99d5165a3a9"
+          }
+        },
+        "parts": {
+          "access_check.csv": {
+            "bytes": 124,
+            "sha256": "04994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2",
+            "table": "access_check"
+          },
+          "visits_link.csv": {
+            "bytes": 57,
+            "sha256": "813a829f3e82c4724dd0ff48927234fd2e3437570a272cfc842d2ac46ee2d53e",
+            "table": "visits_link"
+          },
+          "visits_species.csv": {
+            "bytes": 100,
+            "sha256": "2dc87bec72be15a4323b92647532862797b290cc9ba45df61adfc1e7044228a9",
+            "table": "visits_species"
+          },
+          "walks.csv": {
+            "bytes": 46,
+            "sha256": "c9b13fc40825f9c33eddfa27fdfb2f10348f771bca3c5ab77ce173b7c56c5f5f",
+            "table": "walks"
+          }
+        },
+        "summary": {
+          "km_total": 47.3767792597,
+          "rows": 4
+        },
+        "tolerance": {
+          "summary": {
+            "km_total": 1e-06
+          },
+          "tables": {
+            "access_check": {
+              "km": 1e-09
+            }
+          }
+        }
+      }
+    },
+    "assets": {},
+    "receipt_asset": null,
+    "receipt_sha256": null,
+    "expected": null,
+    "error": "block_not_object"
+  },
+  {
+    "name": "recipe.code null: refused",
+    "receipt": {
+      "context": {
+        "inputs": {},
+        "lockfile_sha256": null,
+        "run": {
+          "link_run_id": "20261104T181900Z-bulk"
+        },
+        "session": null,
+        "time": "2026-11-04T18:22:05Z",
+        "toolchain": {
+          "R": "4.5.2"
+        }
+      },
+      "output": {
+        "name": "link_evidence",
+        "receipt_version": "1.0.0",
+        "schema": null,
+        "scope": "BULK"
+      },
+      "recipe": {
+        "code": null,
+        "config": {
+          "files": {
+            "settings.csv": "8651eb611123f94b84ad5b969c8814721a006df8859beada54a99b534e39fdf2"
+          },
+          "settings": {
+            "species": [
+              "CO",
+              "CH",
+              "ST"
+            ],
+            "watershed_group": "BULK"
+          }
+        },
+        "inputs": {
+          "flow": {
+            "recipe_id": "0d6f1c9a8e7b5d4c3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+          },
+          "fwa_stream_networks": {
+            "version_id": "3HL4kqtJlcpXroDTDmJ.rmSpXd3dIbrHY"
+          }
+        },
+        "recipe_id": "899286e491598c152ee1e938d64b52bbbb70278a4df5ee08aef23a61b39776e2",
         "seed": null
       },
       "result": {

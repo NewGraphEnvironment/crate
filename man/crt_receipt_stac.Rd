@@ -39,11 +39,13 @@ vectors in \code{mapping/v1.1.0/stac.json}, so two of them agree on every item.
 \section{What it mirrors}{
 
 \itemize{
-\item \code{properties}: \code{receipt:recipe_id} from \code{recipe.recipe_id}, left out when that is
-null (a migrated receipt claims no recipe identity, and the item never publishes a
-null one); \code{processing:datetime} from \code{context.time}; \code{processing:software}, one
-entry per repository in \code{recipe.code} that has a \code{version}, and left out when none
-has.
+\item \code{properties}: \code{receipt:recipe_id} from \code{recipe.recipe_id}, left out for a migrated
+receipt (\code{output.migrated_from}), which claims no recipe identity, and refused when
+missing on any other: the item never publishes a null one; \code{processing:datetime}
+from \code{context.time}, which is required; \code{processing:software}, one entry per
+repository in \code{recipe.code} that has a \code{version}, and left out when none has.
+\item A block or entry present but not an object, \code{null} included, is refused, never read
+as absent.
 \item \code{assets}: for each asset in \code{assets}, the part its href names, as \code{file:checksum}
 (multihash: \code{1220} and the part's \code{sha256}) and \code{file:size} (its \code{bytes}). A part
 no asset names is not mirrored, since an item may publish fewer files than the

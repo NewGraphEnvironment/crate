@@ -26,12 +26,22 @@ error}`.
 - Where `error` is a code, the implementation must refuse the case, and `expected` is `null`.
   Messages differ between implementations, so a runner checks only that the case is refused. The
   code says what is refused. The arguments: `href_not_a_part`, `receipt_asset_without_digest`,
-  `digest_without_receipt_asset`, `receipt_asset_in_assets`, `digest_not_sha256`. A value the item
-  would publish: `recipe_id_not_sha256`, `time_not_utc`, `version_not_string`, `bytes_not_whole`,
-  `part_sha256_not_sha256`, one case for each way the value can be malformed (the wrong type, empty,
-  a trailing newline, non-ASCII digits, upper case, out of range). A block or entry present but not
-  an object (`recipe`, `result`, `context`, `recipe.code` and each entry, `result.parts` and each
-  part): `block_not_object`, never read as absent.
+  `digest_without_receipt_asset`, `receipt_asset_in_assets`, `receipt_asset_empty`,
+  `digest_not_sha256`. A value the item would publish: `recipe_id_not_sha256`, `time_not_utc`,
+  `version_not_string`, `bytes_not_whole`, `part_sha256_not_sha256`, one case for each way the value
+  can be malformed (the wrong type, empty, missing, null, a trailing newline, non-ASCII digits, upper
+  case, out of range). A key the item would publish: `repo_name_empty`. The identity:
+  `recipe_id_missing` (null or missing on a receipt that was not migrated, which would read as one
+  that was) and `recipe_id_on_migrated`. A block or entry present but not an object, `null`
+  included (the receipt itself, `output`, `recipe`, `result`, `context`, `recipe.code` and each
+  entry, `result.parts` and each part): `block_not_object`, never read as absent.
+
+**What a reading checks.** The values it publishes, the keys it publishes, and what decides them:
+`output.migrated_from` (by its presence, as the form schema's `if` does), `recipe.recipe_id` and
+`context.time`. It does not validate the rest of the receipt; validate it against the form schema
+for that. A `version` that is missing reads as `null`, since the item is the same either way. The
+receipts are I-JSON (RFC 7493), which RFC 8785 requires, so a duplicated key is outside the
+contract: parsers disagree on which copy they keep.
 
 A case refused for a value carries a receipt invalid in that value alone, its `recipe_id` matching
 its recipe except where the `recipe_id` is the bad value. Every other receipt is valid against
