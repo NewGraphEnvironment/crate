@@ -58,3 +58,5 @@
   name and `receipt_asset` refused; R's refusal reason pinned per code; the README states what a
   reading checks (published values and keys, and what decides them) and that duplicate keys are
   outside the contract (I-JSON). `stac.json` is 61 cases
+- Mutation over round 3's guards: all seven red (two first-try mutants were mangled by a `|`
+  delimiter meeting `||` in the code, and rerun). Enumeration revised in findings.md

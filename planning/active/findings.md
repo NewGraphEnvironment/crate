@@ -198,3 +198,30 @@ pinned. The one value both readings accept that a reader might not expect, a ver
 newline, the schema allows. R refuses each of the 37 refusal cases with a message naming the case's
 field (checked by script), and the Python reading refuses each with exactly the case's code. stacs
 agrees on 31 of 46; its 15 divergences are in stacs#15's body.
+
+## Code-check round 3 (2026-11-10): the enumeration missed keys, null versus absent, and the migrated rule
+
+Round 3 tested the round-2 enumeration against the code and found what it left out. The shared
+assumption, in the reviewer's words: a lookup that returns nothing means absent; only values are
+published; refused means refused for its code. The schema separates absent from null (`required`,
+the `if` on `output.migrated_from`), publishes keys (repository names, the receipt asset's key),
+and R's runner accepted any error. So the enumeration is revised on three axes, each a column the
+first table lacked:
+
+- **values read now include `output.migrated_from`** (by presence, as the schema's `if` does),
+  which decides whether a missing `recipe_id` is allowed;
+- **absent, null and malformed are separate classes** for every block and value: an absent block is
+  empty, a present `null` is refused; `recipe_id` absent or null is refused unless migrated, and set
+  is refused if migrated; `context.time` absent or null is refused; `version` absent reads as null
+  (the item is the same either way, stated in the README);
+- **published keys** are rows: a repository's name (`repo_name_empty`), the receipt asset's key
+  (`receipt_asset_empty`, `receipt_asset_in_assets`); asset keys are an argument, pinned in
+  testthat. Duplicate keys are outside the contract (I-JSON).
+
+The boundary that ends the class, stated in the README: a reading checks the values it publishes,
+the keys it publishes, and what decides them, and validates nothing else; a whole-receipt check is
+the form schema's. R's runner now pins each case's refusal to its own reason (a message fragment per
+code), and seven mutants, one per guard added this round (block guard, null read as absent, missing
+`recipe_id` allowed, id on a migrated receipt allowed, time optional, empty repository name,
+empty receipt asset), each turn it red. `stac.json`: 61 cases, 53 refusals across 15 codes. The
+Python reading matches all 61 with the exact code.
