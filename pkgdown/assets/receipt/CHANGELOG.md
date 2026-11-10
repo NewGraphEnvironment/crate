@@ -38,9 +38,11 @@ unchanged, so a migration under v1.1.0 holds what it held under v1.0.0.
 - A migrated receipt (`output.migrated_from`) leaves `receipt:recipe_id` out; an item never
   publishes a null identity. A `recipe_id` missing on any other receipt is refused, since its item
   would read as migrated, and so is one set on a migrated receipt.
-- `context.time` is required.
+- `context.time` is required, and must be a real instant.
+- The receipt must be of form v1.0.0 (`output.receipt_version`).
 - A value the item publishes is checked against the form schema, and a block or entry that is
   present but not an object, `null` included, is refused rather than read as absent.
+- A refusal has a code, which `stac.json` gives and an implementation is compared by.
 - A repository whose `version` is null is left out of `processing:software`, and with none versioned
   the property is left out.
 - A part no asset names is not mirrored, and two assets may name one part. An asset whose href

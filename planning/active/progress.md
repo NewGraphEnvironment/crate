@@ -60,3 +60,14 @@
   outside the contract (I-JSON). `stac.json` is 61 cases
 - Mutation over round 3's guards: all seven red (two first-try mutants were mangled by a `|`
   delimiter meeting `||` in the code, and rerun). Enumeration revised in findings.md
+- `/code-check branch` round 4 (spawned 17:13Z, the fifth reviewer on this task): seven findings.
+  Mechanism: the round-3 enumeration was read off the readings' own bodies, so it agreed with them
+  by construction, and the cases were written by hand per field; R's runner matched message
+  fragments that collided. Concretely, `output.receipt_version` was checked on the path route only,
+  an impossible time (month 13) was published, `result: null` and several states were unpinned, and
+  the Python reading crashed on a non-string `receipt_asset`. Fixed by construction rather than by
+  instance: R's refusals are classed conditions carrying `code`; `stac.json`'s cases are generated as
+  every path the mapping reads crossed with every state (142 cases, codes derived from R's
+  conditions); a test derives the paths from `mapping.csv` independently and asserts each has its
+  absent, null and wrong-type cases; the form version and real-instant checks are added on both
+  sides; the crosscheck reports an unexpected exception as a mismatch

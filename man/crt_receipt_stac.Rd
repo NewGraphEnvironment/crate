@@ -46,6 +46,18 @@ from \code{context.time}, which is required; \code{processing:software}, one ent
 repository in \code{recipe.code} that has a \code{version}, and left out when none has.
 \item A block or entry present but not an object, \code{null} included, is refused, never read
 as absent.
+}
+}
+
+\section{Refusals}{
+
+A receipt or an argument the mapping cannot place is refused with an error of class
+\code{crate_stac_refused}, whose \code{code} field names what was refused: the same codes the
+\code{error} field of \code{stac.json} carries, so an implementation's refusals can be compared
+by code rather than by message. The receipt must be of the form this mapping reads
+(\code{output.receipt_version} 1.0.0), as \code{\link[=crt_receipt_read]{crt_receipt_read()}} requires of a file; a
+character \code{receipt} is read as a path.
+\itemize{
 \item \code{assets}: for each asset in \code{assets}, the part its href names, as \code{file:checksum}
 (multihash: \code{1220} and the part's \code{sha256}) and \code{file:size} (its \code{bytes}). A part
 no asset names is not mirrored, since an item may publish fewer files than the

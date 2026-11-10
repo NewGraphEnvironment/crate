@@ -106,9 +106,27 @@ def block(d, k):
     return d[k]
 
 
+RECEIPT_FORM = "1.0.0"
+
+
+def utc_instant(x):
+    """The form's pattern, and a real instant: a month, a day that month has, an hour, a
+    minute and a second that exist. A leap second, 60, is refused."""
+    if not (isinstance(x, str) and UTC.fullmatch(x)):
+        return False
+    y, mo, d, h, mi, se = (int(x[a:b]) for a, b in ((0, 4), (5, 7), (8, 10), (11, 13), (14, 16), (17, 19)))
+    leap = (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+    days = [31, 29 if leap else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    return 1 <= mo <= 12 and 1 <= d <= days[mo - 1] and h <= 23 and mi <= 59 and se <= 59
+
+
 def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
     """The mapping's STAC rows, read from mapping.csv's notes, not from crate's R code."""
+    if not isinstance(receipt, dict):
+        raise Refused("block_not_object")
     if receipt_asset is not None:
+        if not isinstance(receipt_asset, str):
+            raise Refused("receipt_asset_not_string")
         if receipt_asset == "":
             raise Refused("receipt_asset_empty")
         if receipt_asset in assets:
@@ -119,11 +137,11 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
         raise Refused("digest_without_receipt_asset")
     if receipt_sha256 is not None and not (isinstance(receipt_sha256, str) and SHA256.fullmatch(receipt_sha256)):
         raise Refused("digest_not_sha256")
-    if not isinstance(receipt, dict):
-        raise Refused("block_not_object")
     output, recipe, result, context = (block(receipt, k) for k in ("output", "recipe", "result", "context"))
+    # The form decides what every other field means, so it is checked first
+    if output.get("receipt_version") != RECEIPT_FORM or not isinstance(output.get("receipt_version"), str):
+        raise Refused("receipt_version_unknown")
     props = {}
-    # A value the item publishes is checked first: the field schema or a reader would refuse it
     # Only a migrated receipt has no recipe identity, and it never has one
     migrated = "migrated_from" in output
     rid = recipe.get("recipe_id")
@@ -137,7 +155,7 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
             raise Refused("recipe_id_not_sha256")
         props["receipt:recipe_id"] = rid
     time = context.get("time")
-    if not (isinstance(time, str) and UTC.fullmatch(time)):
+    if not utc_instant(time):
         raise Refused("time_not_utc")
     props["processing:datetime"] = time
     software = {}
@@ -168,9 +186,7 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
         out[key] = {"file:checksum": "1220" + sha, "file:size": size}
     if receipt_asset is not None:
         out[receipt_asset] = {"file:checksum": "1220" + receipt_sha256}
-    ext = ([FILE_EXT] if out else []) + \
-          ([PROCESSING_EXT] if {"processing:datetime", "processing:software"} & props.keys() else []) + \
-          ([RECEIPT_EXT] if "receipt:recipe_id" in props else [])
+    ext = ([FILE_EXT] if out else []) + [PROCESSING_EXT] + ([RECEIPT_EXT] if "receipt:recipe_id" in props else [])
     return {"stac_extensions": ext, "properties": props, "assets": out}
 
 
@@ -189,6 +205,9 @@ def check_stac(cases, bad):
             refused = None
         except Refused as e:
             got, refused = None, str(e)
+        except Exception as e:  # any other failure is a mismatch to report, not a reason to stop
+            bad.append(("stac crashed", c["name"], type(e).__name__ + ": " + str(e), c["error"]))
+            continue
         if refused != c["error"]:
             bad.append(("stac refusal", c["name"], refused, c["error"]))
         elif got is not None and jcs(got) != jcs(c["expected"]):
