@@ -327,9 +327,11 @@ crt_receipt_migrate(file.path("inst", "extdata", "receipt", "examples", "legacy"
 migrated_receipt <- crt_receipt_read(migrated_path)
 stopifnot(is.null(migrated_receipt$recipe$recipe_id))
 
-# One field set to a value the mapping must refuse; recipe_id is left as it was
+# One value set to one the mapping must refuse. A change inside the recipe gets a recipe_id
+# that matches it, so the case is refused for that value alone and not for a stale identity.
 bad <- function(r, path, value) {
   r[[path]] <- value
+  if (length(path) > 1 && path[1] == "recipe" && !identical(path, c("recipe", "recipe_id"))) r <- rehash(r)
   r
 }
 no_assets <- stats::setNames(list(), character())
@@ -349,6 +351,13 @@ stac_case <- function(name, receipt, assets = NULL, receipt_asset = NULL, receip
        receipt_asset = receipt_asset, receipt_sha256 = receipt_sha256,
        expected = if (!refused) out, error = error)
 }
+# One case per malformed value of one field, named for the field and the way it is malformed
+field_cases <- function(path, error, assets, values) {
+  lapply(names(values), function(how) {
+    stac_case(paste0(paste(path, collapse = "."), " ", how, ": refused"), bad(b1, path, values[[how]]), assets,
+              error = error)
+  })
+}
 all_parts <- list(access = "access_check.csv", visits_link = "visits_link.csv",
                   visits_species = "visits_species.csv", walks = "walks.csv")
 stac <- list(
@@ -360,6 +369,7 @@ stac <- list(
   stac_case("a migrated receipt: no receipt:recipe_id, never a null one", migrated_receipt),
   stac_case("a repository with no version is left out of processing:software", no_link_version),
   stac_case("no repository has a version: no processing:software", no_versions),
+  stac_case("no context.time: no processing:datetime", bad(b1, c("context", "time"), NULL)),
   stac_case("an asset whose href names no part is refused", b1, list(data = "floodplain.tif"),
             error = "href_not_a_part"),
   stac_case("a receipt asset needs its digest", b1, NULL, "receipt", error = "receipt_asset_without_digest"),
@@ -370,20 +380,41 @@ stac <- list(
             error = "digest_not_sha256"),
   stac_case("a digest with a trailing newline is not 64 lower-case hex", b1, NULL, "receipt",
             paste0(b1_sha256, "\n"), error = "digest_not_sha256"),
+  stac_case("a digest given as a number is not 64 lower-case hex", b1, NULL, "receipt", 1L,
+            error = "digest_not_sha256"),
   # A value the item would publish is checked before it is mirrored: these receipts are
   # invalid on purpose, one field each, so an implementation cannot publish what the field
   # schema or a reader would refuse
-  stac_case("a recipe_id that is not a SHA-256 is refused", bad(b1, c("recipe", "recipe_id"), "abc"),
-            error = "recipe_id_not_sha256"),
-  stac_case("a context.time that is not an ISO 8601 UTC time is refused",
-            bad(b1, c("context", "time"), "2026-11-04 18:22:05"), error = "time_not_utc"),
-  stac_case("a version that is not a string is refused", bad(b1, c("recipe", "code", "link", "version"), 1L),
-            error = "version_not_string"),
-  stac_case("a part's bytes that are not a whole number are refused",
-            bad(b1, c("result", "parts", "walks.csv", "bytes"), 1.5), list(walks = "walks.csv"),
-            error = "bytes_not_whole"),
-  stac_case("a part's sha256 that is not 64 lower-case hex is refused",
-            bad(b1, c("result", "parts", "walks.csv", "sha256"), "zz"), list(walks = "walks.csv"),
-            error = "part_sha256_not_sha256")
+  # Per value, one case for each way it can be malformed: the wrong type, empty, a trailing
+  # newline (which a `$` pattern lets through), non-ASCII digits, upper case, out of range
+  field_cases(c("recipe", "recipe_id"), "recipe_id_not_sha256", NULL,
+              list(`not a SHA-256` = "abc", `upper case` = toupper(b1$recipe$recipe_id),
+                   `followed by a newline` = paste0(b1$recipe$recipe_id, "\n"), `a number` = 1L)),
+  field_cases(c("context", "time"), "time_not_utc", NULL,
+              list(`with a space for T` = "2026-11-04 18:22:05", `with an offset for Z` = "2026-11-04T18:22:05+00:00",
+                   `followed by a newline` = "2026-11-04T18:22:05Z\n",
+                   `in Arabic-Indic digits` = "\u0662\u0660\u0662\u0666-11-04T18:22:05Z", `a number` = 1L)),
+  field_cases(c("recipe", "code", "link", "version"), "version_not_string", NULL,
+              list(`a number` = 1L, `empty` = "", `true` = TRUE)),
+  field_cases(c("result", "parts", "walks.csv", "bytes"), "bytes_not_whole", list(walks = "walks.csv"),
+              list(`fractional` = 1.5, `negative` = -1L, `a string` = "124", `true` = TRUE, `missing` = NULL)),
+  field_cases(c("result", "parts", "walks.csv", "sha256"), "part_sha256_not_sha256", list(walks = "walks.csv"),
+              list(`not hex` = "zz", `upper case` = toupper(b1$result$parts$walks.csv$sha256),
+                   `followed by a newline` = paste0(b1$result$parts$walks.csv$sha256, "\n"), `missing` = NULL)),
+  # A block or entry that is present but not an object is refused, never read as absent:
+  # an item stripped of its identity would pass for one with none
+  stac_case("the receipt an array: refused", list(b1$output), error = "block_not_object"),
+  field_cases("recipe", "block_not_object", NULL, list(`an array` = list(b1$recipe$recipe_id))),
+  field_cases("result", "block_not_object", NULL, list(`a string` = "parts")),
+  field_cases(c("recipe", "code"), "block_not_object", NULL,
+              list(`an array` = list(b1$recipe$code$link), `a string` = "link")),
+  field_cases(c("recipe", "code", "link"), "block_not_object", NULL,
+              list(`a string` = "0.31.2")),
+  field_cases(c("context"), "block_not_object", NULL, list(`a string` = "")),
+  field_cases(c("result", "parts"), "block_not_object", NULL, list(`an array` = list())),
+  field_cases(c("result", "parts", "walks.csv"), "block_not_object", list(walks = "walks.csv"),
+              list(`a string` = "walks.csv"))
 )
+# field_cases() returns a list of cases: splice each in where it stands
+stac <- do.call(c, lapply(stac, function(x) if (is.null(names(x))) x else list(x)))
 write_vectors(stac, "stac.json", dir = mapping_dir)

@@ -97,6 +97,15 @@ class Refused(Exception):
     pass
 
 
+def obj(x):
+    """A block or entry: absent is empty, anything but an object is refused."""
+    if x is None:
+        return {}
+    if not isinstance(x, dict):
+        raise Refused("block_not_object")
+    return x
+
+
 def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
     """The mapping's STAC rows, read from mapping.csv's notes, not from crate's R code."""
     if receipt_asset is not None:
@@ -108,7 +117,8 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
         raise Refused("digest_without_receipt_asset")
     if receipt_sha256 is not None and not (isinstance(receipt_sha256, str) and SHA256.fullmatch(receipt_sha256)):
         raise Refused("digest_not_sha256")
-    recipe, result, context = (receipt.get(k) or {} for k in ("recipe", "result", "context"))
+    receipt = obj(receipt)
+    recipe, result, context = (obj(receipt.get(k)) for k in ("recipe", "result", "context"))
     props = {}
     # A value the item publishes is checked first: the field schema or a reader would refuse it
     rid = recipe.get("recipe_id")
@@ -122,8 +132,8 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
             raise Refused("time_not_utc")
         props["processing:datetime"] = time
     software = {}
-    for repo, e in (recipe.get("code") or {}).items():
-        v = e.get("version")
+    for repo, e in obj(recipe.get("code")).items():
+        v = obj(e).get("version")
         if v is None:
             continue
         if not (isinstance(v, str) and v):
@@ -131,12 +141,13 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
         software[repo] = v
     if software:
         props["processing:software"] = software
-    parts = result.get("parts") or {}
+    parts = obj(result.get("parts"))
     out = {}
     for key, href in assets.items():
         if href not in parts:
             raise Refused("href_not_a_part")
-        sha, size = parts[href].get("sha256"), parts[href].get("bytes")
+        part = obj(parts[href])
+        sha, size = part.get("sha256"), part.get("bytes")
         if not (isinstance(sha, str) and SHA256.fullmatch(sha)):
             raise Refused("part_sha256_not_sha256")
         if isinstance(size, bool) or not isinstance(size, (int, float)) or not math.isfinite(size) \
@@ -154,11 +165,12 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
 def check_stac(cases, bad):
     for c in cases:
         r = c["receipt"]
-        # Every case's receipt is valid, its recipe_id matching its recipe, so only the
-        # mapping decides it; a case refused for a field value is invalid in that field alone
-        recipe = dict(r["recipe"])
+        # Every case's recipe_id matches its recipe, so only the mapping decides it, and a case
+        # refused for a value is invalid in that value alone. recipe_id_not_sha256's recipe_id
+        # is itself the bad value, so it cannot match
+        recipe = dict(r["recipe"]) if isinstance(r, dict) and isinstance(r.get("recipe"), dict) else {}
         rid = recipe.pop("recipe_id", None)
-        if rid is not None and c["error"] is None and hashlib.sha256(jcs(recipe).encode("utf-8")).hexdigest() != rid:
+        if rid is not None and c["error"] != "recipe_id_not_sha256" and hashlib.sha256(jcs(recipe).encode("utf-8")).hexdigest() != rid:
             bad.append(("stac recipe_id", c["name"], rid, "does not match its recipe"))
         try:
             got = stac_fields(r, c["assets"], c["receipt_asset"], c["receipt_sha256"])

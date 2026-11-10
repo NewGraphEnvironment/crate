@@ -28,11 +28,15 @@ error}`.
   code says what is refused. The arguments: `href_not_a_part`, `receipt_asset_without_digest`,
   `digest_without_receipt_asset`, `receipt_asset_in_assets`, `digest_not_sha256`. A value the item
   would publish: `recipe_id_not_sha256`, `time_not_utc`, `version_not_string`, `bytes_not_whole`,
-  `part_sha256_not_sha256`.
+  `part_sha256_not_sha256`, one case for each way the value can be malformed (the wrong type, empty,
+  a trailing newline, non-ASCII digits, upper case, out of range). A block or entry present but not
+  an object (`recipe`, `result`, `context`, `recipe.code` and each entry, `result.parts` and each
+  part): `block_not_object`, never read as absent.
 
-A case refused for a value the item would publish carries a receipt invalid in that field alone.
-Every other receipt is valid against receipt form v1.0.0, with a `recipe_id` that matches its
-recipe, so only the mapping decides each case. A SHA-256 is exactly 64 lower-case hex digits: a
+A case refused for a value carries a receipt invalid in that value alone, its `recipe_id` matching
+its recipe except where the `recipe_id` is the bad value. Every other receipt is valid against
+receipt form v1.0.0, with a `recipe_id` that matches its recipe, so only the mapping decides each
+case. A SHA-256 is exactly 64 lower-case hex digits: a
 pattern that also matches before a trailing newline (Python's `$` with `re.match`) is not enough.
 Read the receipts' numbers as the hashing vectors in `inst/extdata/receipt/vectors/v1.0.0/`
 describe.

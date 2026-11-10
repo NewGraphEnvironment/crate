@@ -44,3 +44,8 @@
 - `/code-check branch` round 1 (spawned 16:26Z): one finding, real (vectors could not reach a
   malformed field value; Python `$` accepts a trailing newline). Fixed: 6 new `stac.json` cases (19),
   the crosscheck checks what it publishes, README lists the codes, pin updated, stacs#15 updated
+- `/code-check branch` round 2 (spawned 16:51Z): three findings, one inside round 1's fix (a
+  version case whose `recipe_id` no longer matched). Fixed, and since a fix had been found wanting,
+  ended the class by enumerating every value `crt_receipt_stac()` reads (16, both readings) against
+  its guard, the form schema and the pinned classes: findings.md. `stac.json` is 46 cases (37
+  refusals); stacs agrees on 31 and stacs#15 lists the 15

@@ -78,7 +78,7 @@ test_that("every released contract file has the bytes it was released with", {
     "register/v1.0.0/register.csv" = "f60f171dbae277d3c5b54999d76b2a53d49e1e0cfba725ac36091a9fbd28b4d2",
     "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef",
     "mapping/v1.1.0/mapping.csv" = "adb2e62b082556cb33b7a3aa32645f26974c5e0f82ed620e17bba525fe4630fb",
-    "mapping/v1.1.0/stac.json" = "500fd51726f4909bf1b057fe63c084da43745d9a065c7cd7e48f7ae870abd4fc"
+    "mapping/v1.1.0/stac.json" = "74455d4bc05bae15a1c6a3d82469d8fa9fea1e6f6b0333cd8cc2cbf4ea7f220d"
   )
   root <- system.file("extdata", "receipt", package = "crate", mustWork = TRUE)
   on_disk <- list.files(root, recursive = TRUE)
@@ -177,5 +177,5 @@ test_that("stac.json: the item fields each receipt maps to, or a refusal", {
   expect_setequal(vapply(cases, function(cs) if (is.null(cs$error)) "" else cs$error, ""),
                   c("", "href_not_a_part", "receipt_asset_without_digest", "digest_without_receipt_asset",
                     "receipt_asset_in_assets", "digest_not_sha256", "recipe_id_not_sha256", "time_not_utc",
-                    "version_not_string", "bytes_not_whole", "part_sha256_not_sha256"))
+                    "version_not_string", "bytes_not_whole", "part_sha256_not_sha256", "block_not_object"))
 })

@@ -55,7 +55,7 @@
 crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, receipt_sha256 = NULL) {
   if (is.character(receipt)) receipt <- crt_receipt_read(receipt)
   if (!is.list(receipt) || is.null(names(receipt))) {
-    cli::cli_abort("{.arg receipt} must be a receipt or a path to one.")
+    cli::cli_abort("{.arg receipt} is not an object: it must be a receipt or a path to one.")
   }
   assets <- stac_assets_arg(assets)
   if (!is.null(receipt_asset)) {
@@ -95,7 +95,7 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
   code <- stac_block(recipe, "code", "recipe.code")
   software <- list()
   for (repo in names(code)) {
-    v <- if (is.list(code[[repo]])) code[[repo]][["version"]]
+    v <- stac_block(code, repo, paste0("recipe.code[", repo, "]"))[["version"]]
     if (stac_absent(v)) next
     if (!(is.character(v) && length(v) == 1L && nzchar(v))) {
       cli::cli_abort("{.field recipe.code[{repo}].version} is not a version string: {.val {format(v)}}.")
@@ -108,13 +108,13 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
   out <- list()
   for (key in names(assets)) {
     href <- assets[[key]]
-    part <- if (href %in% names(parts)) parts[[href]]
-    if (!is.list(part)) {
+    if (!href %in% names(parts)) {
       cli::cli_abort(c(
         "Asset {.val {key}} has href {.val {href}}, which is not a part of this receipt.",
         "i" = "Parts are keyed by the href relative to the item: {.val {names(parts)}}."
       ))
     }
+    part <- stac_block(parts, href, paste0("result.parts[", href, "]"))
     out[[key]] <- list(
       `file:checksum` = paste0("1220", stac_sha256(part[["sha256"]], paste0("result.parts[", href, "].sha256"))),
       `file:size` = stac_bytes(part[["bytes"]], paste0("result.parts[", href, "].bytes"))
@@ -140,10 +140,11 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
 # Null in a file is NULL; in a receipt built in memory it is NA.
 stac_absent <- function(v) is.null(v) || (is.atomic(v) && length(v) == 1L && is.na(v))
 
+# A JSON object reads as a named list, `{}` as one with no names; an array has none at all.
 stac_block <- function(x, name, where = name) {
   v <- x[[name]]
   if (is.null(v)) return(list())
-  if (!is.list(v)) cli::cli_abort("{.field {where}} is present but not an object.")
+  if (!is.list(v) || is.null(names(v))) cli::cli_abort("{.field {where}} is present but not an object.")
   v
 }
 

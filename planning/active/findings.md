@@ -156,3 +156,45 @@ digest followed by a newline. Fixed while v1.1.0 is unreleased: five field-value
 (each receipt invalid in one field) and a trailing-newline digest case, 19 in all; the crosscheck
 refuses the same values with `fullmatch`. stacs now agrees on 15 of 19; its four divergences are in
 stacs#15's body.
+
+## Code-check round 2 (2026-11-10): a defect inside round 1's fix, and the enumeration
+
+Round 2 found three, one of them inside round 1's fix: the `version_not_string` case changed the
+recipe without recomputing `recipe_id`, so an implementation checking the identity would refuse it
+for that reason and never test `version`. The cross-check skipped the identity check on every
+refused case, which hid it. Also: one bad value per field left most of each value's population
+unpinned (stacs publishes a trailing-newline `recipe_id`, a negative size, an empty version), and
+the Python reading treated a non-object block as absent where R and stacs refuse.
+
+Fixes: `bad()` rehashes any recipe change but the `recipe_id` itself; the cross-check confirms the
+identity on every case but `recipe_id_not_sha256`; one case per way each value can be malformed;
+`block_not_object` refused on both sides (R: an object is a named list, the convention
+`crt_receipt_read()` uses, since `{}` reads with names and `[]` without).
+
+**Enumeration (terminal).** Every value `crt_receipt_stac()` reads, parsed from `R/crt_receipt_stac.R`
+and the Python reading's `stac_fields()` (both read the same 16), with its guard against the form
+schema (`inst/extdata/receipt/schema/v1.0.0/schema.json`) and the classes `stac.json` pins:
+
+| value | R guard | Python guard | schema | pinned (code: classes) |
+|---|---|---|---|---|
+| `receipt` | named list | dict | object | block_not_object: array |
+| `assets` (arg) | named chr, unique, no NA/empty | dict (case format) | n/a | testthat only: unnamed, duplicate, NA (cannot be written as a case) |
+| asset href | in `names(parts)` | in parts | n/a | href_not_a_part |
+| `receipt_asset` (arg) | string, not in `assets` | not in assets | n/a | receipt_asset_in_assets, receipt_asset_without_digest |
+| `receipt_sha256` (arg) | 64 lower hex, needs asset | fullmatch, needs asset | n/a | digest_not_sha256: upper, newline, number; digest_without_receipt_asset |
+| `recipe`, `result`, `context` | named list or absent | dict or absent | object | block_not_object: recipe array, result string, context string |
+| `recipe.recipe_id` | null, or 64 lower hex | None, or fullmatch | sha256 or null (migrated) | recipe_id_not_sha256: not hex, upper, newline, number; null: migrated case |
+| `context.time` | null, or UTC ISO, ASCII digits | None, or fullmatch `[0-9]` | pattern | time_not_utc: space, offset, newline, Arabic-Indic, number; null: no-time case |
+| `recipe.code` | named list or absent | dict or absent | object | block_not_object: array, string |
+| `recipe.code[repo]` | named list | dict | object | block_not_object: string |
+| `...version` | null, or non-empty string | None, or non-empty str | string (minLength 1) or null | version_not_string: number, empty, true; null: two cases |
+| `result.parts` | named list or absent | dict or absent | object | block_not_object: array |
+| `result.parts[href]` | named list | dict | object | block_not_object: string |
+| `...sha256` | 64 lower hex | fullmatch | sha256 | part_sha256_not_sha256: not hex, upper, newline, missing |
+| `...bytes` | finite whole >= 0 | int/float, not bool, finite, whole, >= 0 | integer >= 0 | bytes_not_whole: fractional, negative, string, true, missing |
+
+Each published value's guard is the form schema's constraint on it, and each guard's classes are
+pinned. The one value both readings accept that a reader might not expect, a version containing a
+newline, the schema allows. R refuses each of the 37 refusal cases with a message naming the case's
+field (checked by script), and the Python reading refuses each with exactly the case's code. stacs
+agrees on 31 of 46; its 15 divergences are in stacs#15's body.
