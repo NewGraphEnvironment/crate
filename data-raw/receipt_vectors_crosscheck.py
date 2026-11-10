@@ -18,6 +18,7 @@ holding no vector file it knows.
 import datetime
 import hashlib
 import json
+import math
 import re
 import struct
 import sys
@@ -87,7 +88,9 @@ def table_canonical(table, tolerance):
 FILE_EXT = "https://stac-extensions.github.io/file/v2.1.0/schema.json"
 PROCESSING_EXT = "https://stac-extensions.github.io/processing/v1.2.0/schema.json"
 RECEIPT_EXT = "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# fullmatch, never match: `$` also matches before a trailing newline
+SHA256 = re.compile(r"[0-9a-f]{64}")
+UTC = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z")
 
 
 class Refused(Exception):
@@ -103,16 +106,29 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
             raise Refused("receipt_asset_without_digest")
     elif receipt_sha256 is not None:
         raise Refused("digest_without_receipt_asset")
-    if receipt_sha256 is not None and not SHA256.match(receipt_sha256):
+    if receipt_sha256 is not None and not (isinstance(receipt_sha256, str) and SHA256.fullmatch(receipt_sha256)):
         raise Refused("digest_not_sha256")
     recipe, result, context = (receipt.get(k) or {} for k in ("recipe", "result", "context"))
     props = {}
-    if recipe.get("recipe_id") is not None:
-        props["receipt:recipe_id"] = recipe["recipe_id"]
-    if context.get("time") is not None:
-        props["processing:datetime"] = context["time"]
-    software = {repo: e["version"] for repo, e in (recipe.get("code") or {}).items()
-                if e.get("version") is not None}
+    # A value the item publishes is checked first: the field schema or a reader would refuse it
+    rid = recipe.get("recipe_id")
+    if rid is not None:
+        if not (isinstance(rid, str) and SHA256.fullmatch(rid)):
+            raise Refused("recipe_id_not_sha256")
+        props["receipt:recipe_id"] = rid
+    time = context.get("time")
+    if time is not None:
+        if not (isinstance(time, str) and UTC.fullmatch(time)):
+            raise Refused("time_not_utc")
+        props["processing:datetime"] = time
+    software = {}
+    for repo, e in (recipe.get("code") or {}).items():
+        v = e.get("version")
+        if v is None:
+            continue
+        if not (isinstance(v, str) and v):
+            raise Refused("version_not_string")
+        software[repo] = v
     if software:
         props["processing:software"] = software
     parts = result.get("parts") or {}
@@ -120,7 +136,13 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
     for key, href in assets.items():
         if href not in parts:
             raise Refused("href_not_a_part")
-        out[key] = {"file:checksum": "1220" + parts[href]["sha256"], "file:size": parts[href]["bytes"]}
+        sha, size = parts[href].get("sha256"), parts[href].get("bytes")
+        if not (isinstance(sha, str) and SHA256.fullmatch(sha)):
+            raise Refused("part_sha256_not_sha256")
+        if isinstance(size, bool) or not isinstance(size, (int, float)) or not math.isfinite(size) \
+                or size < 0 or size != int(size):
+            raise Refused("bytes_not_whole")
+        out[key] = {"file:checksum": "1220" + sha, "file:size": size}
     if receipt_asset is not None:
         out[receipt_asset] = {"file:checksum": "1220" + receipt_sha256}
     ext = ([FILE_EXT] if out else []) + \
@@ -132,11 +154,11 @@ def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
 def check_stac(cases, bad):
     for c in cases:
         r = c["receipt"]
-        # Every case is a valid receipt whose recipe_id matches its recipe, so only the
-        # mapping decides it
+        # Every case's receipt is valid, its recipe_id matching its recipe, so only the
+        # mapping decides it; a case refused for a field value is invalid in that field alone
         recipe = dict(r["recipe"])
         rid = recipe.pop("recipe_id", None)
-        if rid is not None and hashlib.sha256(jcs(recipe).encode("utf-8")).hexdigest() != rid:
+        if rid is not None and c["error"] is None and hashlib.sha256(jcs(recipe).encode("utf-8")).hexdigest() != rid:
             bad.append(("stac recipe_id", c["name"], rid, "does not match its recipe"))
         try:
             got = stac_fields(r, c["assets"], c["receipt_asset"], c["receipt_sha256"])

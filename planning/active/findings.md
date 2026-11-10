@@ -146,3 +146,13 @@ whole number of at least 0. Null in a file and NA in memory both count as absent
   Not in the vectors, because the case is not a valid receipt (review item 11): stacs does not
   type-check `recipe.code[repo].version`, so it would publish a number, where crate refuses.
 | testthat failure snapshot `tests/testthat/_problems/` committed by `git add -A tests/testthat` in 95f98dd | `git rm` it; stage test files by name |
+
+## Code-check round 1 (2026-11-10): the vectors could not reach a malformed value
+
+Round 1 found the vectors pinned only argument errors: every receipt was valid, so an
+implementation that published a malformed `recipe_id`, time, version, size or part digest passed
+all 13 cases, and the Python reading did exactly that, with `re.match` and `$` also accepting a
+digest followed by a newline. Fixed while v1.1.0 is unreleased: five field-value refusal cases
+(each receipt invalid in one field) and a trailing-newline digest case, 19 in all; the crosscheck
+refuses the same values with `fullmatch`. stacs now agrees on 15 of 19; its four divergences are in
+stacs#15's body.

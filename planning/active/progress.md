@@ -41,3 +41,6 @@
   exported writers' examples break on the next crate install from main until it lands), and
   extended stacs#15's body and title: vendor mapping v1.1.0, run `stac.json`, and fix the two
   divergences and the `version` type check
+- `/code-check branch` round 1 (spawned 16:26Z): one finding, real (vectors could not reach a
+  malformed field value; Python `$` accepts a trailing newline). Fixed: 6 new `stac.json` cases (19),
+  the crosscheck checks what it publishes, README lists the codes, pin updated, stacs#15 updated

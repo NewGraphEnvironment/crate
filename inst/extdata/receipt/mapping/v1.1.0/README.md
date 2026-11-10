@@ -25,12 +25,17 @@ error}`.
   member order does not matter.
 - Where `error` is a code, the implementation must refuse the case, and `expected` is `null`.
   Messages differ between implementations, so a runner checks only that the case is refused. The
-  code says what is refused: `href_not_a_part`, `receipt_asset_without_digest`,
-  `digest_without_receipt_asset`, `receipt_asset_in_assets`, `digest_not_sha256`.
+  code says what is refused. The arguments: `href_not_a_part`, `receipt_asset_without_digest`,
+  `digest_without_receipt_asset`, `receipt_asset_in_assets`, `digest_not_sha256`. A value the item
+  would publish: `recipe_id_not_sha256`, `time_not_utc`, `version_not_string`, `bytes_not_whole`,
+  `part_sha256_not_sha256`.
 
-Every receipt in the cases is valid against receipt form v1.0.0, with a `recipe_id` that matches its
-recipe, so only the mapping decides each case. Read its numbers as the hashing vectors in
-`inst/extdata/receipt/vectors/v1.0.0/` describe.
+A case refused for a value the item would publish carries a receipt invalid in that field alone.
+Every other receipt is valid against receipt form v1.0.0, with a `recipe_id` that matches its
+recipe, so only the mapping decides each case. A SHA-256 is exactly 64 lower-case hex digits: a
+pattern that also matches before a trailing newline (Python's `$` with `re.match`) is not enough.
+Read the receipts' numbers as the hashing vectors in `inst/extdata/receipt/vectors/v1.0.0/`
+describe.
 
 The rows that differ from v1.0.0 are listed in the changelog at
 `https://newgraphenvironment.github.io/crate/receipt/CHANGELOG.md`. A released version is never

@@ -303,7 +303,9 @@ write_vectors(compare, "compare.json", dir = register_dir)
 #                     expected: {stac_extensions, properties, assets}, compared as canonical
 #                     JSON; null where the case is refused
 #                     error: null, or a short code naming what is refused. Implementations'
-#                     messages differ, so a runner checks only that the case is refused
+#                     messages differ, so a runner checks only that the case is refused.
+#                     A case refused for a field value carries a receipt invalid in that
+#                     field alone; every other case's receipt is valid
 mapping_dir <- file.path("inst", "extdata", "receipt", "mapping",
                          paste0("v", crate:::receipt_mapping_version()))
 b1_sha256 <- digest::digest(file.path(wc, "build_1", "receipt.json"), algo = "sha256", file = TRUE)
@@ -325,6 +327,11 @@ crt_receipt_migrate(file.path("inst", "extdata", "receipt", "examples", "legacy"
 migrated_receipt <- crt_receipt_read(migrated_path)
 stopifnot(is.null(migrated_receipt$recipe$recipe_id))
 
+# One field set to a value the mapping must refuse; recipe_id is left as it was
+bad <- function(r, path, value) {
+  r[[path]] <- value
+  r
+}
 no_assets <- stats::setNames(list(), character())
 stac_case <- function(name, receipt, assets = NULL, receipt_asset = NULL, receipt_sha256 = NULL,
                       error = NULL) {
@@ -360,6 +367,23 @@ stac <- list(
   stac_case("the receipt asset's key is not also a part's asset", b1, list(receipt = "walks.csv"), "receipt",
             b1_sha256, error = "receipt_asset_in_assets"),
   stac_case("a digest is 64 lower-case hex", b1, NULL, "receipt", toupper(b1_sha256),
-            error = "digest_not_sha256")
+            error = "digest_not_sha256"),
+  stac_case("a digest with a trailing newline is not 64 lower-case hex", b1, NULL, "receipt",
+            paste0(b1_sha256, "\n"), error = "digest_not_sha256"),
+  # A value the item would publish is checked before it is mirrored: these receipts are
+  # invalid on purpose, one field each, so an implementation cannot publish what the field
+  # schema or a reader would refuse
+  stac_case("a recipe_id that is not a SHA-256 is refused", bad(b1, c("recipe", "recipe_id"), "abc"),
+            error = "recipe_id_not_sha256"),
+  stac_case("a context.time that is not an ISO 8601 UTC time is refused",
+            bad(b1, c("context", "time"), "2026-11-04 18:22:05"), error = "time_not_utc"),
+  stac_case("a version that is not a string is refused", bad(b1, c("recipe", "code", "link", "version"), 1L),
+            error = "version_not_string"),
+  stac_case("a part's bytes that are not a whole number are refused",
+            bad(b1, c("result", "parts", "walks.csv", "bytes"), 1.5), list(walks = "walks.csv"),
+            error = "bytes_not_whole"),
+  stac_case("a part's sha256 that is not 64 lower-case hex is refused",
+            bad(b1, c("result", "parts", "walks.csv", "sha256"), "zz"), list(walks = "walks.csv"),
+            error = "part_sha256_not_sha256")
 )
 write_vectors(stac, "stac.json", dir = mapping_dir)
