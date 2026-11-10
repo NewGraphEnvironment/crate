@@ -24,3 +24,4 @@ Thumbs.db
 /doc/
 /Meta/
 tests/testthat/_problems/
+tests/testthat/testthat-problems.rds
