@@ -6,13 +6,19 @@ specifies it. Every expected value in inst/extdata/receipt/vectors/<version>/ mu
 byte for byte. It doubles as a reference for stacs' `stacs.receipt` (stacs#12).
 
     python -I data-raw/receipt_vectors_crosscheck.py inst/extdata/receipt/vectors/v1.0.0
+    python -I data-raw/receipt_vectors_crosscheck.py inst/extdata/receipt/mapping/v1.1.0
 
-Needs `rfc8785` (stacs' environment has it). Exits 1 on any mismatch.
+It checks the vector files the directory holds: the hashing vectors, or a mapping version's
+`stac.json`, which it recomputes with its own reading of the mapping's STAC rows (crate#59).
+
+Needs `rfc8785` (stacs' environment has it). Exits 1 on any mismatch, or on a directory
+holding no vector file it knows.
 """
 
 import datetime
 import hashlib
 import json
+import re
 import struct
 import sys
 from pathlib import Path
@@ -78,11 +84,95 @@ def table_canonical(table, tolerance):
     return '{"columns":' + jcs(names) + ',"rows":[' + ",".join(rows) + "]}"
 
 
+FILE_EXT = "https://stac-extensions.github.io/file/v2.1.0/schema.json"
+PROCESSING_EXT = "https://stac-extensions.github.io/processing/v1.2.0/schema.json"
+RECEIPT_EXT = "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
+
+
+class Refused(Exception):
+    pass
+
+
+def stac_fields(receipt, assets, receipt_asset, receipt_sha256):
+    """The mapping's STAC rows, read from mapping.csv's notes, not from crate's R code."""
+    if receipt_asset is not None:
+        if receipt_asset in assets:
+            raise Refused("receipt_asset_in_assets")
+        if receipt_sha256 is None:
+            raise Refused("receipt_asset_without_digest")
+    elif receipt_sha256 is not None:
+        raise Refused("digest_without_receipt_asset")
+    if receipt_sha256 is not None and not SHA256.match(receipt_sha256):
+        raise Refused("digest_not_sha256")
+    recipe, result, context = (receipt.get(k) or {} for k in ("recipe", "result", "context"))
+    props = {}
+    if recipe.get("recipe_id") is not None:
+        props["receipt:recipe_id"] = recipe["recipe_id"]
+    if context.get("time") is not None:
+        props["processing:datetime"] = context["time"]
+    software = {repo: e["version"] for repo, e in (recipe.get("code") or {}).items()
+                if e.get("version") is not None}
+    if software:
+        props["processing:software"] = software
+    parts = result.get("parts") or {}
+    out = {}
+    for key, href in assets.items():
+        if href not in parts:
+            raise Refused("href_not_a_part")
+        out[key] = {"file:checksum": "1220" + parts[href]["sha256"], "file:size": parts[href]["bytes"]}
+    if receipt_asset is not None:
+        out[receipt_asset] = {"file:checksum": "1220" + receipt_sha256}
+    ext = ([FILE_EXT] if out else []) + \
+          ([PROCESSING_EXT] if {"processing:datetime", "processing:software"} & props.keys() else []) + \
+          ([RECEIPT_EXT] if "receipt:recipe_id" in props else [])
+    return {"stac_extensions": ext, "properties": props, "assets": out}
+
+
+def check_stac(cases, bad):
+    for c in cases:
+        r = c["receipt"]
+        # Every case is a valid receipt whose recipe_id matches its recipe, so only the
+        # mapping decides it
+        recipe = dict(r["recipe"])
+        rid = recipe.pop("recipe_id", None)
+        if rid is not None and hashlib.sha256(jcs(recipe).encode("utf-8")).hexdigest() != rid:
+            bad.append(("stac recipe_id", c["name"], rid, "does not match its recipe"))
+        try:
+            got = stac_fields(r, c["assets"], c["receipt_asset"], c["receipt_sha256"])
+            refused = None
+        except Refused as e:
+            got, refused = None, str(e)
+        if refused != c["error"]:
+            bad.append(("stac refusal", c["name"], refused, c["error"]))
+        elif got is not None and jcs(got) != jcs(c["expected"]):
+            bad.append(("stac", c["name"], jcs(got), jcs(c["expected"])))
+
+
 def main(vdir):
     vdir = Path(vdir)
-    load = lambda f: json.loads((vdir / f).read_text(encoding="utf-8"))
+    # parse_int=float: JSON has one number type, so read every number as a double
+    load = lambda f: json.loads((vdir / f).read_text(encoding="utf-8"), parse_int=float)
     bad = []
+    counts = {}
 
+    if (vdir / "numbers.json").exists():
+        hashing(load, bad)
+        counts.update({f: len(load(f)) for f in ("numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json")})
+    if (vdir / "stac.json").exists():
+        check_stac(load("stac.json"), bad)
+        counts["stac.json"] = len(load("stac.json"))
+    if not counts:
+        print(f"no vector file this script knows in {vdir}")
+        return 1
+    print("cases:", counts)
+    for b in bad:
+        print("MISMATCH", *b, sep="\n  ")
+    print(f"{len(bad)} mismatch(es)")
+    return 1 if bad else 0
+
+
+def hashing(load, bad):
     for c in load("numbers.json"):
         got = shortest(from_bits(c["bits"]))
         if got != c["expected"]:
@@ -113,13 +203,6 @@ def main(vdir):
             bad.append(("fingerprint canonical", c["name"], got, c["canonical"]))
         if got_sha != c["sha256"]:
             bad.append(("fingerprint", c["name"], got_sha, c["sha256"]))
-
-    counts = {f: len(load(f)) for f in ("numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json")}
-    print("cases:", counts)
-    for b in bad:
-        print("MISMATCH", *b, sep="\n  ")
-    print(f"{len(bad)} mismatch(es)")
-    return 1 if bad else 0
 
 
 if __name__ == "__main__":

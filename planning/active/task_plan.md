@@ -84,9 +84,9 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
       the two new files; the mapping row test allows the empty `receipt_key` on that one row only
 
 ## Phase 5: Cross-check against two other implementations
-- [ ] `data-raw/receipt_vectors_crosscheck.py`: an independent Python mapping that recomputes every
+- [x] `data-raw/receipt_vectors_crosscheck.py`: an independent Python mapping that recomputes every
       `stac.json` case
-- [ ] Run stacs's `stac_fields()` (stacs checkout, read-only) over `stac.json`; record each divergence
+- [x] Run stacs's `stac_fields()` (stacs checkout, read-only) over `stac.json`; record each divergence
       in `findings.md`
 
 ## Phase 6: Docs and follow-on issues

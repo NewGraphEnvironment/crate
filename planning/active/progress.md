@@ -29,3 +29,6 @@
   its README, `receipt_mapping_version()` 1.1.0, a CHANGELOG entry, a runner and byte pins.
   Regenerating all vectors left every released file byte-identical. `crt_receipt_migrate()` on
   both legacy examples gives identical canonical JSON under v1.0.0 (a worktree of main) and v1.1.0
+- Phase 5: the crosscheck recomputes `stac.json` independently (0 mismatches; planted mismatches
+  caught); mutation shows the R runner guards omit-on-null and the unmatched-asset error; stacs
+  agrees on 11 of 13 cases, and the 2 divergences are in findings for the stacs issue

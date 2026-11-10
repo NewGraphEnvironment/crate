@@ -128,3 +128,20 @@ jsonvalidate (Suggests, V8 underneath), so that would make a Suggests package a 
 the catalogue path. Instead it checks each value it mirrors: `recipe_id` and part `sha256` as 64
 lower-case hex, `context.time` as an ISO UTC time, a version as a non-empty string, `bytes` as a
 whole number of at least 0. Null in a file and NA in memory both count as absent.
+
+## Cross-checks of stac.json (2026-11-10)
+
+- `data-raw/receipt_vectors_crosscheck.py` now checks whatever vector files a directory holds; its
+  own Python reading of the STAC rows agrees on all 13 `stac.json` cases, and the hashing vectors
+  still pass (2637/10/7/13). It also confirms every case's `recipe_id` matches its recipe. Two
+  planted mismatches in a copy of `stac.json` (a changed datetime, a changed refusal code) report as
+  2 mismatches.
+- Mutation of `crt_receipt_stac()` in a worktree: publishing a null `receipt:recipe_id`, and
+  skipping an asset whose href names no part, each turn the `stac.json` runner red. Two first-try
+  mutants were equivalent and stayed green: `props[[k]] <- NULL` deletes rather than writes null, and
+  dropping the unmatched-asset check still errored later in `stac_sha256()`.
+- **stacs `stac_fields()` (stacs origin/main 3b08621) over `stac.json`: 11 of 13 agree.** It diverges on
+  - `digest_without_receipt_asset`: it ignores a `receipt_sha256` passed with no `receipt_asset`
+  - `receipt_asset_in_assets`: it silently overwrites the part's asset with the receipt asset
+  Not in the vectors, because the case is not a valid receipt (review item 11): stacs does not
+  type-check `recipe.code[repo].version`, so it would publish a number, where crate refuses.
