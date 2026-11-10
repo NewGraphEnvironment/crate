@@ -37,3 +37,7 @@
   mentions (review item 4: migrate roxygen, vignette, the STAC README, research) and the stale
   comments (item 7, `crt_receipt_compare.R`) are fixed. The research file gains its provenance line
   and drops `crt_receipt_stac()` from "Not in v1". CLAUDE.md names the function and `stac.json`
+- Phase 6 issues: filed knowledge#188 (move off `crt_receipt_write()`'s old return value; its
+  exported writers' examples break on the next crate install from main until it lands), and
+  extended stacs#15's body and title: vendor mapping v1.1.0, run `stac.json`, and fix the two
+  divergences and the `version` type check

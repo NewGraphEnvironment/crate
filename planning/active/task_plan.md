@@ -94,9 +94,9 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
       unmatched part and an unmatched asset mean, the receipt asset's checksum), and the test-vector
       section names `mapping/v1.1.0/stac.json`
 - [x] `CLAUDE.md`: add `crt_receipt_stac` to the receipt family, and mapping v1.1.0 to the status line
-- [ ] File a knowledge issue: `crt_receipt_write()` now returns the digest, so read the receipt with
+- [x] File a knowledge issue: `crt_receipt_write()` now returns the digest, so read the receipt with
       `crt_receipt_read()` (4 call sites)
-- [ ] Edit the body of stacs#15 (re-vendor from versioned paths), or file a new stacs issue: vendor
+- [x] Edit the body of stacs#15 (re-vendor from versioned paths), or file a new stacs issue: vendor
       mapping v1.1.0, run `stac.json`, and fix the divergences Phase 5 found
 
 ## Owed at the end (reported, done after merge)
