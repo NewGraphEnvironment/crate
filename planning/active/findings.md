@@ -145,3 +145,4 @@ whole number of at least 0. Null in a file and NA in memory both count as absent
   - `receipt_asset_in_assets`: it silently overwrites the part's asset with the receipt asset
   Not in the vectors, because the case is not a valid receipt (review item 11): stacs does not
   type-check `recipe.code[repo].version`, so it would publish a number, where crate refuses.
+| testthat failure snapshot `tests/testthat/_problems/` committed by `git add -A tests/testthat` in 95f98dd | `git rm` it; stage test files by name |
