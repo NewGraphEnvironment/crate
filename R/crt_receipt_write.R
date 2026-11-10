@@ -208,7 +208,7 @@ receipt_build <- function(dir, output, recipe, result, context, keys, lockfile, 
 # published at the same path under the site's receipt/.
 receipt_version <- function() "1.0.0"
 receipt_register_version <- function() "1.0.0"
-receipt_mapping_version <- function() "1.0.0"
+receipt_mapping_version <- function() "1.1.0"
 
 receipt_contract_file <- function(part, version, file) {
   system.file("extdata", "receipt", part, paste0("v", version), file, package = "crate",

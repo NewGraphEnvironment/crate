@@ -70,17 +70,17 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
 - [x] `devtools::document()`; `pkgdown::check_pkgdown()` (`starts_with("crt_receipt_")` covers it)
 
 ## Phase 4: Mapping v1.1.0 and `stac.json`
-- [ ] `inst/extdata/receipt/mapping/v1.1.0/mapping.csv`: the v1.0.0 rows, with notes stating
+- [x] `inst/extdata/receipt/mapping/v1.1.0/mapping.csv`: the v1.0.0 rows, with notes stating
       omit-on-null for `receipt:recipe_id` and `processing:software`, the unmatched part and asset
       rules on `assets.*.file:checksum`, and a new `assets.{receipt}.file:checksum` row (multihash of
       SHA-256 over the published receipt bytes, which the writer returns, never from a part; no
       `file:size`, deliberately)
-- [ ] `stac.json` beside it, written by a new section of `data-raw/receipt_vectors.R`. Each case is
+- [x] `stac.json` beside it, written by a new section of `data-raw/receipt_vectors.R`. Each case is
       `{name, receipt, assets, receipt_asset, receipt_sha256, expected | error}`, compared as
       canonical JSON. Cases as in Phase 1. Plus `README.md` for the directory
-- [ ] `receipt_mapping_version()` → `"1.1.0"`; published copy at
+- [x] `receipt_mapping_version()` → `"1.1.0"`; published copy at
       `pkgdown/assets/receipt/mapping/v1.1.0/mapping.csv`; a `receipt/CHANGELOG.md` entry
-- [ ] Vector tests: a runner for `stac.json`, the "every vector file has a runner" set, byte pins for
+- [x] Vector tests: a runner for `stac.json`, the "every vector file has a runner" set, byte pins for
       the two new files; the mapping row test allows the empty `receipt_key` on that one row only
 
 ## Phase 5: Cross-check against two other implementations

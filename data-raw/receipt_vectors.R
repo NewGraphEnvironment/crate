@@ -291,3 +291,75 @@ compare <- list(
   pair("a migrated receipt", b1, migrated)
 )
 write_vectors(compare, "compare.json", dir = register_dir)
+
+# ---- stac ------------------------------------------------------------------------
+# The STAC rows of the receipt mapping, as crt_receipt_stac() executes them (#59, #60).
+# Versioned with the mapping, in inst/extdata/receipt/mapping/v<mapping version>/.
+#
+#   stac.json         {name, receipt, assets, receipt_asset, receipt_sha256, expected, error}
+#                     receipt: a receipt; assets: {<asset key>: <href relative to the item>}
+#                     receipt_asset, receipt_sha256: the receipt asset's key and the digest of
+#                     the published receipt's bytes, or null
+#                     expected: {stac_extensions, properties, assets}, compared as canonical
+#                     JSON; null where the case is refused
+#                     error: null, or a short code naming what is refused. Implementations'
+#                     messages differ, so a runner checks only that the case is refused
+mapping_dir <- file.path("inst", "extdata", "receipt", "mapping",
+                         paste0("v", crate:::receipt_mapping_version()))
+b1_sha256 <- digest::digest(file.path(wc, "build_1", "receipt.json"), algo = "sha256", file = TRUE)
+# A receipt edited here keeps a recipe_id that matches its recipe, so every case is a
+# valid receipt and only the mapping decides it.
+rehash <- function(r) {
+  r$recipe$recipe_id <- crate:::crt_receipt_recipe_id(r$recipe)
+  r
+}
+no_link_version <- b1
+no_link_version$recipe$code$link["version"] <- list(NULL)
+no_link_version <- rehash(no_link_version)
+no_versions <- no_link_version
+no_versions$recipe$code$knowledge["version"] <- list(NULL)
+no_versions <- rehash(no_versions)
+migrated_path <- file.path(tempdir(), "migrated_receipt.json")
+crt_receipt_migrate(file.path("inst", "extdata", "receipt", "examples", "legacy", "link_manifest.json"),
+                    "link manifest.json", path = migrated_path)
+migrated_receipt <- crt_receipt_read(migrated_path)
+stopifnot(is.null(migrated_receipt$recipe$recipe_id))
+
+no_assets <- stats::setNames(list(), character())
+stac_case <- function(name, receipt, assets = NULL, receipt_asset = NULL, receipt_sha256 = NULL,
+                      error = NULL) {
+  out <- tryCatch(
+    crt_receipt_stac(receipt, assets = if (length(assets)) unlist(assets), receipt_asset = receipt_asset,
+                     receipt_sha256 = receipt_sha256),
+    error = function(e) e
+  )
+  refused <- inherits(out, "error")
+  if (refused != !is.null(error)) {
+    stop("stac case '", name, "': ", if (refused) paste("refused:", conditionMessage(out)) else "not refused",
+         call. = FALSE)
+  }
+  list(name = name, receipt = receipt, assets = if (length(assets)) as.list(assets) else no_assets,
+       receipt_asset = receipt_asset, receipt_sha256 = receipt_sha256,
+       expected = if (!refused) out, error = error)
+}
+all_parts <- list(access = "access_check.csv", visits_link = "visits_link.csv",
+                  visits_species = "visits_species.csv", walks = "walks.csv")
+stac <- list(
+  stac_case("worked case: every part, and the receipt asset", b1, all_parts, "receipt", b1_sha256),
+  stac_case("no assets: no part is mirrored", b1),
+  stac_case("a part with no asset is not mirrored", b1, list(access = "access_check.csv")),
+  stac_case("two assets name one part", b1, list(a = "walks.csv", b = "walks.csv")),
+  stac_case("the receipt asset alone: file:checksum, no file:size", b1, NULL, "receipt", b1_sha256),
+  stac_case("a migrated receipt: no receipt:recipe_id, never a null one", migrated_receipt),
+  stac_case("a repository with no version is left out of processing:software", no_link_version),
+  stac_case("no repository has a version: no processing:software", no_versions),
+  stac_case("an asset whose href names no part is refused", b1, list(data = "floodplain.tif"),
+            error = "href_not_a_part"),
+  stac_case("a receipt asset needs its digest", b1, NULL, "receipt", error = "receipt_asset_without_digest"),
+  stac_case("a digest needs a receipt asset", b1, NULL, NULL, b1_sha256, error = "digest_without_receipt_asset"),
+  stac_case("the receipt asset's key is not also a part's asset", b1, list(receipt = "walks.csv"), "receipt",
+            b1_sha256, error = "receipt_asset_in_assets"),
+  stac_case("a digest is 64 lower-case hex", b1, NULL, "receipt", toupper(b1_sha256),
+            error = "digest_not_sha256")
+)
+write_vectors(stac, "stac.json", dir = mapping_dir)

@@ -143,7 +143,10 @@ test_that("every mapping row points at a receipt field", {
                                      paste0("v", crate:::receipt_register_version()), "register.csv",
                                      package = "crate", mustWork = TRUE),
                          stringsAsFactors = FALSE)$field
-  for (k in m$receipt_key) {
+  # One row takes its value from outside the receipt: the receipt asset's checksum, the
+  # digest of the published receipt's bytes, which the writer returns (#60)
+  expect_identical(m$source_field[!nzchar(m$receipt_key)], "assets.{receipt}.file:checksum")
+  for (k in m$receipt_key[nzchar(m$receipt_key)]) {
     p <- gsub("\\[[^]]*\\]", ".*", k)
     segs <- strsplit(p, ".", fixed = TRUE)[[1]]
     prefixes <- vapply(seq_along(segs), function(i) paste(segs[seq_len(i)], collapse = "."), "")

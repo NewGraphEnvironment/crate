@@ -11,8 +11,14 @@ register_dir <- function() {
               package = "crate", mustWork = TRUE)
 }
 
+# stac.json tests the mapping's STAC rows, so it is versioned with the mapping (#59).
+mapping_dir <- function() {
+  system.file("extdata", "receipt", "mapping", paste0("v", crate:::receipt_mapping_version()),
+              package = "crate", mustWork = TRUE)
+}
+
 read_vectors <- function(file) {
-  dir <- if (file == "compare.json") register_dir() else vectors_dir()
+  dir <- switch(file, compare.json = register_dir(), stac.json = mapping_dir(), vectors_dir())
   jsonlite::read_json(file.path(dir, file), simplifyVector = FALSE)
 }
 
@@ -50,6 +56,7 @@ test_that("every vector file has a runner", {
   expect_setequal(list.files(vectors_dir()),
                   c("README.md", "numbers.json", "jcs.json", "recipe_id.json", "fingerprint.json"))
   expect_setequal(list.files(register_dir()), c("README.md", "register.csv", "compare.json"))
+  expect_setequal(list.files(mapping_dir()), c("README.md", "mapping.csv", "stac.json"))
 })
 
 # Released files never change (pkgdown/assets/receipt/CHANGELOG.md). A test that runs
@@ -69,7 +76,9 @@ test_that("every released contract file has the bytes it was released with", {
     "vectors/v1.0.0/recipe_id.json" = "3dd279efb59158aa4591f6f619d6ecb273c9e7b104b716dd479ba9229b212e96",
     "register/v1.0.0/compare.json" = "916f30136c42ce823d55d560138cb6860ab28f0d1bb314a54433c858ac53bc27",
     "register/v1.0.0/register.csv" = "f60f171dbae277d3c5b54999d76b2a53d49e1e0cfba725ac36091a9fbd28b4d2",
-    "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef"
+    "mapping/v1.0.0/mapping.csv" = "d71d34d1681ec126231d133c5191595d2bb842fa778465e60fb4ada7e1bd53ef",
+    "mapping/v1.1.0/mapping.csv" = "adb2e62b082556cb33b7a3aa32645f26974c5e0f82ed620e17bba525fe4630fb",
+    "mapping/v1.1.0/stac.json" = "728d752d3fb2f286f0a628cc07733daa8e95da82e6bbcc28a2e28adfe10bf57c"
   )
   root <- system.file("extdata", "receipt", package = "crate", mustWork = TRUE)
   on_disk <- list.files(root, recursive = TRUE)
@@ -141,4 +150,31 @@ test_that("compare.json: verdict and the fields that differed", {
   }
   verdicts <- vapply(cases, `[[`, "", "verdict")
   expect_setequal(unique(verdicts), c("identical", "equivalent", "different"))
+})
+
+test_that("stac.json: the item fields each receipt maps to, or a refusal", {
+  cases <- read_vectors("stac.json")
+  expect_gt(length(cases), 10)
+  for (cs in cases) {
+    call <- function() {
+      crt_receipt_stac(cs$receipt, assets = if (length(cs$assets)) unlist(cs$assets),
+                       receipt_asset = cs$receipt_asset, receipt_sha256 = cs$receipt_sha256)
+    }
+    if (!is.null(cs$error)) {
+      expect_null(cs$expected, info = cs$name)
+      expect_error(call(), info = cs$name)
+      next
+    }
+    expect_identical(crate:::crt_receipt_jcs(call()), crate:::crt_receipt_jcs(cs$expected), info = cs$name)
+  }
+  # what the mapping decides, pinned in the vectors themselves
+  named <- stats::setNames(cases, vapply(cases, `[[`, "", "name"))
+  migrated <- named[["a migrated receipt: no receipt:recipe_id, never a null one"]]
+  expect_null(migrated$receipt$recipe$recipe_id)
+  expect_false("receipt:recipe_id" %in% names(migrated$expected$properties))
+  receipt_only <- named[["the receipt asset alone: file:checksum, no file:size"]]$expected$assets$receipt
+  expect_identical(names(receipt_only), "file:checksum")
+  expect_setequal(vapply(cases, function(cs) if (is.null(cs$error)) "" else cs$error, ""),
+                  c("", "href_not_a_part", "receipt_asset_without_digest", "digest_without_receipt_asset",
+                    "receipt_asset_in_assets", "digest_not_sha256"))
 })

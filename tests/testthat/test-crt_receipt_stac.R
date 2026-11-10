@@ -102,3 +102,41 @@ test_that("a field the item would publish is checked before it is mirrored", {
   bad$result$parts$walks.csv$sha256 <- "zz"
   expect_error(crt_receipt_stac(bad, assets = c(w = "walks.csv")), "sha256")
 })
+
+# The published field schema is what #59 says defines a conforming item, so an item built
+# from each vector case must pass it. The schema is published from the source tree.
+test_that("an item built from each case passes the receipt field schema", {
+  pkg <- testthat::test_path("..", "..")
+  if (!file.exists(file.path(pkg, "_pkgdown.yml"))) {
+    testthat::skip("source tree not available (R CMD check)")
+  }
+  testthat::skip_if_not_installed("jsonvalidate")
+  stac <- file.path(pkg, "pkgdown", "assets", "stac", "receipt")
+  base <- jsonlite::read_json(file.path(stac, "examples", "item.json"), simplifyVector = FALSE)
+  schema <- file.path(stac, "v1.0.0", "schema.json")
+  cases <- jsonlite::read_json(system.file("extdata", "receipt", "mapping",
+                                           paste0("v", crate:::receipt_mapping_version()), "stac.json",
+                                           package = "crate", mustWork = TRUE),
+                               simplifyVector = FALSE)
+  n <- 0
+  for (cs in cases[vapply(cases, function(cs) is.null(cs$error), TRUE)]) {
+    s <- crt_receipt_stac(cs$receipt, assets = if (length(cs$assets)) unlist(cs$assets),
+                          receipt_asset = cs$receipt_asset, receipt_sha256 = cs$receipt_sha256)
+    item <- base
+    item$stac_extensions <- as.list(s$stac_extensions)
+    item$properties <- c(list(datetime = base$properties$datetime), s$properties)
+    item$assets <- lapply(s$assets, function(a) c(list(href = "x", roles = list("data")), a))
+    # The schema applies to an item that lists it; one with no receipt field (a migrated
+    # receipt's) lists it not, and carries no receipt: field it would check
+    url <- "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"
+    if (!url %in% s$stac_extensions) {
+      expect_false(any(startsWith(names(s$properties), "receipt:")), info = cs$name)
+      next
+    }
+    txt <- crate:::crt_receipt_jcs(item)
+    ok <- jsonvalidate::json_validate(txt, schema, engine = "ajv", verbose = TRUE)
+    expect_true(ok, info = cs$name)
+    n <- n + 1
+  }
+  expect_gt(n, 5)
+})
