@@ -11,3 +11,6 @@
 - Phase 1: tests first. `test-crt_receipt_stac.R` (7 blocks, all erroring: no function yet); the
   write tests read the receipt back from the file and pin the returned digest (fails as expected);
   compare tests that exercised the in-memory receipt now build it with `receipt_build()`
+- Phase 2: `crt_receipt_write()` returns the SHA-256 of the bytes it wrote (hashed from the temp
+  file before the rename), invisibly. Callers moved: the vignette, `data-raw/receipt_examples.R`,
+  the roxygen example. `crt_receipt_migrate(path =)` still returns the receipt (not in scope)

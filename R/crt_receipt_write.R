@@ -51,7 +51,12 @@
 #'   that resolves to a file the receipt hashes (a part, a config file, the lockfile)
 #'   is refused, since writing the receipt would replace those bytes.
 #'
-#' @return The receipt, as a list, invisibly. The file is `file.path(dir, file)`.
+#' @return The SHA-256 of the bytes written, as 64 lower-case hex digits, invisibly.
+#'   The file is `file.path(dir, file)`; read it with [crt_receipt_read()]. The digest
+#'   is what a STAC item's receipt asset carries as `file:checksum`
+#'   ([crt_receipt_stac()]): nothing else can compute it, since a receipt's own bytes
+#'   are not inside it, and taking it here means the caller never re-reads the file and
+#'   risks hashing another version of it (#60).
 #'
 #' @seealso [crt_receipt_read()], [crt_receipt_validate()], [crt_receipt_compare()],
 #'   [crt_table_fingerprint()].
@@ -62,7 +67,7 @@
 #' access <- data.frame(segment = c("s1", "s2"), km = c(12.3456789012, 7.25))
 #' write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
 #'
-#' r <- crt_receipt_write(
+#' digest <- crt_receipt_write(
 #'   dir,
 #'   output = list(name = "link_evidence", scope = "BULK"),
 #'   recipe = list(
@@ -79,7 +84,8 @@
 #'   ),
 #'   publish = TRUE
 #' )
-#' r$recipe$recipe_id
+#' digest
+#' crt_receipt_read(dir)$recipe$recipe_id
 #'
 #' @export
 crt_receipt_write <- function(dir, output, recipe, result = list(), context = list(),
@@ -104,8 +110,7 @@ crt_receipt_write <- function(dir, output, recipe, result = list(), context = li
 
   receipt <- receipt_build(dir, output, recipe, result, context, keys, lockfile, publish)
   receipt_target_free(dir, file, names(receipt$result$parts), c(recipe$config$files, lockfile))
-  receipt_write_file(receipt, file.path(dir, file))
-  invisible(receipt)
+  invisible(receipt_write_file(receipt, file.path(dir, file)))
 }
 
 # The receipt must not land on a file it has just hashed: a part, a config file or the
@@ -482,8 +487,10 @@ receipt_write_file <- function(receipt, path) {
   tmp <- tempfile("receipt", tmpdir = dirname(path), fileext = ".json")
   on.exit(unlink(tmp), add = TRUE)
   writeLines(enc2utf8(sub("\n+$", "", txt)), tmp, useBytes = TRUE)
+  # Hashed before the rename: the bytes this call wrote, whatever reaches the path later.
+  sha256 <- receipt_file_sha256(tmp)
   if (!file.rename(tmp, path)) {
     cli::cli_abort("Could not write {.path {path}}.")
   }
-  invisible(path)
+  sha256
 }

@@ -56,8 +56,8 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
       and is invisible; existing tests that read the returned list move to `crt_receipt_read()`
 
 ## Phase 2: `crt_receipt_write()` returns the digest (#60)
-- [ ] `receipt_write_file()` hashes the bytes it wrote (the temp file, before the rename) and returns it
-- [ ] `@return`, the example (`crt_receipt_read()` for the fields), and crate's own callers:
+- [x] `receipt_write_file()` hashes the bytes it wrote (the temp file, before the rename) and returns it
+- [x] `@return`, the example (`crt_receipt_read()` for the fields), and crate's own callers:
       `data-raw/receipt_examples.R`, tests, `vignettes/receipt.Rmd`
 
 ## Phase 3: `crt_receipt_stac()` (#59)

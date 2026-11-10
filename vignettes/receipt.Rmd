@@ -216,7 +216,8 @@ cat(readLines(system.file("extdata", "receipt", "examples", "receipt_keys.yaml",
 ```
 
 and hands the writer its values. `crt_receipt_write()` computes the ids, fingerprints and digests,
-fills the context, and writes `receipt.json` atomically:
+fills the context, writes `receipt.json` atomically, and returns the SHA-256 of the bytes it
+wrote, which an item's receipt asset carries (see "STAC items" below):
 
 ```{r}
 dir <- file.path(tempdir(), "evidence")
@@ -224,7 +225,7 @@ dir.create(dir, showWarnings = FALSE)
 access <- read.csv(file.path(wc, "build_1", "access_check.csv"))
 write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
 
-w <- crt_receipt_write(
+digest <- crt_receipt_write(
   dir,
   output = list(name = "access_check", scope = "BULK"),
   recipe = list(
@@ -242,7 +243,7 @@ w <- crt_receipt_write(
   ),
   publish = TRUE
 )
-w$result$fingerprint
+crt_receipt_read(dir)$result$fingerprint
 ```
 
 Name each part by the table it holds. A file whose bytes differ between builds is `equivalent` only
