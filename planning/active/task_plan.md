@@ -46,13 +46,13 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
   - `stac.json` is installed with crate and not published on the site, like `compare.json`.
 
 ## Phase 1: Tests first
-- [ ] `tests/testthat/test-crt_receipt_stac.R`: a normal receipt (worked_case build_1), a migrated one
+- [x] `tests/testthat/test-crt_receipt_stac.R`: a normal receipt (worked_case build_1), a migrated one
       (null `recipe_id` → no `receipt:recipe_id`, no receipt extension URL), a null
       `code[repo].version` (repo left out; none versioned → no `processing:software`), a part with no
       asset (not mirrored), two assets on one part, the receipt asset (`1220` + digest, no
       `file:size`); errors: an href that is no part, `receipt_asset` without digest, digest without
       `receipt_asset`, a key collision, a digest that is not 64 lowercase hex
-- [ ] `test-crt_receipt_write.R`: the return value equals `digest::digest(file = <receipt>, algo = "sha256")`
+- [x] `test-crt_receipt_write.R`: the return value equals `digest::digest(file = <receipt>, algo = "sha256")`
       and is invisible; existing tests that read the returned list move to `crt_receipt_read()`
 
 ## Phase 2: `crt_receipt_write()` returns the digest (#60)

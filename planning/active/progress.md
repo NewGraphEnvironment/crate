@@ -8,3 +8,6 @@
   housekeeping commits landed during the gate, nothing receipt-related)
 - Scaffolded PWF baseline from issues #59 and #60 with the approved phases
 - Next: start Phase 1
+- Phase 1: tests first. `test-crt_receipt_stac.R` (7 blocks, all erroring: no function yet); the
+  write tests read the receipt back from the file and pin the returned digest (fails as expected);
+  compare tests that exercised the in-memory receipt now build it with `receipt_build()`

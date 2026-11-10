@@ -21,14 +21,14 @@ two_builds <- function(km_a, km_b, tolerance = list(km = 1e-9), part_table = TRU
     if (!is.null(day)) df$day <- day
     utils::write.csv(df, file.path(dir, "t.csv"), row.names = FALSE)
     parts <- if (part_table) c(t = "t.csv") else "t.csv"
-    r <- crt_receipt_write(
+    crt_receipt_write(
       dir, output = list(name = "out"),
       recipe = list(code = list(crate = list(commit = strrep("c", 40), dirty = FALSE))),
       result = list(tables = list(t = df), parts = parts,
                     tolerance = list(tables = if (length(tolerance)) list(t = tolerance))),
       context = list(time = "2026-11-05T00:00:00Z"), lockfile = NULL, publish = TRUE
     )
-    list(receipt = r, table = df)
+    list(receipt = crt_receipt_read(dir), table = df)
   }
   list(a = one("a", km_a), b = one("b", km_b))
 }
@@ -165,27 +165,37 @@ test_that("a re-read table that cannot be fingerprinted is a finding, not an abo
   }
 })
 
-# A receipt as crt_receipt_write() returns it and as it reads back from disk differ in
-# R types (1 vs 1L) and member order, not in what they say.
-test_that("a written receipt compares the same as its file", {
+# A receipt built in memory and the same receipt read back from disk differ in R types
+# (1 vs 1L) and member order, not in what they say.
+test_that("a receipt built in memory compares the same as its file", {
   builds <- two_builds(c(1, 5), c(1, 5), tolerance = list(km = 1))
-  r <- builds$b$receipt
+  dir <- withr::local_tempdir()
+  df <- builds$b$table
+  utils::write.csv(df, file.path(dir, "t.csv"), row.names = FALSE)
+  r <- crate:::receipt_build(dir, list(name = "out"),
+                             list(code = list(crate = list(commit = strrep("c", 40), dirty = FALSE))),
+                             list(tables = list(t = df), parts = c(t = "t.csv"),
+                                  tolerance = list(tables = list(t = list(km = 1)))),
+                             list(time = "2026-11-05T00:00:00Z"), NULL, NULL, TRUE)
   path <- withr::local_tempfile(fileext = ".json")
   crate:::receipt_write_file(r, path)
   expect_identical(crt_receipt_compare(builds$a$receipt, path)$verdict, "identical")
   expect_identical(crt_receipt_compare(builds$a$receipt, r)$verdict, "identical")
 })
 
-# A written receipt holds NA where its file holds null; neither is a number to subtract.
-test_that("an NA summary value compares, written or read", {
+# A receipt built in memory holds NA where its file holds null; neither is a number to subtract.
+test_that("an NA summary value compares, in memory or read", {
   root <- withr::local_tempdir()
   one <- function(name, km) {
     dir <- file.path(root, name)
     dir.create(dir)
-    crt_receipt_write(dir, output = list(name = "out"),
-                      recipe = list(code = list(crate = list(commit = strrep("c", 40), dirty = FALSE))),
-                      result = list(summary = list(km = km), tolerance = list(summary = list(km = 1e-3))),
-                      context = list(time = "2026-11-05T00:00:00Z"), lockfile = NULL, publish = TRUE)
+    args <- list(dir, list(name = "out"),
+                 list(code = list(crate = list(commit = strrep("c", 40), dirty = FALSE))),
+                 list(summary = list(km = km), tolerance = list(summary = list(km = 1e-3))),
+                 list(time = "2026-11-05T00:00:00Z"), NULL, NULL, TRUE)
+    r <- do.call(crate:::receipt_build, args)
+    crate:::receipt_write_file(r, file.path(dir, "receipt.json"))
+    r
   }
   a <- one("a", NA_real_)
   b <- one("b", NA_real_)

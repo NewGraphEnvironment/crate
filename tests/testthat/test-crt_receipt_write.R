@@ -27,10 +27,12 @@ receipt_args <- function(dir) {
   )
 }
 
-# Arguments merged into the defaults (modifyList: nested lists merge, NULL deletes).
+# Arguments merged into the defaults (modifyList: nested lists merge, NULL deletes). The
+# writer returns the digest of what it wrote; the receipt is read back from the file.
 write_with <- function(args, ...) {
   args <- utils::modifyList(args, list(...))
   do.call(crt_receipt_write, args)
+  crt_receipt_read(file.path(args$dir, if (is.null(args$file)) "receipt.json" else args$file))
 }
 
 # The defaults with recipe$inputs replaced outright rather than merged.
@@ -69,7 +71,9 @@ test_that("a written receipt reads back to the same canonical bytes and validate
   r <- write_with(receipt_args(dir))
   expect_true(file.exists(file.path(dir, "receipt.json")))
   back <- crt_receipt_read(dir)
-  expect_identical(crate:::crt_receipt_jcs(back), crate:::crt_receipt_jcs(r))
+  a <- receipt_args(dir)
+  built <- crate:::receipt_build(dir, a$output, a$recipe, a$result, a$context, NULL, NULL, FALSE)
+  expect_identical(crate:::crt_receipt_jcs(back), crate:::crt_receipt_jcs(built))
   expect_true(crt_receipt_validate(back))
   expect_identical(back$recipe$recipe_id, crate:::crt_receipt_recipe_id(back$recipe))
   # Written atomically: no temporary file left beside it
@@ -80,6 +84,21 @@ test_that("a written receipt reads back to the same canonical bytes and validate
   expect_identical(r$result$fingerprint$out$sha256,
                    crt_table_fingerprint(data.frame(a = 1L, b = 2.5), c(b = 1e-6)))
   expect_identical(r$context$toolchain$R, paste(R.version$major, R.version$minor, sep = "."))
+})
+
+# The digest is what an item's receipt asset carries as file:checksum (#60): of the bytes
+# written, so a caller never re-reads the file and risks hashing another version of it.
+test_that("the writer returns the SHA-256 of the bytes it wrote, invisibly", {
+  dir <- withr::local_tempdir()
+  args <- receipt_args(dir)
+  expect_invisible(do.call(crt_receipt_write, args))
+  d <- do.call(crt_receipt_write, args)
+  expect_type(d, "character")
+  expect_match(d, "^[0-9a-f]{64}$")
+  expect_identical(d, digest::digest(file.path(dir, "receipt.json"), algo = "sha256", file = TRUE))
+  args$file <- "out_receipt.json"
+  expect_identical(do.call(crt_receipt_write, args),
+                   digest::digest(file.path(dir, "out_receipt.json"), algo = "sha256", file = TRUE))
 })
 
 test_that("publish = TRUE leaves the host out", {
