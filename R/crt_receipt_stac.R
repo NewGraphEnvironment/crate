@@ -72,7 +72,9 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
     if (!(is.character(receipt_asset) && length(receipt_asset) == 1L && !is.na(receipt_asset))) {
       stac_refuse("receipt_asset_not_string", "{.arg receipt_asset} must be a string.")
     }
-    if (!nzchar(receipt_asset)) stac_refuse("receipt_asset_empty", "{.arg receipt_asset} is empty: an asset needs a key.")
+    if (!nzchar(receipt_asset)) {
+      stac_refuse("receipt_asset_empty", "{.arg receipt_asset} is empty: an asset needs a key.")
+    }
     if (receipt_asset %in% names(assets)) {
       stac_refuse("receipt_asset_in_assets", c(
         "Asset {.val {receipt_asset}} is both in {.arg assets} and the {.arg receipt_asset}.",
@@ -86,7 +88,8 @@ crt_receipt_stac <- function(receipt, assets = NULL, receipt_asset = NULL, recei
       ))
     }
   } else if (!is.null(receipt_sha256)) {
-    stac_refuse("digest_without_receipt_asset", "{.arg receipt_sha256} is given with no {.arg receipt_asset} to carry it.")
+    stac_refuse("digest_without_receipt_asset",
+                "{.arg receipt_sha256} is given with no {.arg receipt_asset} to carry it.")
   }
   if (!is.null(receipt_sha256)) stac_sha256(receipt_sha256, "receipt_sha256", "digest_not_sha256")
 
