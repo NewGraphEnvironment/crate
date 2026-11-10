@@ -71,3 +71,10 @@
   conditions); a test derives the paths from `mapping.csv` independently and asserts each has its
   absent, null and wrong-type cases; the form version and real-instant checks are added on both
   sides; the crosscheck reports an unexpected exception as a mismatch
+- Mutation over round 4's construction: 21 of 21 mutants red, 20 guards in `crt_receipt_stac()`
+  plus a generator that drops a path (receipt not an object 4, null block as absent 10, non-object
+  block 3, form version 12, missing recipe_id 8, id on migrated 2, recipe_id pattern 18, time 40,
+  time range 16, time newline 2, empty repo name 1, version 8, unmatched asset 8, sha256 58, negative
+  bytes 2, receipt_asset type 4, empty receipt_asset 2, receipt_asset shadowing 2, digest without
+  asset 2, asset without digest 2, generator path dropped 5). The review loop ends on this
+  enumeration; no round 5. stacs: 87 of 142, stacs#15 updated

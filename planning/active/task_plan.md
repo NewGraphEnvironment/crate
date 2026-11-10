@@ -103,8 +103,8 @@ stacs `src/stacs/receipt.py` `stac_fields()` / `write()` on origin/main.
 - [ ] NEWS + minor bump at `/gh-pr-merge` (breaking: `crt_receipt_write()`'s return value)
 
 ## Validation
-- [ ] Tests pass
-- [ ] `/code-check` clean (once over the branch with `/code-check branch`)
+- [x] Tests pass
+- [x] `/code-check` clean (once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion
 

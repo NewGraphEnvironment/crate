@@ -225,3 +225,29 @@ code), and seven mutants, one per guard added this round (block guard, null read
 `recipe_id` allowed, id on a migrated receipt allowed, time optional, empty repository name,
 empty receipt asset), each turn it red. `stac.json`: 61 cases, 53 refusals across 15 codes. The
 Python reading matches all 61 with the exact code.
+
+## Code-check round 4 and how the loop ended (2026-11-10)
+
+Round 4's mechanism: the round-3 enumeration was read off the two readings' own bodies, so it
+agreed with them by construction; the cases were hand-written per field, so "every block and value"
+was a quantifier nobody ran; and R's runner matched message fragments, two of which matched other
+codes' messages. Its instances (the form version checked only on the path route, an impossible time
+published, `result: null` and a dozen states unpinned, the Python reading crashing on a non-string
+`receipt_asset`) were all fixed, and the mechanism was closed by construction:
+
+- **Refusal codes are data.** `crt_receipt_stac()` refuses with a `crate_stac_refused` condition
+  carrying `code`; the generator takes each case's code from it, and the runner compares codes.
+- **The cases are generated**: 14 paths x their states, plus the receipt and the arguments, 142
+  cases in all; a case changes one path, recomputing `recipe_id` inside the recipe.
+- **Coverage is checked apart from the generator.** `test-crt_receipt_vectors.R` derives the paths
+  from `mapping.csv` (each `STAC item` row's receipt key and its ancestors, plus the two deciders) and
+  asserts each has its absent, null and wrong-type cases.
+
+**The loop ended on that enumeration and a mutation table, not on a quiet round.** 21 mutants, one per
+guard in `crt_receipt_stac()` plus one dropping a path from the generator, each turn the stac.json
+runner red (1 to 58 failing expectations each; `scratchpad/mutate.py` in the session, the table in
+progress.md). The independent Python reading matches all 142 cases with the exact code. Five
+reviewers ran on this task (one plan review, four code-check rounds); rounds 2, 3 and 4 each found a
+defect inside the previous round's fix.
+
+stacs agrees on 87 of 142; the 55 are grouped in stacs#15's body.
