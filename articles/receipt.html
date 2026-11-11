@@ -462,15 +462,17 @@ result:
     rows: {}
     km_total: {tolerance: 1.0e-6}</code></pre>
 <p>and hands the writer its values. <code><a href="../reference/crt_receipt_write.html">crt_receipt_write()</a></code>
-computes the ids, fingerprints and digests, fills the context, and
-writes <code>receipt.json</code> atomically:</p>
+computes the ids, fingerprints and digests, fills the context, writes
+<code>receipt.json</code> atomically, and returns the SHA-256 of the
+bytes it wrote, which an item’s receipt asset carries (see “STAC items”
+below):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"evidence"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">access</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">wc</span>, <span class="st">"build_1"</span>, <span class="st">"access_check.csv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">access</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"access_check.csv"</span><span class="op">)</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/crt_receipt_write.html">crt_receipt_write</a></span><span class="op">(</span></span>
+<span><span class="va">digest</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/crt_receipt_write.html">crt_receipt_write</a></span><span class="op">(</span></span>
 <span>  <span class="va">dir</span>,</span>
 <span>  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"access_check"</span>, scope <span class="op">=</span> <span class="st">"BULK"</span><span class="op">)</span>,</span>
 <span>  recipe <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -488,13 +490,13 @@ writes <code>receipt.json</code> atomically:</p>
 <span>  <span class="op">)</span>,</span>
 <span>  publish <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">w</span><span class="op">$</span><span class="va">result</span><span class="op">$</span><span class="va">fingerprint</span></span>
+<span><span class="fu"><a href="../reference/crt_receipt_read.html">crt_receipt_read</a></span><span class="op">(</span><span class="va">dir</span><span class="op">)</span><span class="op">$</span><span class="va">result</span><span class="op">$</span><span class="va">fingerprint</span></span>
 <span><span class="co">#&gt; $access_check</span></span>
-<span><span class="co">#&gt; $access_check$sha256</span></span>
-<span><span class="co">#&gt; [1] "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $access_check$rows</span></span>
-<span><span class="co">#&gt; [1] 4</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $access_check$sha256</span></span>
+<span><span class="co">#&gt; [1] "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"</span></span></code></pre></div>
 <p>Name each part by the table it holds. A file whose bytes differ
 between builds is <code>equivalent</code> only when its table’s
 fingerprint agrees; a file that names no table, such as a raster nobody
@@ -552,8 +554,8 @@ receipt, compares their cells, and reports which it did:</p>
 <p><code><a href="../reference/crt_receipt_migrate.html">crt_receipt_migrate()</a></code> reads a record written before its
 package moved to receipts through the mapping table, so it stays
 readable while writers converge forward, each when it is next touched.
-Mapping v1.0.0 is published at
-<code>https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv</code>
+Mapping v1.1.0 is published at
+<code>https://newgraphenvironment.github.io/crate/receipt/mapping/v1.1.0/mapping.csv</code>
 and installed with crate. A migrated receipt claims no recipe identity,
 and keeps what it cannot place in <code>context.legacy</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -579,14 +581,54 @@ and keeps what it cannot place in <code>context.legacy</code>:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">context</span><span class="op">$</span><span class="va">legacy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "manifest_version" "datasets"         "configs"          "parts"           </span></span>
 <span><span class="co">#&gt; [5] "files"</span></span></code></pre></div>
-<p>The mapping table also lists STAC’s own keys beside the receipt keys
-they mirror: a part’s <code>sha256</code> is <code>file:checksum</code>,
-its <code>bytes</code> <code>file:size</code>, the producing software
+</div>
+<div class="section level2">
+<h2 id="stac-items">STAC items<a class="anchor" aria-label="anchor" href="#stac-items"></a>
+</h2>
+<p>A STAC item carries a few of its receipt’s fields, so a STAC client
+or a pgstac queryable can read a build’s identity without fetching the
+receipt. <code><a href="../reference/crt_receipt_stac.html">crt_receipt_stac()</a></code> gives those fields, by the
+mapping table’s <code>STAC item</code> rows. A part’s
+<code>sha256</code> becomes its asset’s <code>file:checksum</code> (a
+multihash, <code>1220</code> then the digest) and its <code>bytes</code>
+the asset’s <code>file:size</code>. The repositories’ versions become
 <code>processing:software</code>, the time
-<code>processing:datetime</code>. A receipt’s <code>recipe_id</code>
-goes on an item as <code>receipt:recipe_id</code>, whose field schema
-crate publishes at
+<code>processing:datetime</code>, and the <code>recipe_id</code>
+<code>receipt:recipe_id</code>, whose field schema crate publishes at
 <code>https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json</code>.</p>
+<p>Pass each asset’s href relative to the item, which is the path a part
+is keyed by. For the asset that links the receipt, give the digest
+<code><a href="../reference/crt_receipt_write.html">crt_receipt_write()</a></code> returned. A receipt is not one of its
+own parts, so nothing else can compute that checksum, and the asset
+carries no <code>file:size</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/crt_receipt_stac.html">crt_receipt_stac</a></span><span class="op">(</span><span class="va">dir</span>, assets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>access_check <span class="op">=</span> <span class="st">"access_check.csv"</span><span class="op">)</span>,</span>
+<span>                      receipt_asset <span class="op">=</span> <span class="st">"receipt"</span>, receipt_sha256 <span class="op">=</span> <span class="va">digest</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">s</span>, give.attr <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 3</span></span>
+<span><span class="co">#&gt;  $ stac_extensions: 'AsIs' chr [1:3] "https://stac-extensions.github.io/file/v2.1.0/schema.json" "https://stac-extensions.github.io/processing/v1.2.0/schema.json" "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"</span></span>
+<span><span class="co">#&gt;  $ properties     :List of 3</span></span>
+<span><span class="co">#&gt;   ..$ receipt:recipe_id  : chr "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"</span></span>
+<span><span class="co">#&gt;   ..$ processing:datetime: chr "2026-11-11T13:33:34Z"</span></span>
+<span><span class="co">#&gt;   ..$ processing:software:List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ link: chr "0.31.2"</span></span>
+<span><span class="co">#&gt;  $ assets         :List of 2</span></span>
+<span><span class="co">#&gt;   ..$ access_check:List of 2</span></span>
+<span><span class="co">#&gt;   .. ..$ file:checksum: chr "122004994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2"</span></span>
+<span><span class="co">#&gt;   .. ..$ file:size    : int 124</span></span>
+<span><span class="co">#&gt;   ..$ receipt     :List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ file:checksum: chr "12202645f3ae85bbaca76d1f3eccc3a9b09912c36cf14022c6afd3fb8293de4be1c8"</span></span></code></pre></div>
+<p>Merge these into the item being built; its id, geometry, hrefs, types
+and roles do not come from the receipt. A part that no asset names is
+not mirrored, since an item may publish fewer files than the build made.
+An asset whose href names no part is an error, never a guessed checksum.
+A repository with no version is left out of
+<code>processing:software</code>. A migrated receipt has no recipe
+identity, so its item leaves <code>receipt:recipe_id</code> out rather
+than publish a null:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/crt_receipt_stac.html">crt_receipt_stac</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">$</span><span class="va">properties</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "processing:datetime" "processing:software"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="test-vectors">Test vectors<a class="anchor" aria-label="anchor" href="#test-vectors"></a>
@@ -598,7 +640,7 @@ expected value byte for byte: number spellings, canonical JSON,
 which the form defines, so they are versioned with the form. Doubles are
 given as IEEE 754 bits, so no decimal parser stands between a vector and
 its value.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"vectors"</span>, <span class="st">"v1.0.0"</span>, package <span class="op">=</span> <span class="st">"crate"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">vec</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "fingerprint.json" "jcs.json"         "numbers.json"     "README.md"       </span></span>
@@ -606,11 +648,21 @@ its value.</p>
 <p>Receipt pairs with their verdicts test the register, so they sit with
 it, in
 <code>inst/extdata/receipt/register/v1.0.0/compare.json</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">reg_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"register"</span>, <span class="st">"v1.0.0"</span>, package <span class="op">=</span> <span class="st">"crate"</span>,</span>
 <span>                       mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">reg_dir</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "compare.json" "README.md"    "register.csv"</span></span></code></pre></div>
+<p>Receipts with the item fields each maps to, or a refusal, test the
+mapping’s STAC rows, so they sit with the mapping, in
+<code>inst/extdata/receipt/mapping/v1.1.0/stac.json</code>. A refused
+case gives a code for what is refused, and a runner checks only that the
+case is refused, since messages differ between implementations:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">map_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"receipt"</span>, <span class="st">"mapping"</span>, <span class="st">"v1.1.0"</span>, package <span class="op">=</span> <span class="st">"crate"</span>,</span>
+<span>                       mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">map_dir</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "mapping.csv" "README.md"   "stac.json"</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

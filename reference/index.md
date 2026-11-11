@@ -39,6 +39,8 @@ different.
   : Read an older provenance record as a receipt
 - [`crt_receipt_read()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_read.md)
   : Read a provenance receipt
+- [`crt_receipt_stac()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_stac.md)
+  : A receipt's fields as a STAC item mirrors them
 - [`crt_receipt_validate()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_validate.md)
   : Validate a provenance receipt
 - [`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md)

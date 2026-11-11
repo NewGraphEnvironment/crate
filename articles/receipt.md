@@ -271,8 +271,9 @@ A package declares, as YAML beside its writer, what only it knows:
 
 and hands the writer its values.
 [`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md)
-computes the ids, fingerprints and digests, fills the context, and
-writes `receipt.json` atomically:
+computes the ids, fingerprints and digests, fills the context, writes
+`receipt.json` atomically, and returns the SHA-256 of the bytes it
+wrote, which an item’s receipt asset carries (see “STAC items” below):
 
 ``` r
 
@@ -281,7 +282,7 @@ dir.create(dir, showWarnings = FALSE)
 access <- read.csv(file.path(wc, "build_1", "access_check.csv"))
 write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
 
-w <- crt_receipt_write(
+digest <- crt_receipt_write(
   dir,
   output = list(name = "access_check", scope = "BULK"),
   recipe = list(
@@ -299,13 +300,13 @@ w <- crt_receipt_write(
   ),
   publish = TRUE
 )
-w$result$fingerprint
+crt_receipt_read(dir)$result$fingerprint
 #> $access_check
-#> $access_check$sha256
-#> [1] "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
-#> 
 #> $access_check$rows
 #> [1] 4
+#> 
+#> $access_check$sha256
+#> [1] "ac3a4b6d2811f6eb530a3d2a70a6cdfe226b652d33d2f20f9744560cb67c31d9"
 ```
 
 Name each part by the table it holds. A file whose bytes differ between
@@ -372,8 +373,8 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"),
 [`crt_receipt_migrate()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_migrate.md)
 reads a record written before its package moved to receipts through the
 mapping table, so it stays readable while writers converge forward, each
-when it is next touched. Mapping v1.0.0 is published at
-`https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv`
+when it is next touched. Mapping v1.1.0 is published at
+`https://newgraphenvironment.github.io/crate/receipt/mapping/v1.1.0/mapping.csv`
 and installed with crate. A migrated receipt claims no recipe identity,
 and keeps what it cannot place in `context.legacy`:
 
@@ -403,12 +404,59 @@ names(m$context$legacy)
 #> [5] "files"
 ```
 
-The mapping table also lists STAC’s own keys beside the receipt keys
-they mirror: a part’s `sha256` is `file:checksum`, its `bytes`
-`file:size`, the producing software `processing:software`, the time
-`processing:datetime`. A receipt’s `recipe_id` goes on an item as
-`receipt:recipe_id`, whose field schema crate publishes at
+## STAC items
+
+A STAC item carries a few of its receipt’s fields, so a STAC client or a
+pgstac queryable can read a build’s identity without fetching the
+receipt.
+[`crt_receipt_stac()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_stac.md)
+gives those fields, by the mapping table’s `STAC item` rows. A part’s
+`sha256` becomes its asset’s `file:checksum` (a multihash, `1220` then
+the digest) and its `bytes` the asset’s `file:size`. The repositories’
+versions become `processing:software`, the time `processing:datetime`,
+and the `recipe_id` `receipt:recipe_id`, whose field schema crate
+publishes at
 `https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json`.
+
+Pass each asset’s href relative to the item, which is the path a part is
+keyed by. For the asset that links the receipt, give the digest
+[`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md)
+returned. A receipt is not one of its own parts, so nothing else can
+compute that checksum, and the asset carries no `file:size`:
+
+``` r
+
+s <- crt_receipt_stac(dir, assets = c(access_check = "access_check.csv"),
+                      receipt_asset = "receipt", receipt_sha256 = digest)
+str(s, give.attr = FALSE)
+#> List of 3
+#>  $ stac_extensions: 'AsIs' chr [1:3] "https://stac-extensions.github.io/file/v2.1.0/schema.json" "https://stac-extensions.github.io/processing/v1.2.0/schema.json" "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"
+#>  $ properties     :List of 3
+#>   ..$ receipt:recipe_id  : chr "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"
+#>   ..$ processing:datetime: chr "2026-11-11T13:33:34Z"
+#>   ..$ processing:software:List of 1
+#>   .. ..$ link: chr "0.31.2"
+#>  $ assets         :List of 2
+#>   ..$ access_check:List of 2
+#>   .. ..$ file:checksum: chr "122004994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2"
+#>   .. ..$ file:size    : int 124
+#>   ..$ receipt     :List of 1
+#>   .. ..$ file:checksum: chr "12202645f3ae85bbaca76d1f3eccc3a9b09912c36cf14022c6afd3fb8293de4be1c8"
+```
+
+Merge these into the item being built; its id, geometry, hrefs, types
+and roles do not come from the receipt. A part that no asset names is
+not mirrored, since an item may publish fewer files than the build made.
+An asset whose href names no part is an error, never a guessed checksum.
+A repository with no version is left out of `processing:software`. A
+migrated receipt has no recipe identity, so its item leaves
+`receipt:recipe_id` out rather than publish a null:
+
+``` r
+
+names(crt_receipt_stac(m)$properties)
+#> [1] "processing:datetime" "processing:software"
+```
 
 ## Test vectors
 
@@ -436,4 +484,18 @@ reg_dir <- system.file("extdata", "receipt", "register", "v1.0.0", package = "cr
                        mustWork = TRUE)
 list.files(reg_dir)
 #> [1] "compare.json" "README.md"    "register.csv"
+```
+
+Receipts with the item fields each maps to, or a refusal, test the
+mapping’s STAC rows, so they sit with the mapping, in
+`inst/extdata/receipt/mapping/v1.1.0/stac.json`. A refused case gives a
+code for what is refused, and a runner checks only that the case is
+refused, since messages differ between implementations:
+
+``` r
+
+map_dir <- system.file("extdata", "receipt", "mapping", "v1.1.0", package = "crate",
+                       mustWork = TRUE)
+list.files(map_dir)
+#> [1] "mapping.csv" "README.md"   "stac.json"
 ```

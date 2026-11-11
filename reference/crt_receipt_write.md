@@ -62,7 +62,15 @@ crt_receipt_write(
 
 ## Value
 
-The receipt, as a list, invisibly. The file is `file.path(dir, file)`.
+The SHA-256 of the bytes written, as 64 lower-case hex digits,
+invisibly. The file is `file.path(dir, file)`; read it with
+[`crt_receipt_read()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_read.md).
+The digest is what a STAC item's receipt asset carries as
+`file:checksum`
+([`crt_receipt_stac()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_stac.md)):
+nothing else can compute it, since a receipt's own bytes are not inside
+it, and taking it here means the caller never re-reads the file and
+risks hashing another version of it (#60).
 
 ## The blocks
 
@@ -117,7 +125,7 @@ dir.create(dir, showWarnings = FALSE)
 access <- data.frame(segment = c("s1", "s2"), km = c(12.3456789012, 7.25))
 write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
 
-r <- crt_receipt_write(
+digest <- crt_receipt_write(
   dir,
   output = list(name = "link_evidence", scope = "BULK"),
   recipe = list(
@@ -134,6 +142,8 @@ r <- crt_receipt_write(
   ),
   publish = TRUE
 )
-r$recipe$recipe_id
+digest
+#> [1] "87a600e918f9725c48ddf221fd42dc2331d5ad9838467b2e2ddd0d69fb002649"
+crt_receipt_read(dir)$recipe$recipe_id
 #> [1] "b61eb32306d67d8bcef8c87fed32aeff3681251bb70464956787675e901cd09b"
 ```

@@ -103,7 +103,12 @@ is refused, since writing the receipt would replace those bytes.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The receipt, as a list, invisibly. The file is <code>file.path(dir, file)</code>.</p>
+    <p>The SHA-256 of the bytes written, as 64 lower-case hex digits, invisibly.
+The file is <code>file.path(dir, file)</code>; read it with <code><a href="crt_receipt_read.html">crt_receipt_read()</a></code>. The digest
+is what a STAC item's receipt asset carries as <code>file:checksum</code>
+(<code><a href="crt_receipt_stac.html">crt_receipt_stac()</a></code>): nothing else can compute it, since a receipt's own bytes
+are not inside it, and taking it here means the caller never re-reads the file and
+risks hashing another version of it (#60).</p>
     </div>
     <div class="section level2">
     <h2 id="the-blocks">The blocks<a class="anchor" aria-label="anchor" href="#the-blocks"></a></h2>
@@ -148,7 +153,7 @@ decides from the result whether the output still agrees.</p>
 <span class="r-in"><span><span class="va">access</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>segment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s1"</span>, <span class="st">"s2"</span><span class="op">)</span>, km <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12.3456789012</span>, <span class="fl">7.25</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">access</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"access_check.csv"</span><span class="op">)</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">crt_receipt_write</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">digest</span> <span class="op">&lt;-</span> <span class="fu">crt_receipt_write</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">dir</span>,</span></span>
 <span class="r-in"><span>  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"link_evidence"</span>, scope <span class="op">=</span> <span class="st">"BULK"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  recipe <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
@@ -165,7 +170,9 @@ decides from the result whether the output still agrees.</p>
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
 <span class="r-in"><span>  publish <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">r</span><span class="op">$</span><span class="va">recipe</span><span class="op">$</span><span class="va">recipe_id</span></span></span>
+<span class="r-in"><span><span class="va">digest</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "87a600e918f9725c48ddf221fd42dc2331d5ad9838467b2e2ddd0d69fb002649"</span>
+<span class="r-in"><span><span class="fu"><a href="crt_receipt_read.html">crt_receipt_read</a></span><span class="op">(</span><span class="va">dir</span><span class="op">)</span><span class="op">$</span><span class="va">recipe</span><span class="op">$</span><span class="va">recipe_id</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "b61eb32306d67d8bcef8c87fed32aeff3681251bb70464956787675e901cd09b"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
