@@ -66,6 +66,7 @@ write_vectors <- function(cases, file, dir = out_dir) {
   path <- file.path(dir, file)
   txt <- jsonlite::toJSON(cases, auto_unbox = TRUE, pretty = TRUE, null = "null",
                           na = "null", digits = NA)
+  txt <- gsub("\"__crate_empty_key__\"", "\"\"", txt, fixed = TRUE)
   new <- tempfile(fileext = ".json")
   writeLines(enc2utf8(as.character(txt)), new, useBytes = TRUE)
   if (file.exists(path) && !identical(unname(tools::md5sum(path)), unname(tools::md5sum(new)))) {
@@ -291,3 +292,187 @@ compare <- list(
   pair("a migrated receipt", b1, migrated)
 )
 write_vectors(compare, "compare.json", dir = register_dir)
+
+# ---- stac ------------------------------------------------------------------------
+# The STAC rows of the receipt mapping, as crt_receipt_stac() executes them (#59, #60).
+# Versioned with the mapping, in inst/extdata/receipt/mapping/v<mapping version>/.
+#
+#   stac.json         {name, receipt, assets, receipt_asset, receipt_sha256, expected, error}
+#                     receipt: a receipt; assets: {<asset key>: <href relative to the item>}
+#                     receipt_asset, receipt_sha256: the receipt asset's key and the digest of
+#                     the published receipt's bytes, or null
+#                     expected: {stac_extensions, properties, assets}, compared as canonical
+#                     JSON; null where the case is refused
+#                     error: null, or the code of the refusal, the `code` crt_receipt_stac()'s
+#                     condition carries. A runner compares codes, never messages. A case for
+#                     a path in a state carries a receipt changed in that path alone, its
+#                     recipe_id recomputed for any change inside the recipe
+mapping_dir <- file.path("inst", "extdata", "receipt", "mapping",
+                         paste0("v", crate:::receipt_mapping_version()))
+b1_sha256 <- digest::digest(file.path(wc, "build_1", "receipt.json"), algo = "sha256", file = TRUE)
+# A receipt edited here keeps a recipe_id that matches its recipe, so every case is a
+# valid receipt and only the mapping decides it.
+rehash <- function(r) {
+  r$recipe$recipe_id <- crate:::crt_receipt_recipe_id(r$recipe)
+  r
+}
+no_link_version <- b1
+no_link_version$recipe$code$link["version"] <- list(NULL)
+no_link_version <- rehash(no_link_version)
+no_versions <- no_link_version
+no_versions$recipe$code$knowledge["version"] <- list(NULL)
+no_versions <- rehash(no_versions)
+migrated_path <- file.path(tempdir(), "migrated_receipt.json")
+crt_receipt_migrate(file.path("inst", "extdata", "receipt", "examples", "legacy", "link_manifest.json"),
+                    "link manifest.json", path = migrated_path)
+migrated_receipt <- crt_receipt_read(migrated_path)
+stopifnot(is.null(migrated_receipt$recipe$recipe_id))
+
+# One value set to one the mapping must refuse: NULL deletes the key, json_null writes a
+# null. A change inside the recipe gets a recipe_id that matches it, so the case is refused
+# for that value alone and not for a stale identity.
+json_null <- quote(json_null)
+bad <- function(r, path, value) {
+  if (is.symbol(value)) {
+    n <- length(path)
+    if (n == 1) {
+      r[path] <- list(NULL)
+    } else {
+      parent <- r[[path[-n]]]
+      parent[path[n]] <- list(NULL)
+      r[[path[-n]]] <- parent
+    }
+  } else {
+    r[[path]] <- value
+  }
+  if (length(path) > 1 && path[1] == "recipe" && !identical(path, c("recipe", "recipe_id"))) r <- rehash(r)
+  r
+}
+no_assets <- stats::setNames(list(), character())
+# A case's outcome is crt_receipt_stac()'s: its fields, or the code its refusal carries. A
+# code given here is what the case is written to show, and must be the one that fires.
+stac_case <- function(name, receipt, assets = NULL, receipt_asset = NULL, receipt_sha256 = NULL,
+                      error = NULL) {
+  out <- tryCatch(
+    crt_receipt_stac(receipt, assets = if (length(assets)) unlist(assets), receipt_asset = receipt_asset,
+                     receipt_sha256 = receipt_sha256),
+    crate_stac_refused = function(e) e
+  )
+  code <- if (inherits(out, "crate_stac_refused")) out$code
+  if (!is.null(error) && !identical(code, error)) {
+    stop("stac case '", name, "': wants ", error, ", got ", if (is.null(code)) "fields" else code, call. = FALSE)
+  }
+  list(name = name, receipt = receipt, assets = if (length(assets)) as.list(assets) else no_assets,
+       receipt_asset = receipt_asset, receipt_sha256 = receipt_sha256,
+       expected = if (is.null(code)) out, error = code)
+}
+# jsonlite writes an empty key as its position ("3"), so the case carries a sentinel that
+# write_vectors() turns back into "" in the JSON text
+empty_key <- function(case) {
+  nm <- names(case$receipt$recipe$code)
+  names(case$receipt$recipe$code)[nm == ""] <- "__crate_empty_key__"
+  case
+}
+# A repository added to recipe.code under a name `[[<-` cannot write, such as ""
+within_code <- function(r, name, entry) {
+  r$recipe$code <- c(r$recipe$code, stats::setNames(list(entry), name))
+  r
+}
+all_parts <- list(access = "access_check.csv", visits_link = "visits_link.csv",
+                  visits_species = "visits_species.csv", walks = "walks.csv")
+stac <- list(
+  stac_case("worked case: every part, and the receipt asset", b1, all_parts, "receipt", b1_sha256),
+  stac_case("no assets: no part is mirrored", b1),
+  stac_case("a part with no asset is not mirrored", b1, list(access = "access_check.csv")),
+  stac_case("two assets name one part", b1, list(a = "walks.csv", b = "walks.csv")),
+  stac_case("the receipt asset alone: file:checksum, no file:size", b1, NULL, "receipt", b1_sha256),
+  stac_case("a migrated receipt: no receipt:recipe_id, never a null one", migrated_receipt),
+  stac_case("a repository with no version is left out of processing:software", no_link_version),
+  stac_case("no repository has a version: no processing:software", no_versions),
+  stac_case("an asset whose href names no part is refused", b1, list(data = "floodplain.tif"),
+            error = "href_not_a_part"),
+  stac_case("a receipt asset needs its digest", b1, NULL, "receipt", error = "receipt_asset_without_digest"),
+  stac_case("a digest needs a receipt asset", b1, NULL, NULL, b1_sha256, error = "digest_without_receipt_asset"),
+  stac_case("the receipt asset's key is not also a part's asset", b1, list(receipt = "walks.csv"), "receipt",
+            b1_sha256, error = "receipt_asset_in_assets"),
+  # Only a migrated receipt has no recipe identity, and it never has one
+  stac_case("output.migrated_from present, with a recipe_id",
+            bad(b1, c("output", "migrated_from"), "manifest.json"), error = "recipe_id_on_migrated"),
+  stac_case("output.migrated_from absent, with no recipe_id",
+            bad(migrated_receipt, c("output", "migrated_from"), NULL), error = "recipe_id_missing"),
+  # A repository's name keys processing:software
+  empty_key(stac_case("recipe.code a repository with an empty name",
+                      rehash(within_code(b1, "", list(commit = strrep("c", 40), dirty = FALSE, version = "9.9"))),
+                      error = "repo_name_empty"))
+)
+
+# ---- every path the mapping reads, in every state ----
+# The paths: each STAC row's receipt_key, its ancestors, and what decides them
+# (output.receipt_version, output.migrated_from, above). {repo} is link; a part is
+# walks.csv, which the asset `walks` names. test-crt_receipt_vectors.R derives the same
+# paths from mapping.csv and checks each has its cases, so a path added to the mapping and
+# not here fails there. Each state's outcome is crt_receipt_stac()'s, refusal code and all.
+hex <- strrep("a", 64)
+states <- list(
+  object = list(absent = NULL, null = json_null, `an array` = list("x"), `a string` = "x", `a number` = 1L,
+                true = TRUE),
+  sha256 = list(absent = NULL, null = json_null, `a number` = 1L, true = TRUE, empty = "",
+                `not hex` = strrep("z", 64), `upper case` = toupper(hex), `63 digits` = strrep("a", 63),
+                `65 digits` = strrep("a", 65), `followed by a newline` = paste0(hex, "\n"),
+                `non-ASCII digits` = strrep("١", 64)),
+  time = list(absent = NULL, null = json_null, `a number` = 1L, true = TRUE, empty = "",
+              `a space for T` = "2026-11-04 18:22:05Z", `an offset for Z` = "2026-11-04T18:22:05+00:00",
+              `followed by a newline` = "2026-11-04T18:22:05Z\n",
+              `Arabic-Indic digits` = "٢٠٢٦-11-04T18:22:05Z",
+              `lower-case t` = "2026-11-04t18:22:05Z", `lower-case z` = "2026-11-04T18:22:05z",
+              `month 13` = "2026-13-04T18:22:05Z", `month 00` = "2026-00-04T18:22:05Z",
+              `day 00` = "2026-11-00T18:22:05Z", `day 31 of November` = "2026-11-31T18:22:05Z",
+              `29 February 2026` = "2026-02-29T18:22:05Z", `hour 24` = "2026-11-04T24:22:05Z",
+              `minute 60` = "2026-11-04T18:60:05Z", `second 60` = "2026-11-04T18:22:60Z",
+              `29 February 2024` = "2024-02-29T18:22:05Z", `fractional seconds` = "2026-11-04T18:22:05.25Z"),
+  version = list(absent = NULL, null = json_null, `a number` = 1L, true = TRUE, empty = "",
+                 `an array` = list("0.31.2"), `followed by a newline` = "0.31.2\n"),
+  bytes = list(absent = NULL, null = json_null, fractional = 1.5, negative = -1L, `a string` = "124",
+               true = TRUE, zero = 0L, `2^53` = 2^53),
+  form = list(absent = NULL, null = json_null, `another form` = "2.0.0", `a number` = 1L, empty = "")
+)
+walks <- list(walks = "walks.csv")
+paths <- list(
+  list(c("output"), "object", NULL), list(c("output", "receipt_version"), "form", NULL),
+  list(c("recipe"), "object", NULL), list(c("recipe", "recipe_id"), "sha256", NULL),
+  list(c("recipe", "code"), "object", NULL), list(c("recipe", "code", "link"), "object", NULL),
+  list(c("recipe", "code", "link", "version"), "version", NULL),
+  list(c("result"), "object", walks), list(c("result", "parts"), "object", walks),
+  list(c("result", "parts", "walks.csv"), "object", walks),
+  list(c("result", "parts", "walks.csv", "sha256"), "sha256", walks),
+  list(c("result", "parts", "walks.csv", "bytes"), "bytes", walks),
+  list(c("context"), "object", NULL), list(c("context", "time"), "time", NULL)
+)
+# The way a path is named in a case: result.parts[walks.csv].sha256
+path_label <- function(path) {
+  keyed <- c(code = TRUE, parts = TRUE)
+  out <- path[1]
+  for (i in seq_along(path)[-1]) {
+    out <- if (path[i - 1] %in% names(keyed)) paste0(out, "[", path[i], "]") else paste0(out, ".", path[i])
+  }
+  out
+}
+for (p in paths) {
+  for (st in names(states[[p[[2]]]])) {
+    stac[[length(stac) + 1]] <- stac_case(paste(path_label(p[[1]]), st), bad(b1, p[[1]], states[[p[[2]]]][[st]]),
+                                          p[[3]])
+  }
+}
+# The receipt itself (a string is a path in R, so it is not a case), and the arguments
+for (st in c("null", "an array", "a number", "true")) {
+  value <- list(null = NULL, `an array` = list(b1$output), `a number` = 1L, true = TRUE)[[st]]
+  stac[[length(stac) + 1]] <- stac_case(paste("receipt", st), value)
+}
+for (st in setdiff(names(states$sha256), c("absent", "null"))) {
+  stac[[length(stac) + 1]] <- stac_case(paste("receipt_sha256", st), b1, NULL, "receipt", states$sha256[[st]])
+}
+for (st in c("empty", "a number", "true")) {
+  stac[[length(stac) + 1]] <- stac_case(paste("receipt_asset", st), b1, NULL,
+                                        list(empty = "", `a number` = 1L, true = TRUE)[[st]], b1_sha256)
+}
+write_vectors(stac, "stac.json", dir = mapping_dir)

@@ -216,7 +216,8 @@ cat(readLines(system.file("extdata", "receipt", "examples", "receipt_keys.yaml",
 ```
 
 and hands the writer its values. `crt_receipt_write()` computes the ids, fingerprints and digests,
-fills the context, and writes `receipt.json` atomically:
+fills the context, writes `receipt.json` atomically, and returns the SHA-256 of the bytes it
+wrote, which an item's receipt asset carries (see "STAC items" below):
 
 ```{r}
 dir <- file.path(tempdir(), "evidence")
@@ -224,7 +225,7 @@ dir.create(dir, showWarnings = FALSE)
 access <- read.csv(file.path(wc, "build_1", "access_check.csv"))
 write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
 
-w <- crt_receipt_write(
+digest <- crt_receipt_write(
   dir,
   output = list(name = "access_check", scope = "BULK"),
   recipe = list(
@@ -242,7 +243,7 @@ w <- crt_receipt_write(
   ),
   publish = TRUE
 )
-w$result$fingerprint
+crt_receipt_read(dir)$result$fingerprint
 ```
 
 Name each part by the table it holds. A file whose bytes differ between builds is `equivalent` only
@@ -287,8 +288,8 @@ crt_receipt_compare(file.path(wc, "build_1"), file.path(wc, "build_2"),
 
 `crt_receipt_migrate()` reads a record written before its package moved to receipts through the
 mapping table, so it stays readable while writers converge forward, each when it is next touched.
-Mapping v1.0.0 is published at
-`https://newgraphenvironment.github.io/crate/receipt/mapping/v1.0.0/mapping.csv` and installed
+Mapping v1.1.0 is published at
+`https://newgraphenvironment.github.io/crate/receipt/mapping/v1.1.0/mapping.csv` and installed
 with crate.
 A migrated receipt claims no recipe identity, and keeps what it cannot place in `context.legacy`:
 
@@ -300,11 +301,35 @@ m$recipe
 names(m$context$legacy)
 ```
 
-The mapping table also lists STAC's own keys beside the receipt keys they mirror: a part's
-`sha256` is `file:checksum`, its `bytes` `file:size`, the producing software
-`processing:software`, the time `processing:datetime`. A receipt's `recipe_id` goes on an item as
+## STAC items
+
+A STAC item carries a few of its receipt's fields, so a STAC client or a pgstac queryable can read
+a build's identity without fetching the receipt. `crt_receipt_stac()` gives those fields, by the
+mapping table's `STAC item` rows. A part's `sha256` becomes its asset's `file:checksum` (a
+multihash, `1220` then the digest) and its `bytes` the asset's `file:size`. The repositories'
+versions become `processing:software`, the time `processing:datetime`, and the `recipe_id`
 `receipt:recipe_id`, whose field schema crate publishes at
 `https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json`.
+
+Pass each asset's href relative to the item, which is the path a part is keyed by. For the
+asset that links the receipt, give the digest `crt_receipt_write()` returned. A receipt is not one
+of its own parts, so nothing else can compute that checksum, and the asset carries no `file:size`:
+
+```{r}
+s <- crt_receipt_stac(dir, assets = c(access_check = "access_check.csv"),
+                      receipt_asset = "receipt", receipt_sha256 = digest)
+str(s, give.attr = FALSE)
+```
+
+Merge these into the item being built; its id, geometry, hrefs, types and roles do not come from
+the receipt. A part that no asset names is not mirrored, since an item may publish fewer files than
+the build made. An asset whose href names no part is an error, never a guessed checksum. A
+repository with no version is left out of `processing:software`. A migrated receipt has no recipe
+identity, so its item leaves `receipt:recipe_id` out rather than publish a null:
+
+```{r}
+names(crt_receipt_stac(m)$properties)
+```
 
 ## Test vectors
 
@@ -325,4 +350,15 @@ Receipt pairs with their verdicts test the register, so they sit with it, in
 reg_dir <- system.file("extdata", "receipt", "register", "v1.0.0", package = "crate",
                        mustWork = TRUE)
 list.files(reg_dir)
+```
+
+Receipts with the item fields each maps to, or a refusal, test the mapping's STAC rows, so they sit
+with the mapping, in `inst/extdata/receipt/mapping/v1.1.0/stac.json`. A refused case gives a code
+for what is refused, and a runner checks only that the case is refused, since messages differ
+between implementations:
+
+```{r}
+map_dir <- system.file("extdata", "receipt", "mapping", "v1.1.0", package = "crate",
+                       mustWork = TRUE)
+list.files(map_dir)
 ```

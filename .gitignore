@@ -23,3 +23,5 @@ Thumbs.db
 .claude/settings.local.json
 /doc/
 /Meta/
+tests/testthat/_problems/
+tests/testthat/testthat-problems.rds

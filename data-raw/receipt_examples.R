@@ -82,6 +82,8 @@ write_build <- function(name, access, time, run_id) {
   )
 }
 
-r1 <- write_build("build_1", access_1, "2026-11-04T18:22:05Z", "20261104T181900Z-bulk")
-r2 <- write_build("build_2", access_2, "2026-11-04T21:47:31Z", "20261104T214400Z-bulk")
+write_build("build_1", access_1, "2026-11-04T18:22:05Z", "20261104T181900Z-bulk")
+write_build("build_2", access_2, "2026-11-04T21:47:31Z", "20261104T214400Z-bulk")
+r1 <- crt_receipt_read(file.path(root, "build_1"))
+r2 <- crt_receipt_read(file.path(root, "build_2"))
 message("recipe_id: ", r1$recipe$recipe_id, if (identical(r1$recipe$recipe_id, r2$recipe$recipe_id)) " (both builds)")

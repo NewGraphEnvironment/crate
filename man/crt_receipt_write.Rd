@@ -39,7 +39,12 @@ that resolves to a file the receipt hashes (a part, a config file, the lockfile)
 is refused, since writing the receipt would replace those bytes.}
 }
 \value{
-The receipt, as a list, invisibly. The file is \code{file.path(dir, file)}.
+The SHA-256 of the bytes written, as 64 lower-case hex digits, invisibly.
+The file is \code{file.path(dir, file)}; read it with \code{\link[=crt_receipt_read]{crt_receipt_read()}}. The digest
+is what a STAC item's receipt asset carries as \code{file:checksum}
+(\code{\link[=crt_receipt_stac]{crt_receipt_stac()}}): nothing else can compute it, since a receipt's own bytes
+are not inside it, and taking it here means the caller never re-reads the file and
+risks hashing another version of it (#60).
 }
 \description{
 Writes \code{receipt.json} for one output: what it is, how it was made, what came out,
@@ -86,7 +91,7 @@ dir.create(dir, showWarnings = FALSE)
 access <- data.frame(segment = c("s1", "s2"), km = c(12.3456789012, 7.25))
 write.csv(access, file.path(dir, "access_check.csv"), row.names = FALSE)
 
-r <- crt_receipt_write(
+digest <- crt_receipt_write(
   dir,
   output = list(name = "link_evidence", scope = "BULK"),
   recipe = list(
@@ -103,7 +108,8 @@ r <- crt_receipt_write(
   ),
   publish = TRUE
 )
-r$recipe$recipe_id
+digest
+crt_receipt_read(dir)$recipe$recipe_id
 
 }
 \seealso{

@@ -1,5 +1,8 @@
 # A provenance receipt
 
+**Verified:** 2026-11-10 · **Issues:** crate#43, #58, #59, #60 · **Produced by:** design notes;
+the vectors by `data-raw/receipt_vectors.R`, cross-checked by `data-raw/receipt_vectors_crosscheck.py`.
+
 crate#43. The design of `receipt.json`, kept here and revised in place while the branch builds it.
 It becomes the vignette (`vignettes/receipt.Rmd`) once the R API is stable.
 
@@ -235,7 +238,7 @@ settings), so a migrated receipt sets `recipe_id` to `null` and `output.migrated
 source format, and the comparison reports `recipe: unknown` rather than inventing an identity.
 
 **The mapping table covers what migrate reads, not the whole census.** The census holds 887
-fields in 227 record formats across 26 repos. `inst/extdata/receipt/mapping/v1.0.0/mapping.csv` maps every
+fields in 227 record formats across 26 repos. `inst/extdata/receipt/mapping/v1.1.0/mapping.csv` maps every
 field of the formats `crt_receipt_migrate()` reads (link's `manifest.json`, floodplains'
 `provenance.json`), STAC's keys (`file:checksum`, `file:size`, `processing:software`,
 `processing:datetime`) beside the receipt keys they mirror, and the names most repos share
@@ -248,6 +251,31 @@ where a part needs sha256, floodplains' own `inputs_hash`, a raster's cell diges
 crate fingerprint) goes verbatim into `context.legacy`, keyed by its path in the record. A field
 the mapping does not know at all goes there too, with a warning. Nothing is dropped, and nothing
 old is passed off as a receipt identity.
+
+**The STAC rows are executed and pinned** (crate#59, #60). `crt_receipt_stac()` runs them, and
+`mapping/v1.1.0/stac.json` holds receipts with the item fields each maps to, or a refusal, so a
+second implementation cannot read the rows differently and still pass. Where v1.0.0 was silent,
+v1.1.0 decides: a null `recipe_id` or `version` is left out, never published as null; a part no
+asset names is not mirrored, since an item may publish fewer files than the build made; an asset
+whose href names no part is refused rather than given a guessed checksum. The receipt asset's
+`file:checksum` is the digest of the published receipt's bytes, which `crt_receipt_write()`
+returns: nothing else can compute it, since a receipt is not one of its own parts. It carries no
+`file:size`, because the digest already identifies the bytes. `crt_receipt_write()` used to return
+the receipt as built in memory, which held `NA` where the file holds `null`; the file is the record,
+so the digest that names it is the return value, and `crt_receipt_read()` gives back what was
+written.
+
+**What a reading checks, and how the vectors are made** (crate#59 review). A reading checks the
+values it publishes, the keys it publishes (a repository name, the receipt asset's key) and what
+decides them (`output.receipt_version`, `output.migrated_from` by its presence as the form schema's
+`if` reads it, `recipe.recipe_id`, `context.time`), and validates nothing else: a whole-receipt check
+is the form schema's. Absent and `null` are different states: an absent block is empty, a present
+`null` is refused. A refusal is a code, carried on R's condition (`crate_stac_refused`) and named in
+`stac.json`, so implementations are compared by code, never by message. The cases are generated,
+every path the mapping reads crossed with every state, and a test derives those paths from
+`mapping.csv` apart from the generator. Hand-written cases were the mechanism behind four review
+rounds of findings: each round found the cases narrower than the claim, including an enumeration
+read off the very code it checked.
 
 **One R implementation, one written contract** (*issue*). Producers that cannot call R implement
 the contract and pass the same test vectors: stacs (stacs#12) for the Python catalogues.
@@ -308,11 +336,11 @@ Committed under `inst/extdata/receipt/vectors/v1.0.0/` and versioned with the sc
 with their exact bytes, recipes with their `recipe_id`, and tables with their fingerprint. Receipt
 pairs with their verdict test the register, so they are in
 `inst/extdata/receipt/register/v1.0.0/compare.json` (crate#58; moved byte-identical, the one edit
-to a frozen vector directory, whose hashing files did not change). crate's tests run every file,
-and stacs' CI runs the same files at a pinned crate tag.
+to a frozen vector directory, whose hashing files did not change). Receipts with the STAC item
+fields they map to test the mapping, so they are in `inst/extdata/receipt/mapping/v1.1.0/stac.json`
+(crate#59). crate's tests run every file, and stacs' CI runs the same files at a pinned crate tag.
 
 ## Not in v1
 
 - `crt_receipt_lineage()`: follow inputs' `recipe_id`s upstream.
-- `crt_receipt_stac()`: write a receipt's STAC fields onto an item.
 - Tolerances for fits with random draws (a spread, an invariant).
