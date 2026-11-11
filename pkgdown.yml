@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   reading: reading.html
   receipt: receipt.html
-last_built: 2026-11-11T13:36Z
+last_built: 2026-11-11T13:43Z
 urls:
   reference: https://newgraphenvironment.github.io/crate/reference
   article: https://newgraphenvironment.github.io/crate/articles
