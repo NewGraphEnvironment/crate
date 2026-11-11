@@ -48,6 +48,11 @@ The design is in `research/provenance_receipt.md` ("The STAC rows are executed a
 - **Tests and check:** the full suite passes, 2547 expectations; `R CMD check` gives 0 errors and 0
   warnings, with 1 environmental note (future timestamps); lintr adds no lints over main.
 
+## Evidence
+
+`mutate.py` in this directory: the mutation table, run as `python3 mutate.py <worktree of the
+merge>`. Each mutant is a guard in `R/crt_receipt_stac.R` replaced, plus one generator path dropped.
+
 ## Owed
 
 - NEWS + minor bump at `/gh-pr-merge` (breaking: `crt_receipt_write()`'s return value)

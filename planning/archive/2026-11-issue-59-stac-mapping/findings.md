@@ -245,7 +245,7 @@ published, `result: null` and a dozen states unpinned, the Python reading crashi
 
 **The loop ended on that enumeration and a mutation table, not on a quiet round.** 21 mutants, one per
 guard in `crt_receipt_stac()` plus one dropping a path from the generator, each turn the stac.json
-runner red (1 to 58 failing expectations each; `scratchpad/mutate.py` in the session, the table in
+runner red (1 to 58 failing expectations each; `mutate.py` in this archive, the table in
 progress.md). The independent Python reading matches all 142 cases with the exact code. Five
 reviewers ran on this task (one plan review, four code-check rounds); rounds 2, 3 and 4 each found a
 defect inside the previous round's fix.
