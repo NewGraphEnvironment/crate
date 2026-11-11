@@ -16,15 +16,15 @@ Source:
 Irvine A (2026). *crate: Canonical Schemas for Changing Data and
 Provenance Receipts*. New Graph Environment Ltd.
 [doi:10.5281/zenodo.23289273](https://doi.org/10.5281/zenodo.23289273).
-Version 0.15.1, <https://github.com/NewGraphEnvironment/crate>.
+Version 0.16.0, <https://github.com/NewGraphEnvironment/crate>.
 
     @Manual{crate,
       title = {crate: Canonical Schemas for Changing Data and Provenance Receipts},
       author = {Allan Irvine},
       organization = {New Graph Environment Ltd.},
       year = {2026},
-      version = {0.15.1},
-      note = {Version 0.15.1},
+      version = {0.16.0},
+      note = {Version 0.16.0},
       url = {https://github.com/NewGraphEnvironment/crate},
       doi = {10.5281/zenodo.23289273},
     }

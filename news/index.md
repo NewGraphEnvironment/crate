@@ -1,5 +1,41 @@
 # Changelog
 
+## crate 0.16.0 (2026-11-11)
+
+- [`crt_receipt_stac()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_stac.md)
+  maps a receipt to the fields a STAC item mirrors from it:
+  `receipt:recipe_id`, `processing:datetime`, `processing:software`, and
+  each asset’s `file:checksum` and `file:size`. It executes the receipt
+  mapping’s `STAC item` rows, which until now nothing in crate ran.
+  Mapping v1.1.0 (`inst/extdata/receipt/mapping/v1.1.0/`, published at
+  `https://newgraphenvironment.github.io/crate/receipt/mapping/v1.1.0/mapping.csv`)
+  states what v1.0.0 left open. A migrated receipt leaves
+  `receipt:recipe_id` out, a missing one on any other receipt is
+  refused, and a null `version` is left out of `processing:software`. A
+  part no asset names is not mirrored, and an asset whose href names no
+  part is refused. The asset that links the receipt carries
+  `file:checksum`, the digest of the published receipt’s bytes, and no
+  `file:size`. Each refusal is an error of class `crate_stac_refused`
+  carrying a `code`. `stac.json` beside the mapping holds 142 cases,
+  every path the mapping reads crossed with every state, each with the
+  item fields it maps to or the code of its refusal, for every
+  implementation to run
+  ([\#59](https://github.com/NewGraphEnvironment/crate/issues/59)).
+- **Breaking:**
+  [`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md)
+  returns the SHA-256 of the bytes it wrote, invisibly, rather than the
+  receipt. That digest is what an item’s receipt asset carries as
+  `file:checksum`, and nothing else can compute it. To read the receipt,
+  use
+  [`crt_receipt_read()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_read.md),
+  which returns exactly what was written; the list
+  [`crt_receipt_write()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_write.md)
+  returned held `NA` where the file holds `null`
+  ([\#60](https://github.com/NewGraphEnvironment/crate/issues/60)).
+- The note on `form_capture`’s `harvested_at` column
+  (`inst/extdata/schemas/nge/form_capture.yaml`) describes an internal
+  issue in words rather than naming it. No code change.
+
 ## crate 0.15.1 (2026-11-09)
 
 - The README, which is also the pkgdown home page, is now the opening,

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,14 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.16.0" id="crate-0160-2026-11-11">crate 0.16.0 (2026-11-11)<a class="anchor" aria-label="anchor" href="#crate-0160-2026-11-11"></a></h2>
+<ul><li>
+<code><a href="../reference/crt_receipt_stac.html">crt_receipt_stac()</a></code> maps a receipt to the fields a STAC item mirrors from it: <code>receipt:recipe_id</code>, <code>processing:datetime</code>, <code>processing:software</code>, and each asset’s <code>file:checksum</code> and <code>file:size</code>. It executes the receipt mapping’s <code>STAC item</code> rows, which until now nothing in crate ran. Mapping v1.1.0 (<code>inst/extdata/receipt/mapping/v1.1.0/</code>, published at <code>https://newgraphenvironment.github.io/crate/receipt/mapping/v1.1.0/mapping.csv</code>) states what v1.0.0 left open. A migrated receipt leaves <code>receipt:recipe_id</code> out, a missing one on any other receipt is refused, and a null <code>version</code> is left out of <code>processing:software</code>. A part no asset names is not mirrored, and an asset whose href names no part is refused. The asset that links the receipt carries <code>file:checksum</code>, the digest of the published receipt’s bytes, and no <code>file:size</code>. Each refusal is an error of class <code>crate_stac_refused</code> carrying a <code>code</code>. <code>stac.json</code> beside the mapping holds 142 cases, every path the mapping reads crossed with every state, each with the item fields it maps to or the code of its refusal, for every implementation to run (<a href="https://github.com/NewGraphEnvironment/crate/issues/59" class="external-link">#59</a>).</li>
+<li>
+<strong>Breaking:</strong> <code><a href="../reference/crt_receipt_write.html">crt_receipt_write()</a></code> returns the SHA-256 of the bytes it wrote, invisibly, rather than the receipt. That digest is what an item’s receipt asset carries as <code>file:checksum</code>, and nothing else can compute it. To read the receipt, use <code><a href="../reference/crt_receipt_read.html">crt_receipt_read()</a></code>, which returns exactly what was written; the list <code><a href="../reference/crt_receipt_write.html">crt_receipt_write()</a></code> returned held <code>NA</code> where the file holds <code>null</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/60" class="external-link">#60</a>).</li>
+<li>The note on <code>form_capture</code>’s <code>harvested_at</code> column (<code>inst/extdata/schemas/nge/form_capture.yaml</code>) describes an internal issue in words rather than naming it. No code change.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.15.1" id="crate-0151-2026-11-09">crate 0.15.1 (2026-11-09)<a class="anchor" aria-label="anchor" href="#crate-0151-2026-11-09"></a></h2>
 <ul><li>The README, which is also the pkgdown home page, is now the opening, one example of each of crate’s jobs with its real output, and pointers: Learn more, Ecosystem, Citation and License. How a registered file is read (the runtime, datetimes as instants, and how a variant is matched) moved to a new <code><a href="../articles/reading.html">vignette("reading")</a></code>, and how to register a new file or table to <code>inst/extdata/schemas/README.md</code>. The DESCRIPTION <code>Title</code> is now “Canonical Schemas for Changing Data and Provenance Receipts”. No code change (<a href="https://github.com/NewGraphEnvironment/crate/issues/54" class="external-link">#54</a>).</li>
