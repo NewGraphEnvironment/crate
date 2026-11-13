@@ -34,6 +34,10 @@ Measure the blast radius before deciding (grep the consumers, count the fixtures
 
 The data these schemas have met so far is test data — hornby, Nelson — collected to exercise the system, not to be preserved. Design for the shape the next real project will have, not for keeping a test dataset readable in its old form. Schema breaks are expected as projects and years are added: minimise them, record each new shape as an `upstream_variant`, and do not contort a design to avoid one.
 
+## Schema-as-data means readable without R
+
+Registries, lookup tables and declarative schemas live as plain text in `inst/extdata/` (CSV, YAML, JSON) and are read at runtime, never compiled into `R/sysdata.rda`. The point of schema-as-data is that someone who does not run R (a reporting repo, a SQL process, a collaborator in a GIS) can read the rules, and a binary `.rda` is outside R source but not outside the R runtime. At registry sizes (hundreds of rows) a runtime read costs microseconds, so a `data-raw/` step that turns a CSV into `sysdata.rda` optimises nothing. Use `sysdata.rda` only for what is genuinely R-internal, such as a fitted model or a large precomputed structure.
+
 ## Naming convention (Convention C, locked in crate#4)
 
 Every function in crate's namespace prefixed `crt_*`, family-namespaced:
