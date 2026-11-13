@@ -609,7 +609,7 @@ carries no <code>file:size</code>:</p>
 <span><span class="co">#&gt;  $ stac_extensions: 'AsIs' chr [1:3] "https://stac-extensions.github.io/file/v2.1.0/schema.json" "https://stac-extensions.github.io/processing/v1.2.0/schema.json" "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"</span></span>
 <span><span class="co">#&gt;  $ properties     :List of 3</span></span>
 <span><span class="co">#&gt;   ..$ receipt:recipe_id  : chr "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"</span></span>
-<span><span class="co">#&gt;   ..$ processing:datetime: chr "2026-11-13T06:34:57Z"</span></span>
+<span><span class="co">#&gt;   ..$ processing:datetime: chr "2026-11-13T06:36:59Z"</span></span>
 <span><span class="co">#&gt;   ..$ processing:software:List of 1</span></span>
 <span><span class="co">#&gt;   .. ..$ link: chr "0.31.2"</span></span>
 <span><span class="co">#&gt;  $ assets         :List of 2</span></span>
@@ -617,7 +617,7 @@ carries no <code>file:size</code>:</p>
 <span><span class="co">#&gt;   .. ..$ file:checksum: chr "122004994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2"</span></span>
 <span><span class="co">#&gt;   .. ..$ file:size    : int 124</span></span>
 <span><span class="co">#&gt;   ..$ receipt     :List of 1</span></span>
-<span><span class="co">#&gt;   .. ..$ file:checksum: chr "1220bc3bf1863f1bf188456b9f5a1010f3c5188f7a63f70a4d287690adbe548f4612"</span></span></code></pre></div>
+<span><span class="co">#&gt;   .. ..$ file:checksum: chr "122017bada6a11c15481fdd32be65e26509baa816b08bb5d6f6a2e47203de4041904"</span></span></code></pre></div>
 <p>Merge these into the item being built; its id, geometry, hrefs, types
 and roles do not come from the receipt. A part that no asset names is
 not mirrored, since an item may publish fewer files than the build made.
