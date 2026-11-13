@@ -433,7 +433,7 @@ str(s, give.attr = FALSE)
 #>  $ stac_extensions: 'AsIs' chr [1:3] "https://stac-extensions.github.io/file/v2.1.0/schema.json" "https://stac-extensions.github.io/processing/v1.2.0/schema.json" "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"
 #>  $ properties     :List of 3
 #>   ..$ receipt:recipe_id  : chr "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"
-#>   ..$ processing:datetime: chr "2026-11-11T13:43:12Z"
+#>   ..$ processing:datetime: chr "2026-11-13T06:34:57Z"
 #>   ..$ processing:software:List of 1
 #>   .. ..$ link: chr "0.31.2"
 #>  $ assets         :List of 2
@@ -441,7 +441,7 @@ str(s, give.attr = FALSE)
 #>   .. ..$ file:checksum: chr "122004994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2"
 #>   .. ..$ file:size    : int 124
 #>   ..$ receipt     :List of 1
-#>   .. ..$ file:checksum: chr "12206bf8e3878bf990c09cbbfcae4814a91e5e82dc6fd860d506b9b6e16b39733722"
+#>   .. ..$ file:checksum: chr "1220bc3bf1863f1bf188456b9f5a1010f3c5188f7a63f70a4d287690adbe548f4612"
 ```
 
 Merge these into the item being built; its id, geometry, hrefs, types
