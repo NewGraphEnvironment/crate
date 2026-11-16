@@ -22,10 +22,11 @@ capture <- function(form, variant, n = 2, x = rep(1203451, n)) {
   types <- fixture_types(form, variant)
   fill <- function(t) {
     switch(
-      t,
+      sub("[(].*$", "", t),
       TEXT = rep("text", n), REAL = rep(1.5, n),
       INTEGER = , MEDIUMINT = rep(1L, n),
       DATETIME = rep("2026-09-21T18:00:00Z", n),
+      DATE = rep("2026-09-21", n),
       BOOLEAN = rep(TRUE, n),
       stop("no fill for ", t)
     )
@@ -189,4 +190,107 @@ test_that("units, photo paths and off-form nulls are declared where the forms ca
   expect_true(all(is.na(pscis$units[grepl("scale", pscis$notes)])))
   expect_true(any(!is.na(pscis$relative_to)))
   expect_true(any(!is.na(pscis$null)))
+})
+
+# ---- the versions read from the sync service's history (#36) -----------------
+# Every variant after a form's first (rfp's build) was measured: a column set a
+# crew captured records into, read off the history of the forms in the field.
+
+measured_of <- function(form) variants_of(form)[-1]
+
+test_that("every column of every variant is declared by its schema", {
+  # Gate decision 2026-11-16: a column an earlier version had and the build
+  # does not is declared, typed, so a record from that version conforms with
+  # its own columns typed rather than passed through as read.
+  for (form in forms) {
+    declared <- crt_schema_cols("nge", form)$name
+    for (v in variants_of(form)) {
+      expect_identical(
+        setdiff(names(fixture_types(form, v$id)), declared), character(0),
+        info = paste(form, v$id)
+      )
+    }
+  }
+})
+
+test_that("a capture of each measured variant conforms and names its version", {
+  for (form in forms) {
+    for (v in measured_of(form)) {
+      expect_no_warning(out <- crt_schema_conform(capture(form, v$id), "nge", form))
+      expect_identical(crt_schema_variant(out, "nge", form), rep(v$id, 2),
+                       info = paste(form, v$id))
+    }
+  }
+})
+
+test_that("a measured variant says it renames exactly when each side lacks columns of the other", {
+  # A version that only lacks columns nests in the build; one that only adds
+  # them has the build nested in it. Neither is a rename.
+  for (form in forms) {
+    build <- names(fixture_types(form, variants_of(form)[[1]]$id))
+    for (v in measured_of(form)) {
+      cols <- names(fixture_types(form, v$id))
+      renames <- length(setdiff(cols, build)) > 0 && length(setdiff(build, cols)) > 0
+      expect_identical(grepl("rename", v$description), renames, info = paste(form, v$id))
+    }
+  }
+})
+
+test_that("every version of a form stacks into one table", {
+  # One column, one type, whichever versions a harvest meets: bind_rows() fails
+  # on a column conformed to two types.
+  for (form in forms) {
+    vs <- variants_of(form)
+    parts <- lapply(vs, function(v) crt_schema_conform(capture(form, v$id), "nge", form))
+    both <- dplyr::bind_rows(parts)
+    expect_identical(nrow(both), 2L * length(vs), info = form)
+    expect_identical(
+      crt_schema_variant(both, "nge", form),
+      rep(vapply(vs, `[[`, "", "id"), each = 2), info = form
+    )
+  }
+})
+
+test_that("measured variants are named and dated by when they first took records", {
+  for (form in forms) {
+    for (v in measured_of(form)) {
+      expect_match(v$id, "^capture-([0-9]{4}-[0-9]{2}(-[a-z])?|utm-columns-2025)$",
+                   info = paste(form, v$id))
+      expect_match(v$first_seen, "^[0-9]{4}(-[0-9]{2})?$", info = paste(form, v$id))
+    }
+  }
+})
+
+test_that("a column only earlier versions carry names exactly the versions that have it", {
+  # Gate decision 2026-11-16: marked so a form builder reading
+  # crt_schema_cols() leaves it out of a new form.
+  for (form in forms) {
+    vs <- variants_of(form)
+    ids <- vapply(vs, `[[`, "", "id")
+    build <- names(fixture_types(form, ids[1]))
+    cols <- crt_schema_cols("nge", form)
+    for (i in which(lengths(cols$variants) > 0)) {
+      nm <- cols$name[i]
+      carriers <- ids[vapply(ids, function(id) nm %in% names(fixture_types(form, id)), TRUE)]
+      expect_false(nm %in% build, info = paste(form, nm))
+      expect_identical(cols$variants[[i]], carriers, info = paste(form, nm))
+    }
+    # And every column some version has that the build lacks is marked.
+    extra <- setdiff(unlist(lapply(ids, function(id) names(fixture_types(form, id)))), build)
+    expect_setequal(cols$name[lengths(cols$variants) > 0], extra)
+  }
+})
+
+test_that("a shared column keeps every version's values", {
+  # site_id is text in a 2024 monitoring version, where crews typed site
+  # names; as a double those would be NA (gate decision 2026-11-16).
+  x <- capture("form_monitoring", "capture-2024-09-b", n = 1)
+  x$site_id <- "Upper road crossing"
+  out <- crt_schema_conform(x, "nge", "form_monitoring")
+  expect_identical(out$site_id, "Upper road crossing")
+  # A 2023 pscis date conforms to that day.
+  y <- capture("form_pscis", "capture-2023-08", n = 1)
+  y$date <- "2023-08-15"
+  out <- crt_schema_conform(y, "nge", "form_pscis")
+  expect_identical(format(out$date, "%Y-%m-%d", tz = "UTC"), "2023-08-15")
 })
