@@ -45,12 +45,12 @@ waits on this issue. This registers two `schema_only` entries the caller conform
     rows; missing `checksum` or `project` is refused
   - the `record` grade on `photo_links` (`crt_schema_grade()`) is met only with form, source_version
     and record_id present
-- [ ] `test-crt_registry_integrity.R` already walks every row (YAML exists, path rule, types,
+- [x] `test-crt_registry_integrity.R` already walks every row (YAML exists, path rule, types,
   canonical_cols ⊆ schema, quoted values); no edit expected, confirm it covers the new rows
 
 ## Phase 2: Schemas and registry
 
-- [ ] `inst/extdata/schemas/nge/photo_files.yaml` — modelled on `track_vertices.yaml`; each column
+- [x] `inst/extdata/schemas/nge/photo_files.yaml` — modelled on `track_vertices.yaml`; each column
   with `notes`, `units` where it has one:
   - required: `path` (string, as the caller gave it), `checksum` (string, SHA-256 of the bytes,
     lowercase hex, the value a receipt's `result.parts[].sha256` holds), `size` (double, bytes;
@@ -63,12 +63,12 @@ waits on this issue. This registers two `schema_only` entries the caller conform
     table and joins on `checksum`); a Camtrap DP 1.0.2 media mapping in the description
     (`filePath`←`path`, `fileMediatype`←`media_type`, `timestamp`←`time_local`+`time_offset`;
     Camtrap DP has no checksum or copy link)
-- [ ] `inst/extdata/schemas/nge/photo_links.yaml` — required `checksum`, `project` (string);
+- [x] `inst/extdata/schemas/nge/photo_links.yaml` — required `checksum`, `project` (string);
   optional `form`, `source_version` (string), `record_id` (integer), `site`, `view` (string, from
   the caller's form or naming rule, never guessed from names); grade
   `record: [checksum, project, form, source_version, record_id]`
-- [ ] Two rows in `inst/extdata/crate_registry.csv`, `canonical_cols` = the required columns
-- [ ] Phase 1 tests pass
+- [x] Two rows in `inst/extdata/crate_registry.csv`, `canonical_cols` = the required columns
+- [x] Phase 1 tests pass
 
 ## Phase 3: Decision log and docs
 

@@ -1,0 +1,62 @@
+file: photo_links
+description: >
+  One row per thing a photo shows: a form record, a site, a view. The photo
+  itself is in photo_files, joined on `checksum`, so a photo that shows two
+  records is two rows here and one there, and a file whose bytes sit at two
+  paths does not repeat its links.
+
+  What a photo shows comes from the caller's form or naming rule, never from
+  guessing at a file name.
+
+canonical:
+  shape: long
+  cols:
+    - name: checksum
+      type: string
+      required: true
+      notes: >
+        The photo, as the SHA-256 of its bytes in 64 lowercase hex characters
+        (key). Joins to photo_files.checksum.
+    - name: project
+      type: string
+      required: true
+      notes: >
+        The dataset the photo belongs to (key). Matches form_capture.project
+        where the photo is linked to a form record.
+    - name: form
+      type: string
+      required: false
+      notes: >
+        The form whose record the photo shows (key), e.g. `form_pscis`.
+        Matches form_capture.form.
+      'null': The photo is not linked to a form record.
+    - name: source_version
+      type: string
+      required: false
+      notes: >
+        The version of the capture the record came from (key). Matches
+        form_capture.source_version. Needed because a rebuild of a capture
+        layer restarts `record_id` at 1, so `(project, form, record_id)` alone
+        can name two records.
+    - name: record_id
+      type: integer
+      required: false
+      notes: >
+        The record the photo shows (key), unique within `(project, form,
+        source_version)`. Matches form_capture.record_id.
+    - name: site
+      type: string
+      required: false
+      notes: >
+        The site the photo shows, e.g. a crossing's or a camera trap's
+        identifier, from the caller's form or naming rule.
+    - name: view
+      type: string
+      required: false
+      notes: >
+        What the photo looks at from the site, e.g. `upstream`, `downstream`,
+        `inlet`, `outlet`, from the caller's form or naming rule.
+
+grades:
+  - name: record
+    requires: [checksum, project, form, source_version, record_id]

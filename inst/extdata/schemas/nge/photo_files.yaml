@@ -1,0 +1,116 @@
+file: photo_files
+description: >
+  One row per photo file: where it is, what its bytes are, and what the file
+  itself says about when, where and with what it was taken. What a photo shows
+  (a record, a site, a view) is in photo_links, which joins on `checksum`.
+
+  A photo is identified by the SHA-256 of its bytes, not by its name. A resized
+  copy usually keeps its original's file name, so a match by name cannot tell
+  the two apart; their checksums differ, and the copy's `derived_from` names the
+  original. The key is `(checksum, path)`: one file's bytes can sit at two
+  paths, and both rows are kept.
+
+  Where a photo is stored is not here. A store defines its own key, keeps its
+  own listing, and joins to this table on `checksum`.
+
+  These rows can fill a Camtrap DP 1.0.2 media table: `filePath` from `path`,
+  `fileName` from its last component, `fileMediatype` from `media_type`, and
+  `timestamp` from `time_local` with `time_offset` appended (a row with no
+  offset has no Camtrap DP timestamp). Camtrap DP has no checksum and no link
+  from a copy to its original; its `exifData` is not carried here.
+
+canonical:
+  shape: long
+  cols:
+    - name: path
+      type: string
+      required: true
+      notes: >
+        Where the file is, as the caller gave it (key, with `checksum`). Not
+        normalised: a relative path stays relative to wherever the caller
+        listed from.
+    - name: checksum
+      type: string
+      required: true
+      notes: >
+        SHA-256 of the file's bytes, as 64 lowercase hex characters (key, with
+        `path`). The same digest a provenance receipt carries for each file
+        part (`result.parts[].sha256`), so a photo and a receipt that lists it
+        agree on the string.
+    - name: size
+      type: double
+      required: true
+      units: "bytes"
+      notes: >
+        The file's size. Double, not integer, because an R integer stops at
+        2^31 - 1, about 2.1 GB.
+    - name: time
+      type: datetime
+      required: false
+      notes: >
+        When the photo was taken, as an instant in UTC: `time_local` less
+        `time_offset`. Missing whenever `time_offset` is, because a wall clock
+        with no offset names no instant, and is never guessed into one. Give it
+        to `crt_schema_conform()` already resolved (a POSIXct, or ISO 8601 in
+        UTC); a value carrying a non-UTC offset is refused.
+    - name: time_local
+      type: string
+      required: false
+      notes: >
+        The camera's wall clock when the photo was taken, as the file wrote it,
+        in ISO 8601 with no zone (`2024-07-14T10:32:05`). Kept as text so it is
+        never read as UTC.
+    - name: time_offset
+      type: string
+      required: false
+      notes: >
+        The offset from UTC the file gives for `time_local`, as `+HH:MM` or
+        `-HH:MM`. Missing where the camera wrote local time with no offset.
+      'null': >
+        The camera recorded no offset, so `time` is missing too.
+    - name: gps_lon
+      type: double
+      required: false
+      units: "degrees"
+      range: [-180, 180]
+      notes: >
+        Longitude of the camera's GPS fix, EPSG:4326. Where the camera was,
+        which need not be where the record it shows was made.
+      'null': >
+        The file carries no position, or it was removed.
+    - name: gps_lat
+      type: double
+      required: false
+      units: "degrees"
+      range: [-90, 90]
+      notes: Latitude of the camera's GPS fix, EPSG:4326.
+      'null': >
+        The file carries no position, or it was removed.
+    - name: width
+      type: integer
+      required: false
+      units: "px"
+      notes: Image width in pixels.
+    - name: height
+      type: integer
+      required: false
+      units: "px"
+      notes: Image height in pixels.
+    - name: media_type
+      type: string
+      required: false
+      notes: >
+        IANA media type of the file, e.g. `image/jpeg`, `image/png`. Says what
+        the bytes are, which a file extension does not.
+    - name: camera
+      type: string
+      required: false
+      notes: The camera's make and model, as the file names them.
+    - name: derived_from
+      type: string
+      required: false
+      notes: >
+        The `checksum` of the photo this file was made from, when it is a copy
+        that changed the bytes (resized, recompressed, cropped).
+      'null': >
+        An original, or a copy whose origin is not known.
