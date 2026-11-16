@@ -215,11 +215,25 @@ file_meta <- function(checksum) {
 # What a cached record was read with: the code that turns a file into one. A
 # record is keyed by the file's checksum, so without this a change to how a
 # file is read would leave every cached record as the old code read it.
+# The runtime is in it too: a row hash is text R and RSQLite make of a value.
 reader_version <- function() {
   digest::digest(c(readLines("data-raw/forms_gpkg-decl.R"), deparse(file_meta),
-                   deparse(row_hashes), deparse(crt_schema_fingerprint)),
+                   deparse(row_hashes), deparse(crt_schema_fingerprint),
+                   R.version.string, as.character(utils::packageVersion("RSQLite")),
+                   as.character(utils::packageVersion("DBI")),
+                   as.character(utils::packageVersion("digest"))),
                  algo = "xxhash64")
 }
+
+# A version's server record is cached by project name and version number, and
+# a name does not identify a project: one deleted and created again reuses it.
+# So each cached record carries the version's creation time, and a record whose
+# time is not the history's is fetched again (`read`) or refused (`write`).
+same_time <- function(a, b) {
+  identical(format(as.POSIXct(a, tz = "UTC"), "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+            format(as.POSIXct(b, tz = "UTC"), "%Y-%m-%dT%H:%M:%S", tz = "UTC"))
+}
+raw_time <- function(raw) as.POSIXct(raw$created, format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")
 
 meta_current <- function(meta_f, reader = reader_version()) {
   file.exists(meta_f) && identical(attr(readRDS(meta_f), "reader"), reader)
@@ -298,15 +312,25 @@ read_history <- function() {
     }
     for (v in h$version) {
       f <- file.path(cache_dir, "changesets", paste0(safe(p), "__", v, ".rds"))
-      if (!file.exists(f)) {
+      when <- h$created[h$version == v]
+      cs <- if (file.exists(f)) readRDS(f)
+      # A record cached before it carried a time takes the history's: the 357
+      # form-file versions among them were checked against their own server
+      # record's time (2026-11-16), and `write` checks those again every run.
+      if (!is.null(cs) && is.null(attr(cs, "created"))) {
+        attr(cs, "created") <- when
+        saveRDS(cs, f)
+      }
+      if (is.null(cs) || !same_time(attr(cs, "created"), when)) {
+        unlink(file.path(cache_dir, "raw", paste0(safe(p), "__", v, ".json")))
         cs <- retry(function() rfp::rfp_mergin_changeset(p, v), paste("changeset", p, v))
         if (inherits(cs, "error")) {
           failures <- c(failures, paste("changeset", p, v))
           next
         }
+        attr(cs, "created") <- when
         saveRDS(cs, f)
       }
-      cs <- readRDS(f)
       cs <- cs[grepl("[.]gpkg$", cs$path) & !is.na(form_of(cs$path)), ]
       if (nrow(cs)) {
         cs$created <- h$created[h$version == v]
@@ -411,6 +435,18 @@ write_variants <- function() {
                      meta_current, logical(1), reader = reader)
   no_raw <- !file.exists(file.path(cache_dir, "raw",
                                    paste0(safe(got$project), "__", got$version, ".json")))
+  # And each version record is the one the history names, by its time.
+  stale_raw <- !no_raw & !vapply(seq_len(nrow(got)), function(i) {
+    raw <- jsonlite::fromJSON(paste(readLines(file.path(
+      cache_dir, "raw", paste0(safe(got$project[i]), "__", got$version[i], ".json"))),
+      collapse = ""), simplifyDataFrame = FALSE)
+    same_time(raw_time(raw), got$created[i])
+  }, logical(1))
+  if (any(stale_raw)) {
+    stop(sum(stale_raw), " version records are not the versions the history names ",
+         "(a project re-created under its name?); delete them and re-run `read`.",
+         call. = FALSE)
+  }
   if (any(no_meta | no_raw)) {
     stop(sum(no_meta), " form files (unread, or read by other code) and ", sum(no_raw),
          " version records are not read; ",

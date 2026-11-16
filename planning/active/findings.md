@@ -119,3 +119,21 @@ computed from the run's environment assumed stable across runs (ids, month names
 cache artifact and every run-dependent output. The one open place, `meta/*.rds` keyed only by the
 file checksum, now carries the reader's version (a digest of the code that reads a file), and
 both `read` and `write` treat a record from other code as unread.
+
+Round 4 found the mechanism one level down, inside round 3's fix: each cache is keyed by the
+server object it came from (a file checksum; a project name plus version number), but its value
+also depends on the code that made it, the runtime, and which project a name meant then. Round 3's
+reader stamp covered only the code. Now the stamp also carries R's, RSQLite's, DBI's and digest's
+versions; each cached changeset carries its version's creation time and is fetched again when the
+history's differs; and `write` refuses a version record whose time is not the walk's.
+
+**Enumeration that ended the review (2026-11-16, after the re-read):** every top-level entry of the
+cache, with its check, measured: `files/` 575 (301 match their sha1; the 274 that do not are exactly
+`rebuilt.txt`; none outside the walk); `meta/` 575 of 575 stamped with the current reader;
+`changesets/` 1,106 of 1,106 stamped with their time; `raw/` 357 of 357 form-file versions present
+with the walk's time; `agents/` 357 of 357 equal to their raw record; `failures.txt` empty, and
+written as "in progress" at each `read`'s start; `walk.rds` rewritten by every `read`;
+`versions.rds`, `shapes.csv`, `seasons.csv`, `stems.txt` rewritten by every `write`; `rebuilt.txt`
+only counted. In the repository, fixtures and the measured table are reproduced byte for byte, and
+the derive refuses a fixture whose fingerprint is not the table's. Each new guard was made to fire
+(a missing meta file, a changed reader, a tampered version record's time, a dropped listing).
