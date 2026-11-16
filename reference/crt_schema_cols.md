@@ -62,6 +62,13 @@ A tibble with columns:
 
   the schema's description of the column, else `NA`
 
+- `variants`:
+
+  list of character vectors: for a column the schema declares only
+  because earlier versions of the source carry it, the ids of the
+  `upstream_variants` that have it; `character(0)` for a column of the
+  current version. A form builder leaves the former out
+
 ## Details
 
 This is the reading of a schema meant for other code. A form builder

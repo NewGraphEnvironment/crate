@@ -94,6 +94,12 @@ other than "not recorded", else <code>NA</code></p></dd>
 <dt><code>notes</code></dt>
 <dd><p>the schema's description of the column, else <code>NA</code></p></dd>
 
+<dt><code>variants</code></dt>
+<dd><p>list of character vectors: for a column the schema
+declares only because earlier versions of the source carry it, the ids
+of the <code>upstream_variants</code> that have it; <code>character(0)</code> for a column
+of the current version. A form builder leaves the former out</p></dd>
+
 
 </dl></div>
     <div class="section level2">
