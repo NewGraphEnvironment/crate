@@ -13,11 +13,13 @@ description: >
   Where a photo is stored is not here. A store defines its own key, keeps its
   own listing, and joins to this table on `checksum`.
 
-  These rows can fill a Camtrap DP 1.0.2 media table: `filePath` from `path`,
-  `fileName` from its last component, `fileMediatype` from `media_type`, and
-  `timestamp` from `time_local` with `time_offset` appended (a row with no
-  offset has no Camtrap DP timestamp). Camtrap DP has no checksum and no link
-  from a copy to its original; its `exifData` is not carried here.
+  These rows fill part of a Camtrap DP 1.0.2 media table: `filePath` from
+  `path`, `fileName` from its last component, `fileMediatype` from
+  `media_type`, and `timestamp` from `time_local` with `time_offset` appended.
+  A row with no offset has no Camtrap DP timestamp, which that standard
+  requires, and the media table's deployment and capture identifiers come from
+  elsewhere. Camtrap DP has no checksum and no link from a copy to its
+  original; its `exifData` is not carried here.
 
 canonical:
   shape: long
@@ -25,6 +27,7 @@ canonical:
     - name: path
       type: string
       required: true
+      relative_to: the directory the caller listed from, when relative
       notes: >
         Where the file is, as the caller gave it (key, with `checksum`). Not
         normalised: a relative path stays relative to wherever the caller
@@ -35,15 +38,16 @@ canonical:
       notes: >
         SHA-256 of the file's bytes, as 64 lowercase hex characters (key, with
         `path`). The same digest a provenance receipt carries for each file
-        part (`result.parts[].sha256`), so a photo and a receipt that lists it
-        agree on the string.
+        part (`result.parts.<path>.sha256`), so a photo and a receipt that
+        lists it agree on the string.
     - name: size
       type: double
       required: true
       units: "bytes"
       notes: >
-        The file's size. Double, not integer, because an R integer stops at
-        2^31 - 1, about 2.1 GB.
+        The file's size, as a receipt's `result.parts.<path>.bytes` gives it.
+        Double, not integer, because an R integer stops at 2^31 - 1, about
+        2.1 GB.
     - name: time
       type: datetime
       required: false
@@ -52,20 +56,24 @@ canonical:
         `time_offset`. Missing whenever `time_offset` is, because a wall clock
         with no offset names no instant, and is never guessed into one. Give it
         to `crt_schema_conform()` already resolved (a POSIXct, or ISO 8601 in
-        UTC); a value carrying a non-UTC offset is refused.
+        UTC); a value carrying a non-UTC offset is refused. The caller
+        guarantees it agrees with `time_local` and `time_offset`.
     - name: time_local
       type: string
       required: false
       notes: >
         The camera's wall clock when the photo was taken, as the file wrote it,
-        in ISO 8601 with no zone (`2024-07-14T10:32:05`). Kept as text so it is
-        never read as UTC.
+        as text in the form `YYYY-MM-DDTHH:MM:SS` with no zone
+        (`2024-07-14T10:32:05`). Text, so it is never read as UTC; pass it as
+        text, since a POSIXct turned to text loses the `T` and, at midnight,
+        the time.
     - name: time_offset
       type: string
       required: false
       notes: >
         The offset from UTC the file gives for `time_local`, as `+HH:MM` or
-        `-HH:MM`. Missing where the camera wrote local time with no offset.
+        `-HH:MM`, UTC itself as `+00:00`, never `Z`. Missing where the camera
+        wrote local time with no offset.
       'null': >
         The camera recorded no offset, so `time` is missing too.
     - name: gps_lon
@@ -114,3 +122,7 @@ canonical:
         that changed the bytes (resized, recompressed, cropped).
       'null': >
         An original, or a copy whose origin is not known.
+
+grades:
+  - name: identified
+    requires: [checksum, path, size]

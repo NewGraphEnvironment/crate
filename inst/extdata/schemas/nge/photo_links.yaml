@@ -8,6 +8,10 @@ description: >
   What a photo shows comes from the caller's form or naming rule, never from
   guessing at a file name.
 
+  The key is `(checksum, project, form, source_version, record_id)` for a link
+  to a form record, and `(checksum, project, site, view)` for a link with no
+  record, such as a camera trap's photo of its site.
+
 canonical:
   shape: long
   cols:

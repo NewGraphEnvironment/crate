@@ -126,3 +126,16 @@ test_that("a link meets the record grade only when it names a form record in ful
   site_only <- out[, c("checksum", "project", "site", "view")]
   expect_identical(crt_schema_grade(site_only, "nge", "photo_links")$record, c(FALSE, FALSE, FALSE, FALSE))
 })
+
+test_that("a time given as text with its local offset is refused, not shifted", {
+  x <- photos()
+  x$time <- c("2024-07-14T10:32:05-07:00", "2024-07-14T10:32:05-07:00")
+  expect_error(crt_schema_conform(x, "nge", "photo_files"), "non-UTC offset")
+})
+
+test_that("a row with a required column present but missing fails the identified grade", {
+  x <- photos()
+  x$checksum[2] <- NA
+  out <- crt_schema_conform(x, "nge", "photo_files")
+  expect_identical(crt_schema_grade(out, "nge", "photo_files")$identified, c(TRUE, FALSE))
+})
