@@ -126,15 +126,15 @@ Defaults taken (mechanism, stated here rather than asked):
 
 ## Phase 4: Record it
 
-- [ ] `decisions/nge/20261030_form_schemas_fish_passage.md`: replace "The 2023–2025 back-catalogue
+- [x] `decisions/nge/20261030_form_schemas_fish_passage.md`: replace "The 2023–2025 back-catalogue
       … is not listed yet" with what was measured and the rule from decision 2.
-- [ ] `research/form_versions.md` (and a row in `research/README.md`): the method (the history
+- [x] `research/form_versions.md` (and a row in `research/README.md`): the method (the history
       walk and the record-growth rule), the counts, and how to re-run it for a new season.
-- [ ] NEWS.md entry. CLAUDE.md's Status line, where it describes the form schemas.
+- [x] NEWS.md entry. CLAUDE.md's Status line, where it describes the form schemas.
 
 ## Validation
 
-- [ ] Tests pass (`devtools::test()`), with no new lints (`lintr::lint_package()`, compared per file
+- [x] Tests pass (`devtools::test()`), with no new lints (`lintr::lint_package()`, compared per file
       against main).
 - [ ] `/code-check` clean (once over the branch with `/code-check branch`).
 - [ ] PWF checkboxes match landed work.

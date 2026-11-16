@@ -101,3 +101,11 @@ project the account sees; per-project detail stays in the cache outside the repo
 | Earlier fingerprint for `capture-utm-columns-2025` typed from #13's notes (`122-1ab1…`) | Those notes predate the fingerprint fix; the derive's fingerprint check caught it; the correct value is `122-795b55de0708d6bf`. |
 | `write` re-run after registration listed 1 variant instead of 9 | It took every fingerprint the schema lists as pre-registered, and the schema now lists the measured variants. Only the build (first variant) is pre-registered now, and kept ids are left out of the month-suffix count. Ids and fixtures unchanged on re-run. |
 | A listed shape's only growth was a duplicated row (user asked whether it was "an extra weird error version") | It was: record 35 copied under a new id, dropped the next day. Growth now needs a record with a new key and content the previous version lacked; the shape and its fixture are gone. |
+
+## Lints (2026-11-16)
+
+Against `origin/main` per file, linter and line: the branch adds four `object_usage_linter`
+"no visible global function" lints, all calls to `gpkg_tables()`, `gpkg_decl()` and `gpkg_nrow()`,
+which `data-raw/forms_gpkg-decl.R` defines and both scripts `source()`; lintr does not follow a
+`source()`. The rest (braces, semicolons, nested `ifelse()` indentation, an unused variable)
+are fixed. Tests: 2772 pass after merging main.

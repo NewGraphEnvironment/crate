@@ -202,7 +202,9 @@ file_meta <- function(checksum) {
     int_pk <- length(pk) == 1 && toupper(info$type[info$pk > 0]) == "INTEGER"
     max_pk <- if (int_pk) {
       DBI::dbGetQuery(con, sprintf('SELECT max("%s") AS m FROM "%s"', pk, t))$m
-    } else NA
+    } else {
+      NA
+    }
     decl <- gpkg_decl(gpkg, t)
     list(table = t, decl = decl, fingerprint = crt_schema_fingerprint(decl),
          n = gpkg_nrow(gpkg, t), max_pk = as.numeric(max_pk), int_pk = int_pk,
@@ -274,12 +276,18 @@ read_history <- function() {
   walk <- list()
   for (p in projects) {
     h <- retry(function() rfp::rfp_mergin_history(p), paste("history", p))
-    if (inherits(h, "error")) { failures <- c(failures, paste("history", p)); next }
+    if (inherits(h, "error")) {
+      failures <- c(failures, paste("history", p))
+      next
+    }
     for (v in h$version) {
       f <- file.path(cache_dir, "changesets", paste0(safe(p), "__", v, ".rds"))
       if (!file.exists(f)) {
         cs <- retry(function() rfp::rfp_mergin_changeset(p, v), paste("changeset", p, v))
-        if (inherits(cs, "error")) { failures <- c(failures, paste("changeset", p, v)); next }
+        if (inherits(cs, "error")) {
+          failures <- c(failures, paste("changeset", p, v))
+          next
+        }
         saveRDS(cs, f)
       }
       cs <- readRDS(f)
@@ -338,7 +346,10 @@ read_history <- function() {
     p <- need$project[i]
     v <- need$version[i]
     raw <- raw_changeset(p, v)
-    if (is.null(raw)) { failures <- c(failures, paste("raw", p, v)); next }
+    if (is.null(raw)) {
+      failures <- c(failures, paste("raw", p, v))
+      next
+    }
     writeLines(if (is.null(raw$user_agent)) "" else raw$user_agent,
                file.path(cache_dir, "agents", paste0(safe(p), "__", v, ".txt")))
     if (i %% 50 == 0) message(i, "/", nrow(need), " records")
@@ -351,11 +362,11 @@ read_history <- function() {
 # ---- write --------------------------------------------------------------------
 
 client_of <- function(ua) {
-  ifelse(is.na(ua), NA_character_,
-  ifelse(grepl("android|ios|iphone|ipad|Input/|MerginMaps", ua, ignore.case = TRUE),
-         "mobile",
-  ifelse(grepl("Plugin/|QGIS|Python-client|Mergin-SDK", ua, ignore.case = TRUE),
-         "desktop", "other")))
+  out <- rep("other", length(ua))
+  out[grepl("Plugin/|QGIS|Python-client|Mergin-SDK", ua, ignore.case = TRUE)] <- "desktop"
+  out[grepl("android|ios|iphone|ipad|Input/|MerginMaps", ua, ignore.case = TRUE)] <- "mobile"
+  out[is.na(ua)] <- NA_character_
+  out
 }
 
 fixture_decl <- function(form, id) {
@@ -412,7 +423,6 @@ write_variants <- function() {
   }
 
   report <- list()
-  accepted_cols <- list()
   for (form in forms) {
     schema <- crt_schema_get("nge", paste0("form_", form))
     build <- names(fixture_decl(form, schema$upstream_variants[[1]]$id))
@@ -519,9 +529,8 @@ write_variants <- function() {
     n_projects = out$n_projects_grew,
     # How records reached it: the field app, or only a desktop client (a
     # processed copy added to by hand).
-    grew_from = ifelse(out$grew_desktop == 0, "the field app",
-                ifelse(out$grew_mobile == 0, "a desktop client only",
-                       "the field app and a desktop client")),
+    grew_from = c("the field app and a desktop client", "the field app",
+                  "a desktop client only")[1 + (out$grew_desktop == 0) + 2 * (out$grew_mobile == 0)],
     stringsAsFactors = FALSE
   )
   utils::write.csv(measured, "data-raw/forms_variants-measured.csv", row.names = FALSE)
