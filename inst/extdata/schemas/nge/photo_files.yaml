@@ -13,14 +13,17 @@ description: >
   Where a photo is stored is not here. A store defines its own key, keeps its
   own listing, and joins to this table on `checksum`.
 
-  These rows fill part of a Camtrap DP 1.0.2 media table: `filePath` from
-  `path` where it is relative to the package root (Camtrap DP refuses an
-  absolute path, or one starting `.` or holding `..`), `fileName` from its last component, `fileMediatype` from
-  `media_type`, and `timestamp` from `time_local` with `time_offset` appended.
-  A row with no offset has no Camtrap DP timestamp, which that standard
-  requires, and the media table's deployment and capture identifiers come from
-  elsewhere. Camtrap DP has no checksum and no link from a copy to its
-  original; its `exifData` is not carried here.
+  Four fields of a Camtrap DP 1.0.2 media table (`media-table-schema.json`)
+  can come from these rows: `filePath` from `path`, `fileName` from its last
+  component, `fileMediatype` from `media_type`, and `timestamp` from
+  `time_local` with `time_offset` appended. Each must still meet that
+  table's own constraints, which crate does not check; as published, they
+  are `filePath` matching `^(?=^[^./~])(^((?!\.{2}).)*$).*$`, `fileMediatype`
+  matching `^(image|video|audio)/.*$`, and `timestamp` required, in the
+  format `%Y-%m-%dT%H:%M:%S%z`, so a row with no offset cannot fill it. The
+  table's other required fields, `mediaID`, `deploymentID` and `filePublic`,
+  come from elsewhere. Camtrap DP has no checksum and no link from a copy to
+  its original; its `exifData` is not carried here.
 
 canonical:
   shape: long
@@ -64,9 +67,10 @@ canonical:
       type: string
       required: false
       notes: >
-        The camera's wall clock when the photo was taken, as the file wrote it,
-        as text in the form `YYYY-MM-DDTHH:MM:SS` with no zone
-        (`2024-07-14T10:32:05`). Text, so it is never read as UTC; pass it as
+        The camera's wall clock when the photo was taken, as text in the form
+        `YYYY-MM-DDTHH:MM:SS` with no zone (`2024-07-14T10:32:05`). EXIF
+        writes it as `YYYY:MM:DD HH:MM:SS`, so the producer rewrites it; crate
+        does not check the form. Text, so it is never read as UTC; pass it as
         text, since a POSIXct turned to text loses the `T` and, at midnight,
         the time.
     - name: time_offset
@@ -85,8 +89,8 @@ canonical:
       range: [-180, 180]
       notes: >
         Longitude of the camera's GPS fix, taken as EPSG:4326. EXIF names the
-        datum in its `GPSMapDatum` tag, which is not read or carried here;
-        nearly every camera writes WGS-84. Where the camera was, which need
+        datum in its `GPSMapDatum` tag, which is not read or carried here.
+        Where the camera was, which need
         not be where the record it shows was made.
       'null': >
         The file carries no position, or it was removed.
