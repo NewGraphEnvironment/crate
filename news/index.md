@@ -1,6 +1,6 @@
 # Changelog
 
-## crate (development version)
+## crate 0.18.0 (2026-11-16)
 
 - The five fish passage form schemas list the versions crews captured
   records into from 2023 on, read from the sync service’s version
