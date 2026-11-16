@@ -14,3 +14,4 @@
 - Phase 4: filed #68, rename the source family nge to newgraph, with the measured blast radius and the alias-or-hard-rename question for its plan gate.
 - /code-check branch round 1: 2 findings, both reproduced and fixed: the `record` grade no longer requires `source_version` (NA for an unversioned upstream in form_capture), and the `time` note and decision now say zone-less text is read as UTC. photo 10/10, integrity 16/16, meaning 13/13.
 - /code-check round 2: 1 finding (CLAUDE.md Status said photo_files is keyed by the checksum; the key is path with checksum), fixed; not inside a round 1 fix. Also the decision log says time_local is EXIF time rewritten as ISO 8601.
+- /code-check round 3 (mechanism: prose restating a fact another artifact owns; reviewer enumerated every restatement): 2 findings, fixed; neither inside a previous fix. GPS is taken as EPSG:4326 with GPSMapDatum not carried, and Camtrap DP filePath needs a package-relative path.

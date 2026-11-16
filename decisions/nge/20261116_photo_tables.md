@@ -24,8 +24,8 @@ form record or a site and view, joined to the file on `checksum`.
    `time_offset` is `+HH:MM` or `-HH:MM`, or missing. A wall clock with no offset names
    no instant, so it is never stored as one.
 4. **Position is `gps_lon`, `gps_lat`.** The prefix says it is the camera's fix, which
-   need not be where the record it shows was made. A photo's GPS is always WGS84, so no
-   CRS column.
+   need not be where the record it shows was made. Nearly every camera writes WGS-84, so the
+   position is taken as EPSG:4326 with no CRS column; EXIF's `GPSMapDatum` is not carried.
 5. **`path` is required, and where a photo is stored is not in the schema.** A store
    keys and lists its own copies and joins here on `checksum`, rather than putting its
    key in place of `path`.
@@ -68,14 +68,15 @@ per file out) needs a shape to write to.
 
 - `crt_schema_conform()` checks required columns are present, not filled. The
   `identified` grade on `photo_files` (`checksum`, `path`, `size` all present) and the
-  `record` grade on `photo_links` (`project`, `form`, `record_id` present) are how a
+  `record` grade on `photo_links` (`checksum`, `project`, `form`, `record_id` present) are how a
   reader asks which rows it can trust. `record` does not require `source_version`, which
   form_capture leaves missing where a record has no versioned upstream; a join on the
   full key then has to match missing to missing.
 - Nothing checks that `time` equals `time_local` less `time_offset`; the caller
   guarantees it, and a QC rule for it belongs with #38.
-- Camtrap DP 1.0.2's media table can take `filePath`, `fileName`, `fileMediatype` and
-  `timestamp` (from `time_local` and `time_offset`) from these rows. Its deployment and
+- Camtrap DP 1.0.2's media table can take `filePath` (when `path` is relative to the
+  package root), `fileName`, `fileMediatype` and `timestamp` (from `time_local` and
+  `time_offset`) from these rows. Its deployment and
   capture identifiers come from elsewhere, and a row with no offset has no timestamp
   there.
 

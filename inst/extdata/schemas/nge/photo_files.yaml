@@ -14,7 +14,8 @@ description: >
   own listing, and joins to this table on `checksum`.
 
   These rows fill part of a Camtrap DP 1.0.2 media table: `filePath` from
-  `path`, `fileName` from its last component, `fileMediatype` from
+  `path` where it is relative to the package root (Camtrap DP refuses an
+  absolute path, or one starting `.` or holding `..`), `fileName` from its last component, `fileMediatype` from
   `media_type`, and `timestamp` from `time_local` with `time_offset` appended.
   A row with no offset has no Camtrap DP timestamp, which that standard
   requires, and the media table's deployment and capture identifiers come from
@@ -83,8 +84,10 @@ canonical:
       units: "degrees"
       range: [-180, 180]
       notes: >
-        Longitude of the camera's GPS fix, EPSG:4326. Where the camera was,
-        which need not be where the record it shows was made.
+        Longitude of the camera's GPS fix, taken as EPSG:4326. EXIF names the
+        datum in its `GPSMapDatum` tag, which is not read or carried here;
+        nearly every camera writes WGS-84. Where the camera was, which need
+        not be where the record it shows was made.
       'null': >
         The file carries no position, or it was removed.
     - name: gps_lat
@@ -92,7 +95,7 @@ canonical:
       required: false
       units: "degrees"
       range: [-90, 90]
-      notes: Latitude of the camera's GPS fix, EPSG:4326.
+      notes: Latitude of the camera's GPS fix, taken as EPSG:4326 (see `gps_lon`).
       'null': >
         The file carries no position, or it was removed.
     - name: width
