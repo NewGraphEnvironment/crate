@@ -30,13 +30,13 @@ project the account sees; per-project detail stays in the cache outside the repo
   first 2023-05, last 2026-11.
 - **Fetching:** 274 of the 575 were refused by `rfp_mergin_file_get()`'s checksum check. Every one
   is a version pushed as a geodiff, which the server rebuilds from the base file and diffs, so its
-  bytes cannot match the pushing client's checksum (rfp#408). No file uploaded whole was refused;
+  bytes cannot match the pushing client's checksum (filed against rfp). No file uploaded whole was refused;
   87 other geodiff versions matched anyway. Each rebuilt file passed SQLite's integrity check, and
   all 361 geodiff versions with a predecessor hold exactly their predecessor's records plus the
   diff's inserts minus its deletes (0 disagree), so the record counts the rule reads are right.
 - **Shapes (distinct fingerprints) per form, and how many took records:** pscis 39 / 3,
   fiss_site 30 / 4, monitoring 12 / 4, monitoring_fish_passage 2 / 1, monitoring_general 1 / 0.
-  The other 76 are copies uploaded and never captured into. 185 versions grew a form file: 174
+  The other 72 are copies uploaded and never captured into. 185 versions grew a form file: 174
   pushed from the mobile app, 11 from desktop.
 - **Overlap rejects:** one shape, under `pscis` at 0.01 — a fiss_site table in a file named for
   pscis; it never took records. Every shape that took records shares at least 0.77 of its columns
@@ -67,8 +67,8 @@ project the account sees; per-project detail stays in the cache outside the repo
   version uploaded whole, read with trap 0.13.0's own column set (`sf::st_read(fid_column_name =
   "record_id", optional = TRUE)` minus `record_id` and geometry, types from `trp_gpkg_types()`)
   and fingerprinted with `crt_schema_fingerprint()`: all three match, record counts too. trap's
-  own `schema_version` differs for every file because it still hashes R's serialization; trap#53
-  owns that.
+  own `schema_version` differs for every file because it still hashes R's serialization; an open
+  trap issue owns that.
 - **The growth rule, by hand:** one project's pscis files, 59 versions over 10 paths. On the
   live form file, 1 → 7 → 14 records are growth, a reset to 1 after the season archive is not, and
   max row id 1 → 25 → 35 → 36 is growth while the count dips (records deleted in the same sync).
@@ -87,7 +87,7 @@ project the account sees; per-project detail stays in the cache outside the repo
   field app; the measured table carries `grew_from` and each description says it.
 - **Harvesting it is blocked downstream:** trap refuses a form file whose DATETIME values carry
   no timezone, and every 2023 shape's values do (5,268 of 5,268), as do most pscis and fiss_site
-  build captures (4,083 of 5,216). Filed trap#60. Not this issue's to fix: the variants are
+  build captures (4,083 of 5,216). Filed against trap. Not this issue's to fix: the variants are
   listed whichever way trap decides.
 - **The build ids' `first_seen` is rfp's file date (2026-08), not the shape's:** the pscis and
   fiss_site build shapes took records from 2024-09. Left as is (the plan's call); the decision
@@ -97,7 +97,7 @@ project the account sees; per-project detail stays in the cache outside the repo
 
 | Error | Resolution |
 |-------|------------|
-| 274 of 575 form-file fetches refused with `Checksum mismatch` by `rfp_mergin_file_get()` (2026-11-16) | Every one checked is a version whose change for that path is a geodiff (the version record's `changes$updated[]` entry carries `diff`); the server's `/raw` endpoint rebuilds it from base file + diffs, so its bytes cannot match the pushing client's checksum. Tracked upstream as rfp#408. The history script now fetches such a file without the check, keeps it only if the change is a geodiff and `PRAGMA integrity_check` is `ok`, and `write` checks every geodiff version's record count against the diff's own insert − delete. |
+| 274 of 575 form-file fetches refused with `Checksum mismatch` by `rfp_mergin_file_get()` (2026-11-16) | Every one checked is a version whose change for that path is a geodiff (the version record's `changes$updated[]` entry carries `diff`); the server's `/raw` endpoint rebuilds it from base file + diffs, so its bytes cannot match the pushing client's checksum. Tracked in rfp. The history script now fetches such a file without the check, keeps it only if the change is a geodiff and `PRAGMA integrity_check` is `ok`, and `write` checks every geodiff version's record count against the diff's own insert − delete. |
 | Earlier fingerprint for `capture-utm-columns-2025` typed from #13's notes (`122-1ab1…`) | Those notes predate the fingerprint fix; the derive's fingerprint check caught it; the correct value is `122-795b55de0708d6bf`. |
 | `write` re-run after registration listed 1 variant instead of 9 | It took every fingerprint the schema lists as pre-registered, and the schema now lists the measured variants. Only the build (first variant) is pre-registered now, and kept ids are left out of the month-suffix count. Ids and fixtures unchanged on re-run. |
 | A listed shape's only growth was a duplicated row (user asked whether it was "an extra weird error version") | It was: record 35 copied under a new id, dropped the next day. Growth now needs a record with a new key and content the previous version lacked; the shape and its fixture are gone. |

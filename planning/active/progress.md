@@ -14,5 +14,5 @@
   carve-out. Privacy finding: the baseline named a deployment file stem; scrubbed and the
   unpushed baseline amended (now 52b19ac).
 - Probed Mergin's version record: `user_agent` is there (desktop pushes read `Python-client/…`,
-  `Plugin/… QGIS/…`), dropped by `rfp_mergin_changeset()`; filed rfp#431.
+  `Plugin/… QGIS/…`), dropped by `rfp_mergin_changeset()`; filed against rfp.
 - Phase 1 `read` running in the background since 16:26 UTC (~4 s per changeset).

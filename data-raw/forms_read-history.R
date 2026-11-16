@@ -20,12 +20,12 @@
 # GeoPackage named for one of the five forms, and fetches each distinct file
 # once (rfp_mergin_file_get(), checksum-verified). It also reads each such
 # version's full record through rfp's bundled helper script, for two fields
-# rfp_mergin_changeset() does not return yet (rfp#431): which client pushed it
+# rfp_mergin_changeset() does not return yet: which client pushed it
 # (`user_agent`), and, for a GeoPackage pushed as a geodiff, the diff and the
 # rows it inserted and deleted per table (`changesets`). The server rebuilds such
 # a version from its base file and diffs, so the bytes it sends never match the
 # checksum the pushing client computed, and rfp_mergin_file_get() refuses them
-# (rfp#408). Those are fetched without the check and accepted only when the
+# (an open rfp issue). Those are fetched without the check and accepted only when the
 # version's change for that path is a geodiff and SQLite's integrity check
 # passes; `write` then checks every geodiff version's record count against the
 # rows the server says it inserted and deleted. Everything is cached under
@@ -382,7 +382,7 @@ write_variants <- function() {
 
   # A version pushed as a geodiff must hold exactly the records its diff says:
   # the count before it, plus the rows inserted, minus the rows deleted. This is
-  # what makes a file the server rebuilt (rfp#408) a measurement and not a guess.
+  # what makes a file the server rebuilt a measurement and not a guess.
   prev_n <- ave(vt$n, vt$chain, FUN = function(y) c(NA, utils::head(y, -1)))
   vt$diff_ok <- NA
   for (i in which(vt$change == "updated" & !is.na(prev_n))) {

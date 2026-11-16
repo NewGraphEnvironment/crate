@@ -89,9 +89,51 @@ in 2026 (the first writes one statement per metric where the old form rated
 1 to 5). It is registered anyway, because projects still deploy it and earlier
 seasons' records are in its shape. Its schema's description says so.
 
-The 2023–2025 back-catalogue of earlier builds is not listed yet. Many of those
-files are processed copies, whose column sets are not a form's, so they are to
-be read from the sync service's version history instead.
+## The 2023–2025 versions (#36, 2026-11-16)
+
+Local copies could not say which column sets were forms crews used, because
+processed copies differ from the files captured into. So the earlier versions
+were read from the sync service's version history: every version of every
+project, each distinct form file fetched once (`data-raw/forms_read-history.R`;
+the method and counts are in `research/form_versions.md`).
+
+**A column set is a version of its form if records went into it:** some version
+of a file in that shape holds a record the version before it (same path, table
+and shape) did not, under a new key and with content none of its records had.
+A copy uploaded once, or rewritten with the records it already held, is not a
+version; neither is a duplicated row. A set must also share at least half its
+columns with the build or with a version already accepted, so a file named for
+one form that holds another is not listed under it.
+
+Of 84 column sets across the five forms (counted per form), 12 took records:
+four of the five builds (`form_monitoring_general` none yet), the 2025
+monitoring version #13 listed, and 7 earlier versions, listed after each build as `capture-YYYY-MM`
+(the month it first took records): pscis 2 (2023), fiss_site 3 (2023),
+form_monitoring 2 (2024). `capture-utm-columns-2025` keeps its name, which is
+already in harvested tables, and its `first_seen` moves to the measured 2024-09.
+Every listed version took records from the field app; each description says how
+records reached it and how its columns differ from the build's. The build ids'
+`first_seen` is when rfp's file last changed, not when the shape first took
+records (2024-09 for pscis and fiss_site).
+
+Two consequences for the schemas:
+
+- **Columns only earlier versions carry are declared, typed** from their
+  declarations, so a record from one conforms with them typed rather than
+  passed through. Each carries a `variants` key naming the versions that have
+  it, and `crt_schema_cols()` returns it, so a form builder can leave them out
+  of a new form.
+- **A column shared with the build keeps the build's type unless the earlier
+  declaration would lose values.** A 2023 pscis `date` is a DATE, which conforms
+  to midnight UTC that day. A 2024 monitoring version holds site names in
+  `site_id`, which the build declares REAL, so `site_id` is a string in every
+  monitoring version, as `form_monitoring_general` declares it. The derive stops
+  on any such conflict not decided.
+
+A harvest of these versions also needs a decision on their datetimes: every 2023
+version stores them with no timezone, and the harvester refuses a value with no
+zone rather than guess one; which zone those values were written in is an open
+question for the harvester.
 
 ## Why the fingerprint moved, and changed
 
@@ -123,11 +165,12 @@ Other domain grades belong to the QC rules (#38), not to this entry.
 - `captured_by`: still in `form_capture`'s `forward_compat`.
 - How a QC rule reports a value outside `values` or `range`: #38. This entry
   only declares them, and `crt_schema_cols()` exposes them.
-- The 2023–2025 versions, as above.
+- Which timezone a pre-2025 datetime with none was written in: the harvester's
+  question, open.
 
 ## Related
 
-- #13 — this entry
+- #13 — this entry; #36 — the 2023–2025 versions
 - #14 and `20260901_form_capture_envelope.md` — the envelope these repeat
 - #6 — the same reconciliation problem for another dataset family
 - #38 — QC rules that read `values` and `range`
