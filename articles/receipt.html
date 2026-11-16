@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -609,7 +609,7 @@ carries no <code>file:size</code>:</p>
 <span><span class="co">#&gt;  $ stac_extensions: 'AsIs' chr [1:3] "https://stac-extensions.github.io/file/v2.1.0/schema.json" "https://stac-extensions.github.io/processing/v1.2.0/schema.json" "https://newgraphenvironment.github.io/crate/stac/receipt/v1.0.0/schema.json"</span></span>
 <span><span class="co">#&gt;  $ properties     :List of 3</span></span>
 <span><span class="co">#&gt;   ..$ receipt:recipe_id  : chr "6f2f62c41cccd8fee1a84e87cbf9486432cb942f00a965911ad4216bfaf93c02"</span></span>
-<span><span class="co">#&gt;   ..$ processing:datetime: chr "2026-11-16T16:53:27Z"</span></span>
+<span><span class="co">#&gt;   ..$ processing:datetime: chr "2026-11-16T16:56:19Z"</span></span>
 <span><span class="co">#&gt;   ..$ processing:software:List of 1</span></span>
 <span><span class="co">#&gt;   .. ..$ link: chr "0.31.2"</span></span>
 <span><span class="co">#&gt;  $ assets         :List of 2</span></span>
@@ -617,7 +617,7 @@ carries no <code>file:size</code>:</p>
 <span><span class="co">#&gt;   .. ..$ file:checksum: chr "122004994ff01cdee55d69fc410add51ad261ec4b33a751135fc224e97305823c3e2"</span></span>
 <span><span class="co">#&gt;   .. ..$ file:size    : int 124</span></span>
 <span><span class="co">#&gt;   ..$ receipt     :List of 1</span></span>
-<span><span class="co">#&gt;   .. ..$ file:checksum: chr "12204cd7dc388f4e1a03518643476def4a408241bd16cce4b466e7cabeae48285386"</span></span></code></pre></div>
+<span><span class="co">#&gt;   .. ..$ file:checksum: chr "12205ba62153fa365eb649aafea4029217151d74d305ba9b597a6b4e9844e8441638"</span></span></code></pre></div>
 <p>Merge these into the item being built; its id, geometry, hrefs, types
 and roles do not come from the receipt. A part that no asset names is
 not mirrored, since an item may publish fewer files than the build made.

@@ -1,5 +1,25 @@
 # Changelog
 
+## crate 0.17.0 (2026-11-16)
+
+- Two `schema_only` entries for photos, which a caller conforms to with
+  [`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md).
+  `nge/photo_files` has one row per file, keyed by `(checksum, path)`:
+  `checksum` is the SHA-256 of the file’s bytes, the digest a receipt
+  carries for each part, so a resized copy that keeps its original’s
+  name is a row of its own, and its `derived_from` holds the original’s
+  checksum. `time` is a UTC instant only where the camera wrote an
+  offset; the wall clock is in `time_local` and the offset in
+  `time_offset`, so a local time is never read as UTC. Position is
+  `gps_lon` and `gps_lat`. `nge/photo_links` says what each photo shows:
+  a form record by its full key
+  `(project, form, source_version, record_id)`, or a site and view. The
+  grades `identified` and `record`
+  ([`crt_schema_grade()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_grade.md))
+  say which rows are complete enough to use. The reasoning is in
+  `decisions/nge/20261116_photo_tables.md`
+  ([\#67](https://github.com/NewGraphEnvironment/crate/issues/67)).
+
 ## crate 0.16.0 (2026-11-11)
 
 - [`crt_receipt_stac()`](https://newgraphenvironment.github.io/crate/reference/crt_receipt_stac.md)

@@ -143,7 +143,7 @@ digest <- crt_receipt_write(
   publish = TRUE
 )
 digest
-#> [1] "5a05aaf1a090ad145ec325817c12417e7373346e1ed5ff1c318e44e3b8ee6004"
+#> [1] "5297b459898d2008dabdc05650eedc2f9c65948a112fca4c036963af891331da"
 crt_receipt_read(dir)$recipe$recipe_id
 #> [1] "b61eb32306d67d8bcef8c87fed32aeff3681251bb70464956787675e901cd09b"
 ```
