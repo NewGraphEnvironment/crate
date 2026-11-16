@@ -65,11 +65,12 @@
 # - The build's fingerprint (first in each form's list) keeps its entry; it is
 #   counted here, not added again. Every other variant is this script's
 #   output, measured afresh on each run.
-# - A variant is named for the month it first gained records,
+# - A new variant is named for the month it first gained records,
 #   `capture-YYYY-MM`, with `-a`, `-b` where two share a month, in fingerprint
-#   order. The one exception is the 2025 monitoring variant #13 registered as
-#   `capture-utm-columns-2025`, a published variant id, which keeps its name;
-#   its `first_seen` is measured like the rest.
+#   order, the letters continuing past any already listed. An id a schema
+#   already lists is never renamed, because harvested tables carry it
+#   (`capture-utm-columns-2025` is #13's); its `first_seen` and counts are
+#   measured afresh. A listed variant the rule no longer admits stops `write`.
 
 pkgload::load_all(quiet = TRUE)
 source("data-raw/forms_gpkg-decl.R")
@@ -99,8 +100,6 @@ form_re <- sprintf("^(?:[0-9]{4}_)?form_(%s)", paste(forms, collapse = "|"))
 py_bin <- rfp:::rfp_mergin_py_bin()
 py_script <- rfp:::rfp_mergin_py_script("mergin_history.py")
 
-# Variants already registered under a name that is not `capture-YYYY-MM`.
-kept_ids <- c(`122-795b55de0708d6bf` = "capture-utm-columns-2025")
 
 form_of <- function(path) {
   m <- regmatches(basename(path), regexec(form_re, basename(path), perl = TRUE))
@@ -127,7 +126,8 @@ raw_changeset <- function(p, v) {
   f <- file.path(cache_dir, "raw", paste0(safe(p), "__", v, ".json"))
   if (!file.exists(f)) {
     out <- retry(function() {
-      o <- system2(py_bin, c(py_script, "changeset", "--project", p, "--version", v),
+      o <- system2(py_bin, c(shQuote(py_script), "changeset", "--project", shQuote(p),
+                             "--version", shQuote(v)),
                    stdout = TRUE, stderr = FALSE)
       if (!is.null(attr(o, "status"))) stop("exit ", attr(o, "status"))
       jsonlite::fromJSON(paste(o, collapse = ""), simplifyDataFrame = FALSE)
@@ -266,6 +266,9 @@ versions_table <- function(walk) {
 # ---- read ---------------------------------------------------------------------
 
 read_history <- function() {
+  # Until this run ends, the history is incomplete: `write` must not trust a
+  # previous run's empty failure list.
+  writeLines("read in progress or interrupted", file.path(cache_dir, "failures.txt"))
   ws <- suppressMessages(rfp::rfp_mergin_workspaces())$name
   projects <- unique(unlist(lapply(ws, function(w) {
     suppressMessages(rfp::rfp_mergin_list(w))$project
@@ -384,6 +387,16 @@ write_variants <- function() {
          paste(utils::head(failures, 10), collapse = "\n"), call. = FALSE)
   }
   walk <- readRDS(file.path(cache_dir, "walk.rds"))
+  # Every form file and every version record must have been read: a version
+  # with neither would drop out of the table below without a word.
+  got <- walk[walk$change != "removed", ]
+  no_meta <- !file.exists(file.path(cache_dir, "meta", paste0(got$checksum, ".rds")))
+  no_raw <- !file.exists(file.path(cache_dir, "raw",
+                                   paste0(safe(got$project), "__", got$version, ".json")))
+  if (any(no_meta | no_raw)) {
+    stop(sum(no_meta), " form files and ", sum(no_raw), " version records are not read; ",
+         "re-run `read`.", call. = FALSE)
+  }
   vt <- versions_table(walk)
   af <- file.path(cache_dir, "agents", paste0(safe(vt$project), "__", vt$version, ".txt"))
   vt$agent <- vapply(af, function(f) if (file.exists(f)) readLines(f, n = 1) else NA_character_,
@@ -493,35 +506,55 @@ write_variants <- function() {
                     sub("[.]gpkg$", "", basename(walk$path))))
   writeLines(stems, file.path(cache_dir, "stems.txt"))
 
-  forced <- report$fingerprint %in% names(kept_ids) & !report$accepted
-  if (any(forced)) message("kept though the rule does not admit it: ", report$fingerprint[forced])
-  missing_kept <- setdiff(names(kept_ids), report$fingerprint)
-  if (length(missing_kept)) stop("Not found in the history: ", missing_kept, call. = FALSE)
-
-  keep <- report[report$accepted | forced, ]
-  keep <- keep[order(keep$form, keep$first_grew, keep$fingerprint, method = "radix"), ]
-  keep$id <- NA_character_
-  for (form in unique(keep$form)) {
-    k <- which(keep$form == form & !keep$listed & !keep$fingerprint %in% names(kept_ids))
-    month <- keep$first_grew[k]
-    dup <- month %in% month[duplicated(month)]
-    suffix <- ave(seq_along(month), month, FUN = function(i) letters[seq_along(i)])
-    keep$id[k] <- paste0("capture-", month, ifelse(dup, paste0("-", suffix), ""))
+  # An id a schema already lists is kept: harvested tables carry it. Only a
+  # fingerprint no schema lists is named, and a listed one the rule no longer
+  # admits stops the run rather than vanish.
+  key <- function(f, fp) paste(f, fp)
+  published <- do.call(rbind, lapply(forms, function(form) {
+    vs <- crt_schema_get("nge", paste0("form_", form))$upstream_variants[-1]
+    if (!length(vs)) return(NULL)
+    data.frame(form = form, fingerprint = vapply(vs, `[[`, "", "fingerprint"),
+               id = vapply(vs, `[[`, "", "id"), stringsAsFactors = FALSE)
+  }))
+  admitted <- key(report$form, report$fingerprint)[report$accepted]
+  gone <- published[!key(published$form, published$fingerprint) %in% admitted, ]
+  if (nrow(gone)) {
+    stop("Listed variants the history no longer admits: ",
+         paste0("form_", gone$form, " ", gone$id, collapse = ", "), call. = FALSE)
   }
-  kept <- keep$fingerprint %in% names(kept_ids)
-  keep$id[kept] <- kept_ids[keep$fingerprint[kept]]
 
-  # Listed builds stay as they are; the measured table holds the rest.
-  out <- keep[!keep$listed | kept, ]
+  keep <- report[report$accepted, ]
+  keep <- keep[order(keep$form, keep$first_grew, keep$fingerprint, method = "radix"), ]
+  keep$id <- published$id[match(key(keep$form, keep$fingerprint),
+                                key(published$form, published$fingerprint))]
+  for (form in unique(keep$form)) {
+    k <- which(keep$form == form & !keep$listed & is.na(keep$id))
+    used <- keep$id[keep$form == form & !is.na(keep$id)]
+    for (i in k) {
+      month <- keep$first_grew[i]
+      base <- paste0("capture-", month)
+      kin <- used[used == base | startsWith(used, paste0(base, "-"))]
+      if (!length(kin) && sum(keep$first_grew[k] == month) == 1) {
+        id <- base
+      } else {
+        taken <- sub(paste0("^", base, "-?"), "", kin)
+        taken[taken == ""] <- "a"
+        id <- paste0(base, "-", setdiff(letters, taken)[1])
+      }
+      keep$id[i] <- id
+      used <- c(used, id)
+    }
+  }
+
+  # The builds stay as rfp's derive writes them; the measured table holds the rest.
+  out <- keep[!keep$listed, ]
   for (i in seq_len(nrow(out))) {
     decl <- decl_of[[out$fingerprint[i]]]
     bad <- grepl("[,\"\r\n]", names(decl))
     if (any(bad)) stop("A column name a CSV fixture cannot hold: ", names(decl)[bad][1])
     fx <- sprintf("tests/testthat/fixtures/forms/form_%s__%s.csv", out$form[i], out$id[i])
-    if (!out$id[i] %in% kept_ids) {
-      utils::write.csv(data.frame(name = names(decl), type = unname(decl)), fx,
-                       row.names = FALSE, quote = FALSE)
-    }
+    utils::write.csv(data.frame(name = names(decl), type = unname(decl)), fx,
+                     row.names = FALSE, quote = FALSE)
   }
   measured <- data.frame(
     form = paste0("form_", out$form), id = out$id, fingerprint = out$fingerprint,

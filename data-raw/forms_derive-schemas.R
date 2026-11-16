@@ -140,7 +140,8 @@ earlier_meaning <- list(
 
 month_name <- function(ym) {
   if (grepl("^[0-9]{4}$", ym)) return(ym)
-  format(as.Date(paste0(ym, "-01")), "%B %Y")
+  # month.name, not format("%B"), which follows the session's locale.
+  paste(month.name[as.integer(substr(ym, 6, 7))], substr(ym, 1, 4))
 }
 
 code_list <- function(x, max = 10) {
