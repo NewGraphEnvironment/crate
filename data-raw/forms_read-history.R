@@ -314,18 +314,22 @@ read_history <- function() {
     meta_f <- file.path(cache_dir, "meta", paste0(r$checksum, ".rds"))
     gpkg <- file.path(cache_dir, "files", paste0(r$checksum, ".gpkg"))
     if (!file.exists(gpkg)) {
-      res <- tryCatch(
-        suppressMessages(rfp::rfp_mergin_file_get(r$project, r$path, gpkg, r$version)),
-        error = function(e) e
-      )
+      # Fetched beside the cache path and moved in only once checked, so a
+      # failed download never leaves a file a later run would take as read.
+      fetch <- function() {
+        part <- paste0(gpkg, ".part")
+        on.exit(unlink(part))
+        suppressMessages(rfp::rfp_mergin_file_get(r$project, r$path, part, r$version,
+                                                  overwrite = TRUE))
+        if (!file.rename(part, gpkg)) stop("could not move into the cache")
+        gpkg
+      }
+      res <- tryCatch(fetch(), error = function(e) e)
       if (inherits(res, "error") && grepl("Checksum mismatch", conditionMessage(res))) {
         res <- retry(function() fetch_rebuilt(r, gpkg),
                      paste("rebuilt", r$project, r$path, r$version))
       } else if (inherits(res, "error")) {
-        res <- retry(
-          function() rfp::rfp_mergin_file_get(r$project, r$path, gpkg, r$version),
-          paste("file", r$project, r$path, r$version)
-        )
+        res <- retry(fetch, paste("file", r$project, r$path, r$version))
       }
       if (inherits(res, "error")) {
         failures <- c(failures, paste("file", r$project, r$path, r$version))
@@ -516,6 +520,9 @@ write_variants <- function() {
     data.frame(form = form, fingerprint = vapply(vs, `[[`, "", "fingerprint"),
                id = vapply(vs, `[[`, "", "id"), stringsAsFactors = FALSE)
   }))
+  if (is.null(published)) {
+    published <- data.frame(form = character(0), fingerprint = character(0), id = character(0))
+  }
   admitted <- key(report$form, report$fingerprint)[report$accepted]
   gone <- published[!key(published$form, published$fingerprint) %in% admitted, ]
   if (nrow(gone)) {

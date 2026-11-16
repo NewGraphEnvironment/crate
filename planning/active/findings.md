@@ -38,9 +38,10 @@ project the account sees; per-project detail stays in the cache outside the repo
   fiss_site 30 / 4, monitoring 12 / 4, monitoring_fish_passage 2 / 1, monitoring_general 1 / 0.
   The other 72 are copies uploaded and never captured into. 185 versions grew a form file: 174
   pushed from the mobile app, 11 from desktop.
-- **Overlap rejects:** one shape, under `pscis` at 0.01 — a fiss_site table in a file named for
-  pscis; it never took records. Every shape that took records shares at least 0.77 of its columns
-  with the build or an accepted version.
+- **Overlap rejects:** none. Every shape that took records shares at least 0.77 of its columns
+  with the build or an accepted version. The one shape under 0.5 (0.01 under `pscis`, a
+  fiss_site table in a file named for pscis) never took records, so growth had excluded it
+  already; the overlap floor is untested on real data (code-check round 2).
 - **Primary keys:** every form table's key is a single INTEGER.
 - **Per season (shapes that took records):** pscis 2 / 2 / 1 / 1 in 2023–2026, fiss_site
   3 / 2 / 1 / 1, monitoring 0 / 3 / 3 / 1. `form_monitoring` was first uploaded in 2024-09, so 2023

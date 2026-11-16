@@ -103,7 +103,8 @@ and shape) did not, under a new key and with content none of its records had.
 A copy uploaded once, or rewritten with the records it already held, is not a
 version; neither is a duplicated row. A set must also share at least half its
 columns with the build or with a version already accepted, so a file named for
-one form that holds another is not listed under it.
+one form that holds another is not listed under it (none that took records has
+fallen under it so far).
 
 Of 84 column sets across the five forms (counted per form), 12 took records:
 four of the five builds (`form_monitoring_general` none yet), the 2025

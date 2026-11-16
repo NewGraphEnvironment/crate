@@ -57,9 +57,9 @@ which harvested tables already carry; its `first_seen` is measured like the rest
   so 2023 has none. The pscis and fiss_site builds took records from 2024-09 and the monitoring
   build from 2025-09, earlier than their `rfp-build-2026-08` ids suggest: those name rfp's file
   date.
-- One set was rejected on overlap (0.01): a fiss_site table in a file named for pscis, never
-  captured into. Every set that took records shares at least 0.77 of its columns with a
-  reference.
+- The overlap floor rejected nothing: every set that took records shares at least 0.77 of its
+  columns with a reference. The one set under it (0.01, a fiss_site table in a file named for
+  pscis) never took records, so the growth rule had already left it out.
 - Every form table's key is a single INTEGER, so a harvester's column set (all but the key and
   the geometry) is the set fingerprinted here.
 
