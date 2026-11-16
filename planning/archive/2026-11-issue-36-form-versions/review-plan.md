@@ -16,8 +16,8 @@ Findings as returned (condensed to one line each; verdicts added after probing):
 - **Gap — row count misses delete+insert:** also compare max primary key. *Fold in at `write`.*
 - **Assumption — pk handling vs harvester** for TEXT/composite pk; spot-check must not reuse
   `gpkg_decl`; exclude `layer_styles`. *Fold in: report non-integer pk tables, exclude by name,
-  spot-check through trap's column set.*
-- **Gap — decl_map / test fill types; envelope clash for old-only columns; rfp consumer would see
+  spot-check through the harvester's column set.*
+- **Gap — decl_map / test fill types; envelope clash for old-only columns; the form builder would see
   retired columns as live unless marked machine-readably.** *Fold in the first two; the marker is
   a schema-key choice → ask with Phase 1's results.*
 - **Gap — build descriptions' "every 2026 capture … except the variant below" becomes false;
@@ -29,5 +29,5 @@ Findings as returned (condensed to one line each; verdicts added after probing):
 - **Scope — 50% overlap vs the 2026 build only** may reject a heavily reworked real version.
   *Fold in: best overlap against build ∪ accepted versions, and review rejects by hand.*
 - **Ordering:** fine; red comes from the existing fixture↔variant one-to-one test.
-- **Assumption — rfp changeset parse of a removal with null checksum may error.** *Check
+- **Assumption — the changeset reader's parse of a removal with null checksum may error.** *Check
   failures.txt after the walk.*

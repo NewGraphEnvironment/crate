@@ -19,7 +19,7 @@ Also run: both changed test files pass in a detached worktree at HEAD
 (`test-crt_form_schemas.R` 202 pass, `test-crt_schema_meaning.R` 37 pass, 0 fail, 0 error);
 `write` on an unchanged copy of the cache reproduces the committed fixtures and CSV byte for byte;
 the committed text has no project name from the cache's `stems.txt` (the only hits are the five
-form names), no `rfp#`/`trap#`, no local path; every count in `research/form_versions.md` and the
+form names), no private-repo issue numbers, no local path; every count in `research/form_versions.md` and the
 decision entry matches the cache (84/12 sets, 185/174 grew versions, 274 rebuilt, 361 diff-checked,
 575 files, 141 paths, 12 projects, per-season counts, 0.77 min overlap, all keys single INTEGER).
 The cache was read only; the copy and worktree were removed after.

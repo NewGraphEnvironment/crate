@@ -1,7 +1,7 @@
 # Fish passage form versions
 
 **Verified:** 2026-11-16 · **Issues:** #36 (this), #13 (the schemas it extends) ·
-**Produced by:** `data-raw/forms_read-history.R` (rfp 0.94.0), then
+**Produced by:** `data-raw/forms_read-history.R` (the form-tooling package 0.94.0), then
 `data-raw/forms_derive-schemas.R` · **Status:** settled for 2023 to 2026-11; re-run each season.
 
 Which column sets the five fish passage forms (`form_pscis`, `form_fiss_site`,
@@ -55,7 +55,7 @@ which harvested tables already carry; its `first_seen` is measured like the rest
 - Took records per season: pscis 2 / 2 / 1 / 1 sets in 2023 / 2024 / 2025 / 2026, fiss_site
   3 / 2 / 1 / 1, monitoring 0 / 3 / 3 / 1. The monitoring form was first uploaded in 2024-09,
   so 2023 has none. The pscis and fiss_site builds took records from 2024-09 and the monitoring
-  build from 2025-09, earlier than their `rfp-build-2026-08` ids suggest: those name rfp's file
+  build from 2025-09, earlier than their `rfp-build-2026-08` ids suggest: those name the form builder's file
   date.
 - The overlap floor rejected nothing: every set that took records shares at least 0.77 of its
   columns with a reference. The one set under it (0.01, a fiss_site table in a file named for

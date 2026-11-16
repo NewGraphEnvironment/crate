@@ -2,14 +2,14 @@
 #
 # Reads every version of the fish passage forms the sync service (Mergin Maps)
 # holds, and lists each column set a crew captured records into as a variant of
-# its form (#36). The variants #13 registered came from rfp's builds and one
+# its form (#36). The variants #13 registered came from the form builder's builds and one
 # live 2026 capture; this reaches back through each project's history.
 #
 # Usage (from repo root, in a UTF-8 locale):
 #   Rscript data-raw/forms_read-history.R read    # walk + download; resumable
 #   Rscript data-raw/forms_read-history.R write   # fixtures + measured table
 #
-# Needs rfp (>= 0.94.0) with Mergin credentials in the environment
+# Needs the form-tooling package (>= 0.94.0) with Mergin credentials in the environment
 # (MERGIN_USERNAME and MERGIN_PASSWORD, or MERGIN_AUTH), and RSQLite.
 #
 # ---------------------------------------------------------------------------
@@ -19,13 +19,13 @@
 # (rfp_mergin_history(), rfp_mergin_changeset()), keeps each version of each
 # GeoPackage named for one of the five forms, and fetches each distinct file
 # once (rfp_mergin_file_get(), checksum-verified). It also reads each such
-# version's full record through rfp's bundled helper script, for two fields
+# version's full record through the form-tooling package's bundled helper script, for two fields
 # rfp_mergin_changeset() does not return yet: which client pushed it
 # (`user_agent`), and, for a GeoPackage pushed as a geodiff, the diff and the
 # rows it inserted and deleted per table (`changesets`). The server rebuilds such
 # a version from its base file and diffs, so the bytes it sends never match the
 # checksum the pushing client computed, and rfp_mergin_file_get() refuses them
-# (an open rfp issue). Those are fetched without the check and accepted only when the
+# (an open issue in that package). Those are fetched without the check and accepted only when the
 # version's change for that path is a geodiff and SQLite's integrity check
 # passes; `write` then checks every geodiff version's record count against the
 # rows the server says it inserted and deleted. Everything is cached under
@@ -120,7 +120,7 @@ retry <- function(expr_fn, what) {
 
 safe <- function(x) gsub("[^A-Za-z0-9_.-]", "_", x)
 
-# A version's full record from the server, as rfp's helper script returns it,
+# A version's full record from the server, as the form-tooling package's helper script returns it,
 # cached as JSON. NULL when it cannot be read.
 raw_changeset <- function(p, v) {
   f <- file.path(cache_dir, "raw", paste0(safe(p), "__", v, ".json"))
@@ -217,7 +217,8 @@ file_meta <- function(checksum) {
 # file is read would leave every cached record as the old code read it.
 # The runtime is in it too: a row hash is text R and RSQLite make of a value.
 reader_version <- function() {
-  digest::digest(c(readLines("data-raw/forms_gpkg-decl.R"), deparse(file_meta),
+  digest::digest(c(deparse(gpkg_tables), deparse(gpkg_decl), deparse(gpkg_nrow),
+                   deparse(file_meta),
                    deparse(row_hashes), deparse(crt_schema_fingerprint),
                    R.version.string, as.character(utils::packageVersion("RSQLite")),
                    as.character(utils::packageVersion("DBI")),
@@ -604,7 +605,7 @@ write_variants <- function() {
     }
   }
 
-  # The builds stay as rfp's derive writes them; the measured table holds the rest.
+  # The builds stay as the form builder's derive writes them; the measured table holds the rest.
   out <- keep[!keep$listed, ]
   for (i in seq_len(nrow(out))) {
     decl <- decl_of[[out$fingerprint[i]]]

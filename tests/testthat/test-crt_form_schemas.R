@@ -193,7 +193,7 @@ test_that("units, photo paths and off-form nulls are declared where the forms ca
 })
 
 # ---- the versions read from the sync service's history (#36) -----------------
-# Every variant after a form's first (rfp's build) was measured: a column set a
+# Every variant after a form's first (the form builder's build) was measured: a column set a
 # crew captured records into, read off the history of the forms in the field.
 
 measured_of <- function(form) variants_of(form)[-1]

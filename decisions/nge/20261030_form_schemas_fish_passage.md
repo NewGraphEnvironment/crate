@@ -114,7 +114,7 @@ form_monitoring 2 (2024). `capture-utm-columns-2025` keeps its name, which is
 already in harvested tables, and its `first_seen` moves to the measured 2024-09.
 Every listed version took records from the field app; each description says how
 records reached it and how its columns differ from the build's. The build ids'
-`first_seen` is when rfp's file last changed, not when the shape first took
+`first_seen` is when the form builder's file last changed, not when the shape first took
 records (2024-09 for pscis and fiss_site).
 
 Two consequences for the schemas:

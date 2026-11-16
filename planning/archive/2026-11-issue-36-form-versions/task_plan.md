@@ -2,14 +2,14 @@
 
 ## Problem
 
-#13 registered the fish passage form schemas with the versions deployed today: rfp's builds, and one 2025 `form_monitoring` shape still in the field. A record captured with an earlier build of these forms (2023–2025) has a fingerprint none of them lists, so `crt_schema_conform()` reports it as `crate_unknown_fingerprint` and `crt_schema_variant()` returns `NA`.
+#13 registered the fish passage form schemas with the versions deployed today: the form builder's builds, and one 2025 `form_monitoring` shape still in the field. A record captured with an earlier build of these forms (2023–2025) has a fingerprint none of them lists, so `crt_schema_conform()` reports it as `crate_unknown_fingerprint` and `crt_schema_variant()` returns `NA`.
 
 Local copies of those seasons show about 15 more `form_pscis` and 10 more `form_fiss_site` fingerprints, but many of those files are processed copies — a `_raw` file and its processed twin give different column sets — so a local file's fingerprint is not evidence of a form build.
 
 
-### What exploration found (2026-11-16, crate at ecadfc6, rfp 0.94.0 installed = rfp main)
+### What exploration found (2026-11-16, crate at ecadfc6, the form-tooling package 0.94.0 installed = its main)
 
-- **rfp already has every reader this needs**, so crate gets no Mergin client:
+- **The form-tooling package already has every reader this needs**, so crate gets no Mergin client:
   `rfp_mergin_list()` (projects), `rfp_mergin_history()` (versions with dates),
   `rfp_mergin_changeset(project, version)` (files added/updated/removed, with checksums) and
   `rfp_mergin_file_get(project, file, path_out, version)` (one file at a version, checksum-checked).
@@ -23,9 +23,9 @@ Local copies of those seasons show about 15 more `form_pscis` and 10 more `form_
   every version.
 - Table names inside old files may not equal `form_<name>` (e.g. `form_pscis_2023`), so a
   file's layer is read from `gpkg_contents`, not assumed.
-- `data-raw/forms_derive-schemas.R` writes the five YAMLs and the build fixtures from rfp at a
+- `data-raw/forms_derive-schemas.R` writes the five YAMLs and the build fixtures from the form builder at a
   pinned SHA. It has its own `gpkg_decl()` (declared types, excluding pk and geometry: the input
-  `crt_schema_fingerprint()` and trap hash), and the measured 2025 variant is hardcoded in it as
+  `crt_schema_fingerprint()` and the harvester hash), and the measured 2025 variant is hardcoded in it as
   `extra_variants` / `extra_cols`. The YAMLs say "Edit the script, not this file".
 - `test-crt_form_schemas.R` already recomputes every listed fingerprint from
   `fixtures/forms/form_<form>__<variant>.csv` and requires that fixtures and variants match one to
@@ -149,6 +149,6 @@ How each change is proved:
   added variants, columns and descriptions.
 - **The privacy guard:** a grep of the branch diff for every Mergin project name in the workspace,
   and every form file stem the walk found, returns nothing.
-- **The spot-check** recomputes fingerprints through trap's column set (`trp_form_read()`), not
+- **The spot-check** recomputes fingerprints through the harvester's column set (`trp_form_read()`), not
   `gpkg_decl()`, so it is not circular.
 

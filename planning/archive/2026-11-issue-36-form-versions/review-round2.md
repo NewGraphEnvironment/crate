@@ -28,9 +28,9 @@ passed, 0 failed, 0 errors.
 - **[severity: fragile]** data-raw/forms_read-history.R:316-333 — A fetch that fails for any reason
   other than a checksum mismatch leaves a file at the cache path. Retrying it cannot succeed, and the
   next resumable `read` trusts the file instead of fetching it again.
-  - `rfp::rfp_mergin_file_get()` (rfp 0.94.0) calls `rfp_mergin_download_file()` straight into
+  - `rfp::rfp_mergin_file_get()` (the form-tooling package 0.94.0) calls `rfp_mergin_download_file()` straight into
     `path_out`, and the helper script opens `--dest` with `open(dest, "wb")` before it sends any
-    request. rfp deletes the file only on a checksum mismatch. On a non-zero exit (an HTTP error or a
+    request. the fetcher deletes the file only on a checksum mismatch. On a non-zero exit (an HTTP error or a
     dropped connection) it stops and leaves the file, which is 0 bytes for these sub-1 MB files.
   - The `else if` branch then calls `rfp_mergin_file_get(..., overwrite = FALSE)` again through
     `retry()`. Both attempts fail with "File already exists", so the in-run retry never runs a
@@ -89,7 +89,7 @@ passed, 0 failed, 0 errors.
   All match, apart from the finding above.
 - **Privacy.** I checked the added lines against all 86 cached project and deployment stems: there
   are no hits outside generic form filenames (`form_pscis_2023` and the like) and the org's
-  workspace name in planning/. There are no `rfp#`/`trap#` references, local paths or hosts.
+  workspace name in planning/. There are no private-repo issue references, local paths or hosts.
 - **Not defects.** 204 `.gpkg.part-wal` / `-shm` pairs and 334 `.gpkg-wal` / `-shm` pairs are left
   in the cache by read-only opens of WAL-mode files (334 of the 575 files are `02 02`). Every `-wal`
   is 0 bytes, so no committed data sits outside a main file. This is cache clutter only.

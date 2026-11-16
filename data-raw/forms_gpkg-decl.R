@@ -1,7 +1,7 @@
 # data-raw/forms_gpkg-decl.R
 #
 # How a form GeoPackage's capture columns are read, shared by
-# forms_derive-schemas.R (rfp's builds) and forms_read-history.R (every version
+# forms_derive-schemas.R (the form builder's builds) and forms_read-history.R (every version
 # the sync service holds), so a fingerprint means the same thing in both.
 # Sourced, not run. Needs RSQLite, which crate itself does not import.
 

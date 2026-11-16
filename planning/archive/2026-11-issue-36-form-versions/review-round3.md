@@ -16,7 +16,7 @@
 - Checked the cache for files that a pre-fix run may have left at a cache path: `sha1(file) != name` for 274 of 575 `files/*.gpkg`, and all 274 are in `rebuilt.txt`. So no partial download is still in the cache, and every rebuilt file's row has a non-NA `diff_ok`.
 - Read every cached `meta/*.rds` again from a copy of `files/` using the current `gpkg_decl()`, `crt_schema_fingerprint()` and `gpkg_nrow()`. All 575 tables agreed (0 decl or fingerprint differences, 0 count differences).
 - Measured the cache to check claims in the research note and decision: 361 geodiff checks; 84 column sets, 12 of them took records; min overlap 0.77; the only set under 0.5 is 0.01 and never grew; seasons per form; 185 grew, 174 from mobile; 0 non-INTEGER keys; 0 "other" user agents; `created` has tzone UTC, so `%Y-%m` does not depend on the machine's zone. All match.
-- Privacy: grepped the added lines (planning/ included) for every stem in `stems.txt`. The only hits are the generic form names (`form_pscis`, `form_pscis_2023` and the like). There are no `rfp#N`/`trap#N` references and no local paths outside planning's own review-file trailer lines.
+- Privacy: grepped the added lines (planning/ included) for every stem in `stems.txt`. The only hits are the generic form names (`form_pscis`, `form_pscis_2023` and the like). There are no private-repo issue references and no local paths outside planning's own review-file trailer lines.
 
 ## Findings
 

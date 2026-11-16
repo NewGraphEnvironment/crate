@@ -8,15 +8,15 @@ A column set counts if a file in that shape gained a record under a new key with
 version before it lacked, so processed copies, re-exports and a duplicated row are not listed.
 Columns only earlier versions carry are declared with a `variants` key, which `crt_schema_cols()`
 returns; `form_monitoring.site_id` became a string. Learned on the way: the sync service rebuilds
-a version pushed as a geodiff, so its bytes never match the client's checksum and rfp's fetcher
-refuses it (filed against rfp); the harvester refuses every 2023 version's zone-less datetimes
-(filed against trap); and a cache keyed by the object it came from also depends on the code, the
+a version pushed as a geodiff, so its bytes never match the client's checksum and the form-tooling package's fetcher
+refuses it (filed against the form-tooling package); the harvester refuses every 2023 version's zone-less datetimes
+(filed against the harvester); and a cache keyed by the object it came from also depends on the code, the
 runtime and what a name meant, which four review rounds closed one place at a time. The durable
 verdict is `research/form_versions.md`.
 
 ## Measurement
 
-Read 2026-11-16 (rfp 0.94.0): 21 projects, 1,106 versions; 12 projects held a form file: 141
+Read 2026-11-16 (the form-tooling package 0.94.0): 21 projects, 1,106 versions; 12 projects held a form file: 141
 paths, 635 form-file versions, 575 distinct files. 84 column sets (per form), 12 took records:
 four builds, the 2025 monitoring version, 7 earlier ones; the other 72 are copies never captured
 into. 185 versions grew a form file, 174 from the field app.
