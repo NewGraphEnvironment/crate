@@ -34,7 +34,7 @@ waits on this issue. This registers two `schema_only` entries the caller conform
 
 ## Phase 1: Tests first
 
-- [ ] `tests/testthat/test-crt_photo.R`, failing until Phase 2:
+- [x] `tests/testthat/test-crt_photo.R`, failing until Phase 2:
   - a `photo_files` frame conforms: `size` double (a value above 2^31 kept exactly), `width`/
     `height` integer, `time` POSIXct in UTC, `time_local`/`time_offset` character, `gps_*` double
   - a row with `time_local` set and `time` NA conforms (no offset, no instant), and `time` stays NA
