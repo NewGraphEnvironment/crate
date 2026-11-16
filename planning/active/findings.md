@@ -20,7 +20,50 @@ Read each form's version history from the sync service rather than from local co
 Follows #13.
 
 
+## The history, measured (2026-11-16)
+
+Read by `data-raw/forms_read-history.R` (rfp 0.94.0) from the sync service's history of every
+project the account sees; per-project detail stays in the cache outside the repo.
+
+- **Walked:** 21 projects, 1,106 versions. 12 projects ever held a file named for one of the five
+  forms: 141 paths, 635 form-file versions (158 added, 437 updated, 40 removed), 575 distinct files,
+  first 2023-05, last 2026-11.
+- **Fetching:** 274 of the 575 were refused by `rfp_mergin_file_get()`'s checksum check. Every one
+  is a version pushed as a geodiff, which the server rebuilds from the base file and diffs, so its
+  bytes cannot match the pushing client's checksum (rfp#408). No file uploaded whole was refused;
+  87 other geodiff versions matched anyway. Each rebuilt file passed SQLite's integrity check, and
+  all 361 geodiff versions with a predecessor hold exactly their predecessor's records plus the
+  diff's inserts minus its deletes (0 disagree), so the record counts the rule reads are right.
+- **Shapes (distinct fingerprints) per form, and how many took records:** pscis 39 / 3,
+  fiss_site 30 / 5, monitoring 12 / 4, monitoring_fish_passage 2 / 1, monitoring_general 1 / 0.
+  The other 75 are copies uploaded and never captured into. 184 versions grew a form file: 174
+  pushed from the mobile app, 10 from desktop.
+- **Overlap rejects:** one shape, under `pscis` at 0.01 — a fiss_site table in a file named for
+  pscis; it never took records. Every shape that took records shares at least 0.77 of its columns
+  with the build or an accepted version.
+- **Primary keys:** every form table's key is a single INTEGER.
+- **Per season (shapes that took records):** pscis 2 / 2 / 1 / 1 in 2023–2026, fiss_site
+  3 / 2 / 2 / 1, monitoring 0 / 3 / 3 / 1. `form_monitoring` was first uploaded in 2024-09, so 2023
+  has no monitoring form at all, not a missing one; the two 2026 monitoring forms took records
+  only in 2026 (monitoring_general none yet).
+- **Builds already listed:** the pscis and fiss_site builds took records from 2024-09, and the
+  monitoring build from 2025-09; the 2025 monitoring variant from 2024-09, earlier than the 2025
+  #13 recorded, so its `first_seen` becomes the measured 2024-09 (its id stays: it is published).
+- **New variants:** 8 — fiss_site 4 (2023-08 ×2, 2023-09, 2025-02), pscis 2 (2023-06, 2023-08),
+  monitoring 2 (2024-09 ×2). One fiss_site shape took records once, through a desktop push into a
+  season archive (`_raw`); decision 2 counts growth whatever the path, so it is listed. The
+  64-column monitoring shape is a deployment's cut-down copy of the monitoring form (its earlier
+  123-column shape is also in the plain monitoring file); under the rules it is a monitoring
+  variant.
+- **Shared columns typed differently from the build:** `form_pscis.date`, DATE in both 2023
+  shapes and DATETIME in the build: conformed, a date becomes midnight UTC that day, so nothing is
+  lost. `form_monitoring.site_id`, TEXT in the 64-column shape and REAL in the build: 17 of its 18
+  distinct values are site names, not numbers, which conform to NA as a double. Asked at the gate.
+  `form_monitoring_general` already declares `site_id` TEXT.
+
 ## Errors Encountered
 
 | Error | Resolution |
 |-------|------------|
+| 274 of 575 form-file fetches refused with `Checksum mismatch` by `rfp_mergin_file_get()` (2026-11-16) | Every one checked is a version whose change for that path is a geodiff (the version record's `changes$updated[]` entry carries `diff`); the server's `/raw` endpoint rebuilds it from base file + diffs, so its bytes cannot match the pushing client's checksum. Tracked upstream as rfp#408. The history script now fetches such a file without the check, keeps it only if the change is a geodiff and `PRAGMA integrity_check` is `ok`, and `write` checks every geodiff version's record count against the diff's own insert − delete. |
+| Earlier fingerprint for `capture-utm-columns-2025` typed from #13's notes (`122-1ab1…`) | Those notes predate the fingerprint fix; the derive's fingerprint check caught it; the correct value is `122-795b55de0708d6bf`. |

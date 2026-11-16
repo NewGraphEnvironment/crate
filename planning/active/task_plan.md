@@ -68,26 +68,26 @@ Defaults taken (mechanism, stated here rather than asked):
 
 ## Phase 1: Read the history (measurement)
 
-- [ ] `data-raw/forms_read-history.R`: walk `rfp_mergin_history()` + `rfp_mergin_changeset()` for
+- [x] `data-raw/forms_read-history.R`: walk `rfp_mergin_history()` + `rfp_mergin_changeset()` for
       every project since 2023, collecting each version of every path that names one of the five
       forms. Download each distinct (path, checksum) once with `rfp_mergin_file_get()` into a
       cache outside the repo, then record per version: layer, declared column types, fingerprint,
       row count. Runs as one R process, in the background, with resume from the cache.
-- [ ] Move `gpkg_decl()` into `data-raw/forms_gpkg-decl.R`, sourced by both scripts, so the
+- [x] Move `gpkg_decl()` into `data-raw/forms_gpkg-decl.R`, sourced by both scripts, so the
       fingerprint input is defined once.
-- [ ] Apply decision 2 (record growth within one path, per shape) and the 50% overlap check.
-- [ ] Record in `findings.md`, as counts with no project names: projects/versions/files walked;
+- [x] Apply decision 2 (record growth within one path, per shape) and the 50% overlap check.
+- [x] Record in `findings.md`, as counts with no project names: projects/versions/files walked;
       distinct shapes per form; how many gained records vs only-copied; the overlap rejects;
       shared columns whose declared type differs from the build's (**if any, ask before Phase 2**:
       the canonical type follows the build, and a text value in a numeric column would conform
       to NA); shapes that grew, **per season**, stopping to ask if a season 2023–2025 has none;
       tables whose primary key is not a single INTEGER (the harvester's column set would differ).
-- [ ] Overlap is taken against the build and the versions already accepted (best of them), and
+- [x] Overlap is taken against the build and the versions already accepted (best of them), and
       every reject is reviewed by hand and listed in findings. `layer_styles` is excluded by name.
 - [ ] Ask with the results, batched: whether old-only columns get a machine-readable marker
       (e.g. a key listing the versions that carry them) so a consumer of `crt_schema_cols()`
       does not read them as live fields.
-- [ ] Write a fixture `tests/testthat/fixtures/forms/form_<form>__capture-YYYY-MM.csv` (name,
+- [x] Write a fixture `tests/testthat/fixtures/forms/form_<form>__capture-YYYY-MM.csv` (name,
       type) for each new shape, and `data-raw/forms_variants-measured.csv` (form, id, first_seen,
       n_versions, n_projects), including the 2025 monitoring row.
 
