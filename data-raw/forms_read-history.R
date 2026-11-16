@@ -212,6 +212,19 @@ file_meta <- function(checksum) {
   })
 }
 
+# What a cached record was read with: the code that turns a file into one. A
+# record is keyed by the file's checksum, so without this a change to how a
+# file is read would leave every cached record as the old code read it.
+reader_version <- function() {
+  digest::digest(c(readLines("data-raw/forms_gpkg-decl.R"), deparse(file_meta),
+                   deparse(row_hashes), deparse(crt_schema_fingerprint)),
+                 algo = "xxhash64")
+}
+
+meta_current <- function(meta_f, reader = reader_version()) {
+  file.exists(meta_f) && identical(attr(readRDS(meta_f), "reader"), reader)
+}
+
 # ---- one row per (project, path, version, table), with growth ----------------
 
 versions_table <- function(walk) {
@@ -309,6 +322,7 @@ read_history <- function() {
   got <- walk[walk$change != "removed", ]
   got <- got[!duplicated(got$checksum), ]
   message(nrow(got), " distinct form files to read")
+  reader <- reader_version()
   for (i in seq_len(nrow(got))) {
     r <- got[i, ]
     meta_f <- file.path(cache_dir, "meta", paste0(r$checksum, ".rds"))
@@ -336,11 +350,9 @@ read_history <- function() {
         next
       }
     }
-    # Re-read when the cached record predates a field (max_pk, int_pk).
-    stale <- !file.exists(meta_f) ||
-      any(vapply(readRDS(meta_f), function(m) is.null(m$rows), logical(1)))
-    if (stale) {
-      saveRDS(file_meta(r$checksum), meta_f)
+    # Re-read when the cached record was read by other code.
+    if (!meta_current(meta_f, reader)) {
+      saveRDS(structure(file_meta(r$checksum), reader = reader), meta_f)
     }
     if (i %% 25 == 0) message(i, "/", nrow(got), " read")
   }
@@ -394,11 +406,14 @@ write_variants <- function() {
   # Every form file and every version record must have been read: a version
   # with neither would drop out of the table below without a word.
   got <- walk[walk$change != "removed", ]
-  no_meta <- !file.exists(file.path(cache_dir, "meta", paste0(got$checksum, ".rds")))
+  reader <- reader_version()
+  no_meta <- !vapply(file.path(cache_dir, "meta", paste0(got$checksum, ".rds")),
+                     meta_current, logical(1), reader = reader)
   no_raw <- !file.exists(file.path(cache_dir, "raw",
                                    paste0(safe(got$project), "__", got$version, ".json")))
   if (any(no_meta | no_raw)) {
-    stop(sum(no_meta), " form files and ", sum(no_raw), " version records are not read; ",
+    stop(sum(no_meta), " form files (unread, or read by other code) and ", sum(no_raw),
+         " version records are not read; ",
          "re-run `read`.", call. = FALSE)
   }
   vt <- versions_table(walk)

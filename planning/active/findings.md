@@ -110,3 +110,12 @@ Against `origin/main` per file, linter and line: the branch adds four `object_us
 which `data-raw/forms_gpkg-decl.R` defines and both scripts `source()`; lintr does not follow a
 `source()`. The rest (braces, semicolons, nested `ifelse()` indentation, an unused variable)
 are fixed. Tests: 2772 pass after merging main.
+
+## Code-check (2026-11-16)
+
+Round 3 named the mechanism behind rounds 1 and 2: a cache entry's presence taken as proof it is
+complete and current (`failures.txt`, a partial download, and the meta records), and output
+computed from the run's environment assumed stable across runs (ids, month names). It walked every
+cache artifact and every run-dependent output. The one open place, `meta/*.rds` keyed only by the
+file checksum, now carries the reader's version (a digest of the code that reads a file), and
+both `read` and `write` treat a record from other code as unread.
