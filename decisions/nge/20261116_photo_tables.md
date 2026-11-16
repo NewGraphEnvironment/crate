@@ -19,7 +19,8 @@ form record or a site and view, joined to the file on `checksum`.
    the whole form-record key, `(project, form, source_version, record_id)`, because a
    rebuild of a capture layer restarts `record_id` at 1 (`form_capture.yaml`).
 3. **Time is three columns.** `time` is an instant in UTC, missing whenever the camera
-   wrote no offset; `time_local` is the wall clock as text, as the file wrote it;
+   wrote no offset; `time_local` is the wall clock the file wrote, as ISO 8601 text with no zone (EXIF's own
+   `YYYY:MM:DD HH:MM:SS` rewritten);
    `time_offset` is `+HH:MM` or `-HH:MM`, or missing. A wall clock with no offset names
    no instant, so it is never stored as one.
 4. **Position is `gps_lon`, `gps_lat`.** The prefix says it is the camera's fix, which
