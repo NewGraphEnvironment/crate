@@ -27,7 +27,7 @@ crt_receipt_migrate(
 - x:
 
   Path to the record, or the record as a list from
-  [`jsonlite::read_json()`](https://jeroen.r-universe.dev/jsonlite/reference/read_json.html).
+  [`jsonlite::read_json()`](https://rdrr.io/pkg/jsonlite/man/read_json.html).
 
 - format:
 

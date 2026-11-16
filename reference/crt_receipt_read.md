@@ -17,7 +17,7 @@ crt_receipt_read(path)
 ## Value
 
 The receipt as a list, as
-[`jsonlite::read_json()`](https://jeroen.r-universe.dev/jsonlite/reference/read_json.html)
+[`jsonlite::read_json()`](https://rdrr.io/pkg/jsonlite/man/read_json.html)
 gives it with `simplifyVector = FALSE`: objects are named lists, arrays
 unnamed ones.
 
