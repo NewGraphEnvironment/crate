@@ -12,3 +12,4 @@
 - Reworded planning files so a public repo names no private repo (the photo indexer and the internal track/form reader are described in words).
 - Phase 3: decision log `decisions/nge/20261116_photo_tables.md` (gate decisions 1-4 plus review decision 5), `decisions:` key on both schemas, CLAUDE.md Status. Full suite 260 tests / 26 files, 0 failed, 0 skipped (devtools::test, 14 s). reading.Rmd rendered against the installed branch shows both photo rows. lintr clean; document() no change.
 - Phase 4: filed #68, rename the source family nge to newgraph, with the measured blast radius and the alias-or-hard-rename question for its plan gate.
+- /code-check branch round 1: 2 findings, both reproduced and fixed: the `record` grade no longer requires `source_version` (NA for an unversioned upstream in form_capture), and the `time` note and decision now say zone-less text is read as UTC. photo 10/10, integrity 16/16, meaning 13/13.

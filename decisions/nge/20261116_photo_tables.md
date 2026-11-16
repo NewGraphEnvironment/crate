@@ -45,8 +45,9 @@ per file out) needs a shape to write to.
   in the same form joins to a track position directly; one stored as a wall clock would
   need every consumer to resolve it, and one guessed into UTC would join to the wrong
   vertex by whole hours with nothing reported.
-- `crt_schema_apply()` refuses ISO text with a non-UTC offset in a `datetime` column, so
-  a caller cannot hand `time` an unresolved local value by accident.
+- `crt_schema_apply()` refuses ISO text with a non-UTC offset in a `datetime` column, but
+  reads text with no zone as UTC. So the caller resolves `time` itself, and never passes
+  `time_local` to it; the column notes say so.
 
 ## Alternatives considered
 
@@ -66,7 +67,10 @@ per file out) needs a shape to write to.
 
 - `crt_schema_conform()` checks required columns are present, not filled. The
   `identified` grade on `photo_files` (`checksum`, `path`, `size` all present) and the
-  `record` grade on `photo_links` are how a reader asks which rows it can trust.
+  `record` grade on `photo_links` (`project`, `form`, `record_id` present) are how a
+  reader asks which rows it can trust. `record` does not require `source_version`, which
+  form_capture leaves missing where a record has no versioned upstream; a join on the
+  full key then has to match missing to missing.
 - Nothing checks that `time` equals `time_local` less `time_offset`; the caller
   guarantees it, and a QC rule for it belongs with #38.
 - Camtrap DP 1.0.2's media table can take `filePath`, `fileName`, `fileMediatype` and

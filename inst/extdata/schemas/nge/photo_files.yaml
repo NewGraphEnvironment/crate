@@ -56,7 +56,8 @@ canonical:
         `time_offset`. Missing whenever `time_offset` is, because a wall clock
         with no offset names no instant, and is never guessed into one. Give it
         to `crt_schema_conform()` already resolved (a POSIXct, or ISO 8601 in
-        UTC); a value carrying a non-UTC offset is refused. The caller
+        UTC). Text carrying a non-UTC offset is refused, but text with no zone
+        is read as UTC, so never pass `time_local` here. The caller
         guarantees it agrees with `time_local` and `time_offset`.
     - name: time_local
       type: string

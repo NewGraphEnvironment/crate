@@ -42,6 +42,10 @@ canonical:
         form_capture.source_version. Needed because a rebuild of a capture
         layer restarts `record_id` at 1, so `(project, form, record_id)` alone
         can name two records.
+      'null': >
+        The record has no versioned upstream, as in form_capture. A join on the
+        key must then match missing to missing, which SQL's `=` does not
+        (`IS NOT DISTINCT FROM` does).
     - name: record_id
       type: integer
       required: false
@@ -63,7 +67,7 @@ canonical:
 
 grades:
   - name: record
-    requires: [checksum, project, form, source_version, record_id]
+    requires: [checksum, project, form, record_id]
 
 decisions:
   - decisions/nge/20261116_photo_tables.md

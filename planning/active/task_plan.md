@@ -43,8 +43,8 @@ waits on this issue. This registers two `schema_only` entries the caller conform
   - missing `checksum`, `path` or `size` is refused, naming the column
   - a `photo_links` frame conforms (`record_id` integer); one checksum linked to two records is two
     rows; missing `checksum` or `project` is refused
-  - the `record` grade on `photo_links` (`crt_schema_grade()`) is met only with form, source_version
-    and record_id present
+  - the `record` grade on `photo_links` (`crt_schema_grade()`) is met only with form and record_id present
+    (code-check round 1: not source_version, which form_capture leaves NA without a versioned upstream)
 - [x] `test-crt_registry_integrity.R` already walks every row (YAML exists, path rule, types,
   canonical_cols ⊆ schema, quoted values); no edit expected, confirm it covers the new rows
 
@@ -66,7 +66,7 @@ waits on this issue. This registers two `schema_only` entries the caller conform
 - [x] `inst/extdata/schemas/nge/photo_links.yaml` — required `checksum`, `project` (string);
   optional `form`, `source_version` (string), `record_id` (integer), `site`, `view` (string, from
   the caller's form or naming rule, never guessed from names); grade
-  `record: [checksum, project, form, source_version, record_id]`
+  `record: [checksum, project, form, record_id]` (round 1 dropped source_version)
 - [x] Two rows in `inst/extdata/crate_registry.csv`, `canonical_cols` = the required columns
 - [x] Phase 1 tests pass
 

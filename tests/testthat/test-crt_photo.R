@@ -114,17 +114,18 @@ test_that("photo_links refuses a row without checksum or project", {
   }
 })
 
-test_that("a link meets the record grade only when it names a form record in full", {
+test_that("a link meets the record grade when it names a form record", {
   x <- links()
-  x <- rbind(x, x[1, ], x[1, ])
-  x$source_version[3] <- NA
+  x <- rbind(x, x[1, ], x[1, ], x[1, ])
+  x$source_version[3] <- NA # an unversioned upstream still names a record
   x$form[4] <- NA
+  x$record_id[5] <- NA
   out <- crt_schema_conform(x, "nge", "photo_links")
   g <- crt_schema_grade(out, "nge", "photo_links")
-  expect_identical(g$record, c(TRUE, TRUE, FALSE, FALSE))
+  expect_identical(g$record, c(TRUE, TRUE, TRUE, FALSE, FALSE))
   # A site-only link, such as a camera trap's, conforms without a record.
   site_only <- out[, c("checksum", "project", "site", "view")]
-  expect_identical(crt_schema_grade(site_only, "nge", "photo_links")$record, c(FALSE, FALSE, FALSE, FALSE))
+  expect_identical(crt_schema_grade(site_only, "nge", "photo_links")$record, rep(FALSE, 5))
 })
 
 test_that("a time given as text with its local offset is refused, not shifted", {
