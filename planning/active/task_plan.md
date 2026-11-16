@@ -79,7 +79,7 @@ waits on this issue. This registers two `schema_only` entries the caller conform
 
 ## Phase 4: Follow-up issue
 
-- [ ] File a crate issue: rename source family `nge` → `newgraph`, with the measured blast radius
+- [x] File a crate issue (#68): rename source family `nge` → `newgraph`, with the measured blast radius
   above (crate, the internal reader, wet; the exported handler name) and the question of a shim versus a hard
   rename for the plan gate there
 
