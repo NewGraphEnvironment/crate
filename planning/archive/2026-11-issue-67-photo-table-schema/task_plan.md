@@ -91,8 +91,8 @@ waits on this issue. This registers two `schema_only` entries the caller conform
 
 - [x] Tests pass
 - [x] `/code-check` clean (once over the branch with `/code-check branch`)
-- [ ] PWF checkboxes match landed work
-- [ ] `/planning-archive` on completion
+- [x] PWF checkboxes match landed work
+- [x] `/planning-archive` on completion
 
 Verification: `devtools::test()` with error grep (the new file plus registry integrity);
 `lintr::lint_package()` on changed files; `devtools::document()` shows no change (no new
