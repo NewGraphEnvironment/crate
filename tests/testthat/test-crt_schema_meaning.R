@@ -24,7 +24,9 @@ meaning_schema <- function() {
                            list(value = "4", label = "Coniferous Trees"))),
         list(name = "photo_road", type = "string", required = FALSE,
              relative_to = "project root"),
-        list(name = "surveyor_1", type = "string", required = FALSE)
+        list(name = "surveyor_1", type = "string", required = FALSE),
+        list(name = "easting", type = "double", required = FALSE,
+             variants = list("capture-b"))
       )
     ),
     grades = list(
@@ -47,12 +49,12 @@ test_that("column declarations come back one row per column, in schema order", {
   expect_identical(
     out$name,
     c("record_id", "x", "y", "wetted_width_m", "barrier_result", "cover_class",
-      "photo_road", "surveyor_1")
+      "photo_road", "surveyor_1", "easting")
   )
   expect_identical(
     names(out),
     c("name", "type", "required", "units", "values", "labels", "range_min",
-      "range_max", "relative_to", "null", "notes")
+      "range_max", "relative_to", "null", "notes", "variants")
   )
   expect_identical(out$required[1:4], c(TRUE, TRUE, TRUE, FALSE))
 })
@@ -64,6 +66,18 @@ test_that("an absent key reads as NA or an empty vector, never a guess", {
   expect_identical(r$values[[1]], character(0))
   expect_identical(r$range_min, NA_real_)
   expect_identical(r$null, NA_character_)
+  expect_identical(r$variants[[1]], character(0))
+})
+
+test_that("a column only earlier versions carry names them", {
+  out <- crt_schema_cols_tbl(meaning_schema())
+  expect_identical(out$variants[[which(out$name == "easting")]], "capture-b")
+  # A builder keeps the columns of the current version.
+  expect_identical(
+    out$name[lengths(out$variants) == 0],
+    c("record_id", "x", "y", "wetted_width_m", "barrier_result", "cover_class",
+      "photo_road", "surveyor_1")
+  )
 })
 
 test_that("allowed values are the stored values, with labels alongside", {

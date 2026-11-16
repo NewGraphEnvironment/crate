@@ -48,6 +48,13 @@ Local copies of those seasons show about 15 more `form_pscis` and 10 more `form_
    (a delete plus an insert keeps the count). The version's `user_agent` (mobile app vs QGIS
    plugin / Python client), readable from Mergin's version record, is measured beside it; if
    shapes grew only through desktop pushes, that goes back to the user before Phase 2.
+   *Made precise again after the measurement (user's question, 2026-11-16):* a new record is one
+   under a key the previous version lacked whose content none of its records had, so a
+   duplicated row or a renumbering re-export is not growth. The one desktop-only shape was such a
+   duplicate and is not listed.
+3. **(2026-11-16, asked with the results)** `form_monitoring.site_id` is `string` in every
+   version: a 2024 version holds site names there. Columns only earlier versions carry get a
+   `variants` key naming them, returned by `crt_schema_cols()`.
 
 Defaults taken (mechanism, stated here rather than asked):
 - **Scope:** the five registered forms only. A file is assigned to a form by its name (the longest
@@ -84,7 +91,7 @@ Defaults taken (mechanism, stated here rather than asked):
       tables whose primary key is not a single INTEGER (the harvester's column set would differ).
 - [x] Overlap is taken against the build and the versions already accepted (best of them), and
       every reject is reviewed by hand and listed in findings. `layer_styles` is excluded by name.
-- [ ] Ask with the results, batched: whether old-only columns get a machine-readable marker
+- [x] Ask with the results, batched: whether old-only columns get a machine-readable marker
       (e.g. a key listing the versions that carry them) so a consumer of `crt_schema_cols()`
       does not read them as live fields.
 - [x] Write a fixture `tests/testthat/fixtures/forms/form_<form>__capture-YYYY-MM.csv` (name,
@@ -93,29 +100,29 @@ Defaults taken (mechanism, stated here rather than asked):
 
 ## Phase 2: Tests first
 
-- [ ] In `test-crt_form_schemas.R`, for every measured variant: its capture conforms with no
+- [x] In `test-crt_form_schemas.R`, for every measured variant: its capture conforms with no
       warning and `crt_schema_variant()` names it; its description says "rename" exactly when
       each side has columns the other lacks (a version that only lacks columns nests in the
       build; one that only adds columns has the build nested in it), computed from the fixtures; every column it has is
       declared by the schema (decision 1); all of a form's variants stacked with `bind_rows()`
       conform to one table, which is the check that the types agree.
-- [ ] Run them: they fail until Phase 3 registers the variants.
+- [x] Run them: they fail until Phase 3 registers the variants.
 
 ## Phase 3: Register the variants
 
-- [ ] `forms_derive-schemas.R` reads `forms_variants-measured.csv` and the fixtures in place of
+- [x] `forms_derive-schemas.R` reads `forms_variants-measured.csv` and the fixtures in place of
       `extra_variants` and `extra_cols`. It writes each variant's description from the fixture
       against the build (column count, how many build columns it lacks, the columns only it has,
       and "nests" or "renames"), and declares the old-only columns per decision 1, with a note
       naming the variants that carry them.
-- [ ] Extend the envelope-clash check to old-only columns; map every declared type met
+- [x] Extend the envelope-clash check to old-only columns; map every declared type met
       (`decl_map`, and the test's `capture()` fill).
-- [ ] Re-run at the same `rfp_sha`: the build variants and the existing columns stay
+- [x] Re-run at the same `rfp_sha`: the build variants and the existing columns stay
       byte-identical in meaning (diff the YAML), except two regenerated texts: the build
       description's "every 2026 capture … except the variant below", and the 2025 variant's
       hand-written description (now generated like the rest); the new variants follow the build in order of
       `first_seen`. A second run is byte-identical.
-- [ ] Phase 2's tests pass, along with the rest of the suite.
+- [x] Phase 2's tests pass, along with the rest of the suite.
 
 ## Phase 4: Record it
 

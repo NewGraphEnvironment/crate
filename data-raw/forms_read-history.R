@@ -52,16 +52,19 @@
 # - A column set is a form version if records went into it (gate decision 2,
 #   2026-11-16): some version of a file in that shape holds more records than
 #   the previous version of the same path and table, in the same shape. More
-#   records means a higher count or a higher largest row id, so a deleted test
-#   row and a new record in one sync still count. A removal starts a new chain,
+#   records means a record under a key the previous version lacked, holding
+#   content none of its records had: a deleted test row and a new record in
+#   one sync still count, and a duplicated row or a renumbering re-export does
+#   not (a 2025 archive copy's one "new" record was record 35 again). A removal starts a new chain,
 #   so a file re-added later is not compared with what it held before. Growth
 #   across a shape change is a rebuild carrying records over, so it does not
 #   count. A processed copy uploaded once and never captured into does not count.
 # - A column set must share at least half its columns with the form's build or
 #   with a version already accepted, best of them, or it is not that form
 #   whatever the file is called. Rejects are reported for review, not listed.
-# - A fingerprint already listed in the form's schema keeps its entry; it is
-#   counted here, not added again.
+# - The build's fingerprint (first in each form's list) keeps its entry; it is
+#   counted here, not added again. Every other variant is this script's
+#   output, measured afresh on each run.
 # - A variant is named for the month it first gained records,
 #   `capture-YYYY-MM`, with `-a`, `-b` where two share a month, in fingerprint
 #   order. The one exception is the 2025 monitoring variant #13 registered as
@@ -165,6 +168,26 @@ fetch_rebuilt <- function(r, gpkg) {
   invisible(gpkg)
 }
 
+# Each record's key and a hash of everything else it holds, geometry included,
+# so a later version's new records can be told from copies of old ones.
+row_hashes <- function(con, t, pk) {
+  d <- DBI::dbGetQuery(con, sprintf('SELECT * FROM "%s"', t))
+  if (!nrow(d)) return(data.frame(pk = character(0), h = character(0)))
+  as_text <- function(v) {
+    if (is.list(v)) {
+      vapply(v, function(r) if (is.null(r)) "\001" else paste(as.character(r), collapse = ""), "")
+    } else {
+      ifelse(is.na(v), "\001", as.character(v))
+    }
+  }
+  txt <- do.call(paste, c(lapply(d[setdiff(names(d), pk)], as_text), sep = "\037"))
+  key <- do.call(paste, c(lapply(d[pk], as.character), sep = "\037"))
+  data.frame(pk = key,
+             h = vapply(txt, digest::digest, "", algo = "xxhash64", serialize = FALSE,
+                        USE.NAMES = FALSE),
+             stringsAsFactors = FALSE)
+}
+
 # What one file holds, per form table: declared types, fingerprint, records,
 # largest row id, and whether its primary key is the single INTEGER a harvest
 # drops as the row id (if not, a harvester's column set may differ).
@@ -182,7 +205,8 @@ file_meta <- function(checksum) {
     } else NA
     decl <- gpkg_decl(gpkg, t)
     list(table = t, decl = decl, fingerprint = crt_schema_fingerprint(decl),
-         n = gpkg_nrow(gpkg, t), max_pk = as.numeric(max_pk), int_pk = int_pk)
+         n = gpkg_nrow(gpkg, t), max_pk = as.numeric(max_pk), int_pk = int_pk,
+         rows = row_hashes(con, t, pk))
   })
 }
 
@@ -197,15 +221,19 @@ versions_table <- function(walk) {
                        stringsAsFactors = FALSE)
     na <- data.frame(table = NA_character_, fingerprint = NA_character_, n = NA_real_,
                      max_pk = NA_real_, int_pk = NA, stringsAsFactors = FALSE)
-    if (r$change == "removed") return(cbind(base, na))
+    na <- cbind(base, na)
+    na$rows <- list(NULL)
+    if (r$change == "removed") return(na)
     meta_f <- file.path(cache_dir, "meta", paste0(r$checksum, ".rds"))
-    if (!file.exists(meta_f)) return(cbind(base, na))
+    if (!file.exists(meta_f)) return(na)
     meta <- readRDS(meta_f)
-    if (!length(meta)) return(cbind(base, na))
+    if (!length(meta)) return(na)
     do.call(rbind, lapply(meta, function(m) {
-      cbind(base, data.frame(table = m$table, fingerprint = m$fingerprint,
-                             n = as.numeric(m$n), max_pk = m$max_pk, int_pk = m$int_pk,
-                             stringsAsFactors = FALSE))
+      out <- cbind(base, data.frame(table = m$table, fingerprint = m$fingerprint,
+                                    n = as.numeric(m$n), max_pk = m$max_pk, int_pk = m$int_pk,
+                                    stringsAsFactors = FALSE))
+      out$rows <- list(m$rows)
+      out
     }))
   })
   vt <- do.call(rbind, rows)
@@ -215,12 +243,21 @@ versions_table <- function(walk) {
   vt <- vt[!is.na(vt$fingerprint), ]
   vt$chain <- paste(vt$project, vt$path, vt$seg, vt$table, sep = "\r")
   vt <- vt[order(vt$chain, vt$vnum, method = "radix"), ]
-  lag <- function(x) ave(x, vt$chain, FUN = function(y) c(NA, utils::head(y, -1)))
-  prev_fp <- lag(vt$fingerprint)
-  prev_n <- lag(vt$n)
-  prev_pk <- lag(vt$max_pk)
-  more <- vt$n > prev_n | (!is.na(vt$max_pk) & !is.na(prev_pk) & vt$max_pk > prev_pk)
-  vt$grew <- !is.na(prev_fp) & vt$fingerprint == prev_fp & !is.na(more) & more
+  # Grew: same chain and shape as the version before, and holding a record
+  # with a key that version lacked and content none of its records had. A copy
+  # of an old record under a new key (a duplicated row, a re-export that
+  # renumbers) is not a record going in.
+  prev <- c(NA, utils::head(seq_len(nrow(vt)), -1))
+  prev[c(TRUE, vt$chain[-1] != vt$chain[-nrow(vt)])] <- NA
+  vt$new_records <- vapply(seq_len(nrow(vt)), function(i) {
+    j <- prev[i]
+    if (is.na(j) || vt$fingerprint[j] != vt$fingerprint[i]) return(NA_integer_)
+    a <- vt$rows[[j]]
+    b <- vt$rows[[i]]
+    sum(!b$pk %in% a$pk & !b$h %in% a$h)
+  }, integer(1))
+  vt$grew <- !is.na(vt$new_records) & vt$new_records > 0
+  vt$rows <- NULL
   vt
 }
 
@@ -286,7 +323,7 @@ read_history <- function() {
     }
     # Re-read when the cached record predates a field (max_pk, int_pk).
     stale <- !file.exists(meta_f) ||
-      any(vapply(readRDS(meta_f), function(m) is.null(m$int_pk), logical(1)))
+      any(vapply(readRDS(meta_f), function(m) is.null(m$rows), logical(1)))
     if (stale) {
       saveRDS(file_meta(r$checksum), meta_f)
     }
@@ -379,7 +416,9 @@ write_variants <- function() {
   for (form in forms) {
     schema <- crt_schema_get("nge", paste0("form_", form))
     build <- names(fixture_decl(form, schema$upstream_variants[[1]]$id))
-    listed <- vapply(schema$upstream_variants, `[[`, "", "fingerprint")
+    # The build, first in every form's list; the rest are this script's own
+    # output, so a re-run measures them again rather than keeping them.
+    listed <- schema$upstream_variants[[1]]$fingerprint
     v <- vt[vt$form == form, ]
     rows <- lapply(unique(v$fingerprint), function(fp) {
       w <- v[v$fingerprint == fp, ]
@@ -453,7 +492,7 @@ write_variants <- function() {
   keep <- keep[order(keep$form, keep$first_grew, keep$fingerprint, method = "radix"), ]
   keep$id <- NA_character_
   for (form in unique(keep$form)) {
-    k <- which(keep$form == form & !keep$listed)
+    k <- which(keep$form == form & !keep$listed & !keep$fingerprint %in% names(kept_ids))
     month <- keep$first_grew[k]
     dup <- month %in% month[duplicated(month)]
     suffix <- ave(seq_along(month), month, FUN = function(i) letters[seq_along(i)])
@@ -477,7 +516,13 @@ write_variants <- function() {
   measured <- data.frame(
     form = paste0("form_", out$form), id = out$id, fingerprint = out$fingerprint,
     first_seen = out$first_grew, n_versions = out$n_versions_grew,
-    n_projects = out$n_projects_grew, stringsAsFactors = FALSE
+    n_projects = out$n_projects_grew,
+    # How records reached it: the field app, or only a desktop client (a
+    # processed copy added to by hand).
+    grew_from = ifelse(out$grew_desktop == 0, "the field app",
+                ifelse(out$grew_mobile == 0, "a desktop client only",
+                       "the field app and a desktop client")),
+    stringsAsFactors = FALSE
   )
   utils::write.csv(measured, "data-raw/forms_variants-measured.csv", row.names = FALSE)
   message("wrote ", nrow(measured), " measured variants; shapes report at ",

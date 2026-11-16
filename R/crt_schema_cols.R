@@ -28,6 +28,10 @@
 #'     \item{`null`}{what a null means in this column when it means something
 #'       other than "not recorded", else `NA`}
 #'     \item{`notes`}{the schema's description of the column, else `NA`}
+#'     \item{`variants`}{list of character vectors: for a column the schema
+#'       declares only because earlier versions of the source carry it, the ids
+#'       of the `upstream_variants` that have it; `character(0)` for a column
+#'       of the current version. A form builder leaves the former out}
 #'   }
 #'
 #' @details
@@ -85,6 +89,10 @@ crt_schema_cols_tbl <- function(schema) {
     range_max = bound(2L),
     relative_to = chr("relative_to"),
     null = chr("null"),
-    notes = chr("notes")
+    notes = chr("notes"),
+    variants = lapply(cols, function(col) {
+      v <- col[["variants"]]
+      if (is.null(v)) character(0) else as.character(unlist(v))
+    })
   )
 }

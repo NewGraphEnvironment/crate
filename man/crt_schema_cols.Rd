@@ -27,6 +27,10 @@ relative to, else \code{NA}}
 \item{\code{null}}{what a null means in this column when it means something
 other than "not recorded", else \code{NA}}
 \item{\code{notes}}{the schema's description of the column, else \code{NA}}
+\item{\code{variants}}{list of character vectors: for a column the schema
+declares only because earlier versions of the source carry it, the ids
+of the \code{upstream_variants} that have it; \code{character(0)} for a column
+of the current version. A form builder leaves the former out}
 }
 }
 \description{
