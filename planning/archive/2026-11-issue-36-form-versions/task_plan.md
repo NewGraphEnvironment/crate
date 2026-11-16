@@ -136,8 +136,8 @@ Defaults taken (mechanism, stated here rather than asked):
 
 - [x] Tests pass (`devtools::test()`), with no new lints (`lintr::lint_package()`, compared per file
       against main).
-- [ ] `/code-check` clean (once over the branch with `/code-check branch`).
-- [ ] PWF checkboxes match landed work.
+- [x] `/code-check` clean (once over the branch with `/code-check branch`).
+- [x] PWF checkboxes match landed work.
 - [ ] `/planning-archive` on completion, its README carrying Measurement and Evidence.
 
 How each change is proved:
