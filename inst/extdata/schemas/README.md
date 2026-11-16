@@ -33,6 +33,7 @@ A column declaration needs only `name`, `type` and `required`. These optional ke
 | `relative_to` | for a column of file paths, what they are relative to |
 | `'null'` | what a null means here, when it means something other than "not recorded". Quote the key: bare, YAML reads `null:` as an empty key and the declaration is lost |
 | `notes` | prose |
+| `variants` | for a column declared only because earlier versions of the source carry it, the ids of the `upstream_variants` that have it. A form builder leaves such a column out of a new form; a column without the key belongs to the current version |
 
 `values` and `range` are declarations, not checks: `crt_schema_conform()` does not refuse a value outside them. A value outside the vocabulary is a record to flag (#38), not one to drop.
 

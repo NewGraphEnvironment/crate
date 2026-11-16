@@ -34,10 +34,12 @@
 #       name,type of the rfp build's capture columns, as the GeoPackage declares
 #       them. test-crt_form_schemas.R recomputes each listed fingerprint from it.
 #
-# It does not write the fixture of the measured 2025 monitoring variant
-# (form_monitoring__capture-utm-columns-2025.csv): that column set was read off
-# a live field capture, which has no public source, and is committed as
-# measured. Its variant entry is in `extra_variants` below.
+# It reads, and does not write, the versions crews captured into, which
+# forms_read-history.R measured off the sync service's history (#36):
+# data-raw/forms_variants-measured.csv and each one's fixture. Their column sets
+# come from field captures, which have no public source, so they are committed
+# as measured. Each is listed after the build, with a description written from
+# its columns against the build's, and any column only they have is declared.
 #
 # ---------------------------------------------------------------------------
 # Rules, each one a measured fact about the rfp files at rfp_sha (2026-10-30)
@@ -120,41 +122,133 @@ form_status <- list(
   )
 )
 
-# Forms whose capture shape in the field differs from rfp's build. Listed here,
-# not derived, because the evidence is a live capture (see header).
-extra_variants <- list(
-  monitoring = list(list(
-    id = "capture-utm-columns-2025",
-    description = paste(
-      "A field capture first seen in 2025 and still deployed in one of the four",
-      "fish passage projects in 2026 (122 columns, measured 2026-10-30). It is",
-      "not a subset of the rfp build: it lacks `surveyor_1`, `surveyor_2`,",
-      "`surveyor_3`, `habitat_comment`, `utm_corrected` and",
-      "`assessment_comments_og`, and carries `rowid`, `utm_zone`, `easting` and",
-      "`northing`, which the build does not. Two vintages of this form therefore",
-      "rename rather than nest: a null in either set of columns means the form",
-      "did not have it."
-    ),
-    first_seen = "2025"
-  ))
+# The versions of each form crews captured records into, read off the sync
+# service's history by forms_read-history.R (#36): one row per version, its
+# column set in tests/testthat/fixtures/forms/form_<form>__<id>.csv.
+measured <- utils::read.csv("data-raw/forms_variants-measured.csv",
+                            colClasses = "character", na.strings = character())
+
+# What a column only an earlier version had means, where that is known. The
+# rest carry their type and which versions have them, which is all the history
+# says about them.
+earlier_meaning <- list(
+  rowid = list(notes = "A row number."),
+  utm_zone = list(notes = "UTM zone of `easting` and `northing`."),
+  easting = list(units = "m", notes = "UTM easting."),
+  northing = list(units = "m", notes = "UTM northing.")
 )
 
-# Columns the measured variant carries and the build does not. Declared so a
-# record from it conforms with its own columns typed, not passed through. Types
-# follow the capture's declarations (all four REAL), as every derived column's
-# do.
-extra_cols <- list(
-  monitoring = list(
-    list(name = "rowid", type = "double", required = FALSE,
-         notes = "A row number carried by the 2025 capture variant only."),
-    list(name = "utm_zone", type = "double", required = FALSE,
-         notes = "UTM zone of `easting` and `northing`. 2025 capture variant only."),
-    list(name = "easting", type = "double", required = FALSE, units = "m",
-         notes = "UTM easting. 2025 capture variant only."),
-    list(name = "northing", type = "double", required = FALSE, units = "m",
-         notes = "UTM northing. 2025 capture variant only.")
+month_name <- function(ym) {
+  if (grepl("^[0-9]{4}$", ym)) return(ym)
+  # month.name, not format("%B"), which follows the session's locale.
+  paste(month.name[as.integer(substr(ym, 6, 7))], substr(ym, 1, 4))
+}
+
+code_list <- function(x, max = 10) {
+  if (length(x) > max) return(paste(length(x), "columns"))
+  x <- paste0("`", x, "`")
+  if (length(x) < 2) return(x)
+  paste(paste(utils::head(x, -1), collapse = ", "), "and", x[length(x)])
+}
+
+# A variant's entry, its description written from its columns against the
+# build's, so it says whether the two nest or rename.
+measured_variant <- function(form, row, build_types) {
+  build <- names(build_types)
+  fx <- sprintf("tests/testthat/fixtures/forms/form_%s__%s.csv", form, row$id)
+  t <- utils::read.csv(fx, colClasses = "character")
+  decl <- stats::setNames(t$type, t$name)
+  fp <- crt_schema_fingerprint(decl)
+  if (!identical(fp, row$fingerprint)) {
+    stop(fx, " fingerprints to ", fp, ", not ", row$fingerprint, call. = FALSE)
+  }
+  lacks <- setdiff(build, names(decl))
+  carries <- setdiff(names(decl), build)
+  where <- paste0(
+    "A version records went into, first in ", month_name(row$first_seen),
+    " (", length(decl), " columns; records were added to it in ", row$n_versions,
+    " version", if (row$n_versions != "1") "s", " of the form across ",
+    row$n_projects, " project", if (row$n_projects != "1") "s", ", from ",
+    row$grew_from, ", read from the sync service's history)."
   )
-)
+  # "rename" only where each side has columns the other lacks; the tests hold
+  # the description to that.
+  shape <- if (length(carries) && length(lacks)) {
+    paste0(
+      " It lacks ", code_list(lacks), " and carries ", code_list(carries, max = Inf),
+      ", which the build does not. The two therefore rename rather than nest: a ",
+      "null in either set of columns means the form did not have it."
+    )
+  } else if (length(carries)) {
+    paste0(" The build is nested in it: it has every build column and also ",
+           code_list(carries, max = Inf), ".")
+  } else if (length(lacks)) {
+    paste0(" It is nested in the build, lacking ", code_list(lacks), ".")
+  } else {
+    differ <- names(decl)[decl != build_types[names(decl)]]
+    paste0(" It has the build's columns, declaring ", code_list(differ),
+           " with another type.")
+  }
+  list(id = row$id, description = paste0(where, shape), fingerprint = fp,
+       normalize_fn = "reader-supplied", first_seen = row$first_seen)
+}
+
+# Columns earlier versions have and the build does not, declared so a record
+# from one conforms with them typed (gate decision, #36). Typed from the
+# versions' declarations; where they disagree, a string holds both.
+earlier_cols <- function(form, rows, build) {
+  decls <- lapply(rows$id, function(id) {
+    t <- utils::read.csv(sprintf("tests/testthat/fixtures/forms/form_%s__%s.csv", form, id),
+                         colClasses = "character")
+    stats::setNames(t$type, t$name)
+  })
+  names(decls) <- rows$id
+  extra <- unique(unlist(lapply(decls, function(d) setdiff(names(d), build))))
+  lapply(extra, function(nm) {
+    has <- names(decls)[vapply(decls, function(d) nm %in% names(d), logical(1))]
+    types <- unique(type_of(vapply(decls[has], function(d) d[[nm]], "")))
+    m <- earlier_meaning[[nm]]
+    # `variants` says which versions carry it, so a reader of crt_schema_cols()
+    # (a form builder) can leave it out of a new form (gate decision, #36).
+    out <- list(name = nm, type = if (length(types) == 1) types else "string",
+                required = FALSE, units = m$units,
+                notes = paste(c(m$notes, "Only in earlier versions, not in the build."),
+                              collapse = " "),
+                variants = as.list(has))
+    out[!vapply(out, is.null, logical(1))]
+  })
+}
+
+# A column an earlier version shares with the build but declares as another
+# type. The build's type stands where the earlier declaration converts to it
+# without loss, or the build's type is a string; otherwise the column's type is
+# decided here, on the values those versions hold, and the derive stops on any
+# conflict not decided.
+#   monitoring `site_id`: REAL in the build, TEXT in `capture-2024-09-b`, where
+#   17 of 18 distinct values are site names that a double would turn into NA.
+#   A string (gate decision, 2026-11-16), as monitoring_general declares it.
+shared_type <- list(monitoring = c(site_id = "string"))
+# Measured: a DATE conforms to a datetime at midnight UTC that day.
+lossless <- c("DATE>datetime")
+
+shared_conflicts <- function(form, rows, cols) {
+  canon <- stats::setNames(vapply(cols, `[[`, "", "type"), vapply(cols, `[[`, "", "name"))
+  out <- character(0)
+  for (id in rows$id) {
+    t <- utils::read.csv(sprintf("tests/testthat/fixtures/forms/form_%s__%s.csv", form, id),
+                         colClasses = "character")
+    shared <- t$name %in% names(canon)
+    for (i in which(shared)) {
+      nm <- t$name[i]
+      if (type_of(t$type[i]) == canon[[nm]] || canon[[nm]] == "string") next
+      if (paste0(sub("[(].*$", "", t$type[i]), ">", canon[[nm]]) %in% lossless) next
+      if (nm %in% names(shared_type[[form]])) next
+      out <- c(out, sprintf("`%s` is %s in `%s` and %s in the build", nm, t$type[i], id,
+                            canon[[nm]]))
+    }
+  }
+  out
+}
 
 grades_extra <- list(
   monitoring = list(list(
@@ -197,20 +291,7 @@ rfp_month <- function(path) {
   substr(d[[1]], 1, 7)
 }
 
-gpkg_decl <- function(path, layer) {
-  con <- DBI::dbConnect(RSQLite::SQLite(), path, flags = RSQLite::SQLITE_RO)
-  on.exit(DBI::dbDisconnect(con))
-  geom <- DBI::dbGetQuery(
-    con, "SELECT column_name FROM gpkg_geometry_columns WHERE table_name = ?",
-    params = list(layer)
-  )$column_name
-  info <- DBI::dbGetQuery(con, sprintf('PRAGMA table_info("%s")', layer))
-  # The surrogate row id is the primary key, whatever it is named; `fid` is
-  # only GDAL's default name for it.
-  keep <- info$pk == 0 & !info$name %in% geom
-  up <- chartr("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", info$type[keep])
-  stats::setNames(up, info$name[keep])
-}
+source("data-raw/forms_gpkg-decl.R")
 
 # ---- one column's meaning ---------------------------------------------------
 
@@ -219,6 +300,13 @@ type_map <- c(text = "string", integer = "integer", real = "double",
 decl_map <- c(TEXT = "string", INTEGER = "integer", MEDIUMINT = "integer",
               REAL = "double", DATETIME = "datetime", BOOLEAN = "logical",
               DATE = "string")
+# A declared length (`TEXT(300)`) does not change the type; the fingerprint
+# keeps the declaration as written.
+type_of <- function(decl) {
+  out <- unname(decl_map[sub("[(].*$", "", decl)])
+  if (anyNA(out)) stop("no mapping for declared type ", decl[is.na(out)][1], call. = FALSE)
+  out
+}
 
 split_options <- function(x) {
   parts <- trimws(strsplit(x, "|", fixed = TRUE)[[1]])
@@ -309,7 +397,7 @@ cols_from_qml <- function(path, decl) {
   lapply(fields, function(f) {
     name <- xml2::xml_attr(f, "name")
     widget <- xml2::xml_attr(xml2::xml_find_first(f, "editWidget"), "type")
-    out <- list(name = name, type = unname(decl_map[[decl[[name]]]]), required = FALSE)
+    out <- list(name = name, type = type_of(decl[[name]]), required = FALSE)
     if (widget == "ValueMap") {
       # QGIS nests each choice, as name (label) and value (code), under a list
       # Option named `map`; the wrapper has a name and no value, so take only
@@ -408,6 +496,9 @@ write_schema <- function(form) {
   utils::write.csv(data.frame(name = names(decl), type = unname(decl)), fixture,
                    row.names = FALSE, quote = FALSE)
 
+  # Measured versions after the build, oldest first.
+  rows <- measured[measured$form == paste0("form_", form), ]
+  rows <- rows[order(rows$first_seen, rows$id, method = "radix"), ]
   variants <- c(
     list(list(
       id = build_id,
@@ -416,29 +507,36 @@ write_schema <- function(form) {
         "rfp@", substr(rfp_sha, 1, 7), ", last changed ", month, "). Every ",
         "2026 capture of this form measured in the four fish passage projects ",
         "on 2026-10-30 carried this column set",
-        if (form == "monitoring") ", except the variant below" else "",
+        if (form == "monitoring") ", except `capture-utm-columns-2025`" else "",
         "."
       ),
       fingerprint = crt_schema_fingerprint(decl),
       normalize_fn = "reader-supplied",
       first_seen = month
     )),
-    lapply(extra_variants[[form]], function(v) {
-      fx <- sprintf("tests/testthat/fixtures/forms/form_%s__%s.csv", form, v$id)
-      t <- utils::read.csv(fx, colClasses = "character")
-      c(v[c("id", "description")],
-        list(fingerprint = crt_schema_fingerprint(stats::setNames(t$type, t$name)),
-             normalize_fn = "reader-supplied",
-             first_seen = v$first_seen))
-    })
+    lapply(seq_len(nrow(rows)), function(i) measured_variant(form, rows[i, ], decl))
   )
+  conflicts <- shared_conflicts(form, rows, cols)
+  if (length(conflicts)) {
+    stop("form_", form, ": decide these in `shared_type`: ", paste(conflicts, collapse = "; "),
+         call. = FALSE)
+  }
+  for (nm in names(shared_type[[form]])) {
+    cols[[match(nm, names(decl))]]$type <- shared_type[[form]][[nm]]
+  }
+  later <- earlier_cols(form, rows, names(decl))
+  clash <- intersect(vapply(later, `[[`, "", "name"),
+                     c(vapply(envelope, `[[`, "", "name"), "x", "y", "source_epsg"))
+  if (length(clash)) {
+    stop("form_", form, ": an earlier version has a column named like the envelope: ", clash)
+  }
 
   schema <- list(
     file = paste0("form_", form),
     description = describe(form, length(decl)),
     canonical = list(
       shape = "long",
-      cols = c(envelope, position, cols, extra_cols[[form]])
+      cols = c(envelope, position, cols, later)
     ),
     grades = c(
       list(list(name = "harvestable",
@@ -452,8 +550,9 @@ write_schema <- function(form) {
   out <- sprintf("inst/extdata/schemas/nge/form_%s.yaml", form)
   header <- c(
     "# Generated by data-raw/forms_derive-schemas.R from",
-    sprintf("# rfp's field definitions at commit %s. Edit the script or its rules, not", substr(rfp_sha, 1, 7)),
-    "# this file, until rfp's form builder reads meaning from crate; then this file is the source."
+    sprintf("# the form builder's field definitions at commit %s, and the versions measured in", substr(rfp_sha, 1, 7)),
+    "# data-raw/forms_variants-measured.csv. Edit the script or its rules, not this file,",
+    "# until the form builder reads meaning from crate; then this file is the source."
   )
   # true/false rather than yaml's default yes/no: a YAML 1.2 reader takes `yes`
   # for a string, and these schemas are published.
