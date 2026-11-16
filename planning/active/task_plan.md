@@ -72,10 +72,10 @@ waits on this issue. This registers two `schema_only` entries the caller conform
 
 ## Phase 3: Decision log and docs
 
-- [ ] `decisions/nge/20261116_photo_tables.md` — the four gate decisions above, the checksum's
+- [x] `decisions/nge/20261116_photo_tables.md` — the four gate decisions above, the checksum's
   identity with the receipt digest, why the store key is out, Camtrap DP mapping, the indexer as producer
-- [ ] `CLAUDE.md` Status paragraph: add the two photo tables to the `schema_only` list
-- [ ] `vignettes/reading.Rmd` prints `crt_files()` live, so it updates itself; check it renders
+- [x] `CLAUDE.md` Status paragraph: add the two photo tables to the `schema_only` list
+- [x] `vignettes/reading.Rmd` prints `crt_files()` live, so it updates itself; check it renders
 
 ## Phase 4: Follow-up issue
 
@@ -89,7 +89,7 @@ waits on this issue. This registers two `schema_only` entries the caller conform
 
 ## Validation
 
-- [ ] Tests pass
+- [x] Tests pass
 - [ ] `/code-check` clean (once over the branch with `/code-check branch`)
 - [ ] PWF checkboxes match landed work
 - [ ] `/planning-archive` on completion

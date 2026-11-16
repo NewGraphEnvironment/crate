@@ -64,3 +64,6 @@ canonical:
 grades:
   - name: record
     requires: [checksum, project, form, source_version, record_id]
+
+decisions:
+  - decisions/nge/20261116_photo_tables.md

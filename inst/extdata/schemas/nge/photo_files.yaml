@@ -126,3 +126,6 @@ canonical:
 grades:
   - name: identified
     requires: [checksum, path, size]
+
+decisions:
+  - decisions/nge/20261116_photo_tables.md
