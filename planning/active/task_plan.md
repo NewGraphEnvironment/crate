@@ -42,6 +42,12 @@ Local copies of those seasons show about 15 more `form_pscis` and 10 more `form_
 2. **A column set counts as a version if records went into it** (user, 2026-11-16): some version
    of a form file in that shape had more records than the version before it, whatever the path.
    A copy uploaded once and never captured into is counted in findings, not listed.
+   *Made precise after the plan review (review-plan.md):* the previous version must be the same
+   path, table and shape (growth across a shape change is a rebuild carrying records over); a
+   removal starts a new chain; "more records" is a higher count **or** a higher max primary key
+   (a delete plus an insert keeps the count). The version's `user_agent` (mobile app vs QGIS
+   plugin / Python client), readable from Mergin's version record, is measured beside it; if
+   shapes grew only through desktop pushes, that goes back to the user before Phase 2.
 
 Defaults taken (mechanism, stated here rather than asked):
 - **Scope:** the five registered forms only. A file is assigned to a form by its name (the longest
@@ -54,8 +60,8 @@ Defaults taken (mechanism, stated here rather than asked):
 - **Variant ids:** `capture-YYYY-MM`, the month the shape first gained records, with `-a`/`-b`
   where two share a month. `first_seen` is that month. A shape whose fingerprint is already listed
   is not added again; if the server shows it earlier than its listed `first_seen`, findings say so.
-- **The existing `capture-utm-columns-2025` variant** keeps its id (it is already the
-  `schema_version` id in harvested tables) but moves out of the hardcoded `extra_variants` into
+- **The existing `capture-utm-columns-2025` variant** keeps its id (a published variant id in
+  crate's YAML; harvested tables store the fingerprint, not the id) but moves out of the hardcoded `extra_variants` into
   the same measured-variants table as the new ones: reshape, don't accrete.
 - **What the script logs:** a per-project measurement log, written outside the repo (project
   names stay private). The repo gets fixtures, one aggregated table and counts.
@@ -74,7 +80,13 @@ Defaults taken (mechanism, stated here rather than asked):
       distinct shapes per form; how many gained records vs only-copied; the overlap rejects;
       shared columns whose declared type differs from the build's (**if any, ask before Phase 2**:
       the canonical type follows the build, and a text value in a numeric column would conform
-      to NA).
+      to NA); shapes that grew, **per season**, stopping to ask if a season 2023–2025 has none;
+      tables whose primary key is not a single INTEGER (the harvester's column set would differ).
+- [ ] Overlap is taken against the build and the versions already accepted (best of them), and
+      every reject is reviewed by hand and listed in findings. `layer_styles` is excluded by name.
+- [ ] Ask with the results, batched: whether old-only columns get a machine-readable marker
+      (e.g. a key listing the versions that carry them) so a consumer of `crt_schema_cols()`
+      does not read them as live fields.
 - [ ] Write a fixture `tests/testthat/fixtures/forms/form_<form>__capture-YYYY-MM.csv` (name,
       type) for each new shape, and `data-raw/forms_variants-measured.csv` (form, id, first_seen,
       n_versions, n_projects), including the 2025 monitoring row.
@@ -82,8 +94,9 @@ Defaults taken (mechanism, stated here rather than asked):
 ## Phase 2: Tests first
 
 - [ ] In `test-crt_form_schemas.R`, for every measured variant: its capture conforms with no
-      warning and `crt_schema_variant()` names it; its description says "rename" exactly when its
-      columns are not a subset of the build's, computed from the fixtures; every column it has is
+      warning and `crt_schema_variant()` names it; its description says "rename" exactly when
+      each side has columns the other lacks (a version that only lacks columns nests in the
+      build; one that only adds columns has the build nested in it), computed from the fixtures; every column it has is
       declared by the schema (decision 1); all of a form's variants stacked with `bind_rows()`
       conform to one table, which is the check that the types agree.
 - [ ] Run them: they fail until Phase 3 registers the variants.
@@ -95,8 +108,12 @@ Defaults taken (mechanism, stated here rather than asked):
       against the build (column count, how many build columns it lacks, the columns only it has,
       and "nests" or "renames"), and declares the old-only columns per decision 1, with a note
       naming the variants that carry them.
+- [ ] Extend the envelope-clash check to old-only columns; map every declared type met
+      (`decl_map`, and the test's `capture()` fill).
 - [ ] Re-run at the same `rfp_sha`: the build variants and the existing columns stay
-      byte-identical in meaning (diff the YAML), the new variants follow the build in order of
+      byte-identical in meaning (diff the YAML), except two regenerated texts: the build
+      description's "every 2026 capture … except the variant below", and the 2025 variant's
+      hand-written description (now generated like the rest); the new variants follow the build in order of
       `first_seen`. A second run is byte-identical.
 - [ ] Phase 2's tests pass, along with the rest of the suite.
 
@@ -123,6 +140,8 @@ How each change is proved:
   script's verdict, including at least one processed copy it rejects.
 - **The derive:** byte-identical across two runs; a YAML diff against main that shows only the
   added variants, columns and descriptions.
-- **The privacy guard:** a grep of the branch diff for every Mergin project name in the workspace
-  returns nothing.
+- **The privacy guard:** a grep of the branch diff for every Mergin project name in the workspace,
+  and every form file stem the walk found, returns nothing.
+- **The spot-check** recomputes fingerprints through trap's column set (`trp_form_read()`), not
+  `gpkg_decl()`, so it is not circular.
 
