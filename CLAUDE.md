@@ -813,8 +813,8 @@ A row with no suffix is a live failure on the default branch; `· fixed by run <
 leaves the failure live, and the row says `· newest run <id> <conclusion>`. A `startup_failure`
 (a workflow file pushed broken), a `timed_out` and an `action_required` are failures in their own
 right and print as rows. Keep a
-`cancelled` row only if its annotations report a timeout ("A timed-out run reads `cancelled`");
-say timed out, not failed.
+`cancelled` row only if its annotations report a timeout, or, where they cannot be read, no other
+run of its workflow arrived in its last 5 minutes ("A timed-out run reads `cancelled`"); say timed out (or by hand), not failed.
 
 *6 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
 
@@ -880,8 +880,8 @@ it admits. Anywhere else the sync pushes untagged, and this rule holds.
 Order them: watch the merge's runs to completion, *then* push anything else.
 
 Where a push has already gone out and cancelled something, `/gh-pr-merge` step 10 has the
-reading: `cancelled`/`skipped` is `⊘ superseded` unless its annotation reports a timeout, and the thing to confirm
-is that the newest SHA that started a run passed. Do not re-dispatch the cancelled one.
+reading: `skipped` is `⊘ superseded`, and `cancelled` is too when another run of its workflow arrived
+in its last 5 minutes, else `✗` (a timeout or a hand cancel); confirm the newest SHA that started a run passed. Do not re-dispatch the cancelled one.
 
 *3 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
 
@@ -926,9 +926,9 @@ re-run before they fix it is refused the same way.
 *6 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
 
 ## A timed-out run reads `cancelled`
-Read a `cancelled` run's annotations before calling it superseded: its job ids from `gh run view <id> --json jobs --jq '.jobs[].databaseId'`, then `gh api repos/<o>/<r>/check-runs/<job id>/annotations`. A timeout says "The job has exceeded the maximum execution time", and its `--log-failed` is empty.
+Read a `cancelled` run's annotations before calling it superseded: its job ids from `gh run view <id> --json jobs --jq '.jobs[].databaseId'`, then `gh api repos/<o>/<r>/check-runs/<job id>/annotations`. A timeout says "The job has exceeded the maximum execution time", and its `--log-failed` is empty. A fine-grained token has no Checks permission, so it cannot read annotations: read the runs instead (`gh api 'repos/<o>/<r>/actions/workflows/<id>/runs?created=%3C%3D<updated_at>&per_page=100'`). The cancel was superseded when another run of its workflow, not from a pull request, was created or started in its last 5 minutes (a group that does not cancel in progress leaves an earlier one waiting); otherwise it was a timeout or a hand cancel.
 
-*5 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
+*7 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
 
 ## R workflows live in NewGraphEnvironment/flows
 Change a runner, timeout or step there and fast-forward `v1`; a workflow marked at its top as its own is changed in its repo. Re-run all jobs: re-run failed reuses the old copy.
@@ -957,15 +957,15 @@ concurrency:
 
 `fail-fast: false` does not help — that governs failures, not cancellation.
 
-**It fails in the quiet direction.** A cancelled run reports `cancelled`, not `failure`,
-which `/gh-pr-merge` step 10 correctly reads as `⊘ superseded` — so two platforms that
-never ran look like two platforms that were superseded by a newer push. Nothing is red and
-nothing says the coverage was lost.
+**It fails in the quiet direction.** A cancelled run reports `cancelled`, not `failure`, so
+two platforms that never ran look like two superseded by a newer push, and nothing says the
+coverage was lost. `/gh-pr-merge` step 10 reads it as `✗` when no other run of its workflow
+arrived in its last 5 minutes, but the status column does not.
 
 The entries above concern cancellation **between pushes**, which is the behaviour you
 want. This is cancellation **within one push**, which is never what you want.
 
-*10 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
+*11 lines of evidence for this rule are in `conventions/ci-monitoring.md`.*
 
 
 ## A push `paths:` filter skips an empty commit, and dispatch and schedule run only from the default branch
@@ -1399,6 +1399,9 @@ Keep the pair only if both files' mtime and size held across the copy.
 ### jsonlite writes an empty name as the element's position
 Write a JSON object with an empty key as text, not through `toJSON()`.
 
+### Probing a TMB objective can break `vcov()` on the fit
+Compute `vcov()` and `SE()` before probing a TMB objective, or save and restore `env$last.par.best` and `env$value.best` around the probe.
+
 # Code Check — Shell
 Tool-level traps in bash, sed, git and `gh`, and in the host toolchain those commands depend on.
 
@@ -1616,6 +1619,9 @@ Translate before counting: `tr '\r' '\n' < log | grep -c '^upload:'`.
 
 ### `a && b || c` runs `c` when any step before the `||` fails
 Give each setup step its own `|| exit 1` and branch with `if`.
+
+### An Actions `run:` step with no `shell:` has no `pipefail`
+Set `defaults: run: shell: bash` on the job, since a Linux step with no `shell:` runs `bash -e {0}`.
 
 # Code Check — Spatial
 terra, sf, bcdata, GDAL/OGR CLIs.
@@ -1842,7 +1848,7 @@ Check `sf::sf_extSoftVersion()[["GDAL"]]` and `terra::gdal()` before concluding 
 Write GeoParquet with GDAL's Parquet driver (`ogr2ogr -f Parquet`), and check the file's schema metadata carries a `geo` key.
 
 ### `atan2(0, 0)` is 0, so two points at one place have a bearing of due north
-Treat a zero-length step as having no heading: test the step length before taking its azimuth, and return `NA` rather than a bearing when it is 0, because `atan2(0, 0)` returns 0 with no warning, and that reads as north.
+Treat a zero-length step as having no heading: test the step length before taking its azimuth, and return `NA` rather than a bearing when it is 0.
 
 ### gdalwarp writes INTO an existing destination and keeps its grid
 Delete the output before re-warping to the same path (`unlink(out)` before `sf::gdal_utils("warp", ...)`, or pass `-overwrite`).
@@ -2555,7 +2561,7 @@ Skip planning for single-file edits, quick fixes, or tasks with obvious next ste
 
    **Do not wait for it.** Spawn, then start the lowest-risk phase. Background agents have repeatedly returned late — in one case after the entire issue had shipped — so treating the review as a precondition stalls the work for as long as the agent takes (see `agent-operations.md` §2). Fold findings in whenever they land: pre-baseline they edit the plan; mid-implementation they become follow-up commits — unless the finding is a stored-data fork of the kind `agent-operations.md` §4 reserves for the user. If you genuinely cannot proceed without the result, run it with `run_in_background: false` so the blocking is explicit.
 
-   **On a park the review runs before the baseline, so keep it a review of the plan:** read it against the issue, its comments and the code it names. One cheap probe (a grep, a listing) may settle a design fork; a question needing more becomes a checkbox in the phase that measures it.
+   **On a park the review runs at the resume, beside Phase 1.** Keep it a review of the plan: read it against the issue, its comments and the code it names. One cheap probe (a grep, a listing) may settle a design fork; a question needing more becomes a checkbox in the phase that measures it.
 
    Verify before acting, in both directions. Findings have been confidently wrong (a "BLOCKER" disproved by a 30-second probe) and confidently right about things nobody suspected. Reproduce the claim first.
 
