@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.19.0" id="crate-0190-2026-11-17">crate 0.19.0 (2026-11-17)<a class="anchor" aria-label="anchor" href="#crate-0190-2026-11-17"></a></h2>
+<ul><li>
+<code>nge/habitat/fwa/v1/segment</code>, a <code>schema_only</code> entry for link’s habitat export: one row per stream segment, link config and species, keyed by FWA position, with the habitat flags, the segment’s size and gradient, their ratios to the build’s thresholds, and the species’ access code <code>access</code> (0, 1, 2, -9), which link adds to v1 as an optional column so a part published before it still conforms. The YAML is link’s, moved byte for byte (NewGraphEnvironment/link#333, NewGraphEnvironment/link#423); the reasoning is in <code>decisions/nge/20261117_habitat_segment.md</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="crate-0180-2026-11-16">crate 0.18.0 (2026-11-16)<a class="anchor" aria-label="anchor" href="#crate-0180-2026-11-16"></a></h2>
 <ul><li>The five fish passage form schemas list the versions crews captured records into from 2023 on, read from the sync service’s version history, so <code><a href="../reference/crt_schema_variant.html">crt_schema_variant()</a></code> names a 2023–2025 record’s version and <code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code> no longer warns that its fingerprint is unknown: 7 more <code>upstream_variants</code> (<code>form_pscis</code> 2, <code>form_fiss_site</code> 3, <code>form_monitoring</code> 2), each with a description of how its columns differ from the build’s. A column set counts if a file in that shape gained a record: under a new key, with content the version before it did not hold, so processed copies and duplicated rows are not listed. Columns only earlier versions carry are declared, typed, with a <code>variants</code> key naming the versions that have them, which <code><a href="../reference/crt_schema_cols.html">crt_schema_cols()</a></code> returns as a new list column so a form builder can leave them out. <code>form_monitoring</code>’s <code>site_id</code> is now a string, because a 2024 version holds site names there, and <code>capture-utm-columns-2025</code>’s <code>first_seen</code> is the measured 2024-09. The method and counts are in <code>research/form_versions.md</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/36" class="external-link">#36</a>).</li>

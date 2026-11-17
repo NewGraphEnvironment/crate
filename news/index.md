@@ -1,5 +1,17 @@
 # Changelog
 
+## crate 0.19.0 (2026-11-17)
+
+- `nge/habitat/fwa/v1/segment`, a `schema_only` entry for link’s habitat
+  export: one row per stream segment, link config and species, keyed by
+  FWA position, with the habitat flags, the segment’s size and gradient,
+  their ratios to the build’s thresholds, and the species’ access code
+  `access` (0, 1, 2, -9), which link adds to v1 as an optional column so
+  a part published before it still conforms. The YAML is link’s, moved
+  byte for byte (NewGraphEnvironment/link#333,
+  NewGraphEnvironment/link#423); the reasoning is in
+  `decisions/nge/20261117_habitat_segment.md`.
+
 ## crate 0.18.0 (2026-11-16)
 
 - The five fish passage form schemas list the versions crews captured

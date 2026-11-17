@@ -18,7 +18,7 @@ read, which you hold to that shape yourself with
 ``` r
 
 crt_files()
-#> # A tibble: 16 × 6
+#> # A tibble: 17 × 6
 #>    source file_name                  kind  handler_fn schema_yaml canonical_cols
 #>    <chr>  <chr>                      <chr> <chr>      <chr>       <chr>         
 #>  1 bcfp   user_habitat_classificati… file  crt_handl… schemas/bc… blue_line_key…
@@ -37,6 +37,7 @@ crt_files()
 #> 14 nge    fish_data                  file  crt_handl… schemas/ng… local_name,sp…
 #> 15 nge    photo_files                sche… NA         schemas/ng… path,checksum…
 #> 16 nge    photo_links                sche… NA         schemas/ng… checksum,proj…
+#> 17 nge    habitat/fwa/v1/segment     sche… NA         schemas/ng… blue_line_key…
 ```
 
 ## One call, either shape
