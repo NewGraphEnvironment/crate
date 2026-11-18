@@ -189,9 +189,12 @@ canonical:
 upstream_variants:
   - id: "2026-06-01"
     description: >
-      All Areas NuSEDS_20260601 as received: 51 upper-case column names, 421,001 rows, Latin-1
-      (BARRIÈRE RIVER, FRANÇOIS LAKE). The handler lower-cases the names.
-    encoding: latin1
+      All Areas NuSEDS_20260601 as received: 51 upper-case column names, 421,001 rows, in a single-byte
+      encoding (BARRIÈRE RIVER, FRANÇOIS LAKE: its only bytes above 0x7F are 0xC7 and 0xC8). Declared
+      windows-1252, which reads those bytes as Latin-1 does and also reads 0x80-0x9F as the punctuation
+      Windows tools write there (’ –) rather than as invisible control characters. The handler
+      lower-cases the names.
+    encoding: windows-1252
     cols:
       - AREA
       - WATERBODY

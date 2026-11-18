@@ -1,5 +1,5 @@
 # DFO's NuSEDS All Areas file (#74). The fixture is 51 rows of the 2026-06-01
-# release as received (Latin-1): every Maxan Creek chinook year and one Francois
+# release as received (single-byte, read as windows-1252): every Maxan Creek chinook year and one Francois
 # Lake sockeye row whose local name carries a C-cedilla.
 nuseds_fixture <- function() {
   system.file("extdata/examples/dfo/nuseds_all_areas_2026-06-01.csv", package = "crate")
@@ -33,7 +33,7 @@ test_that("NuSEDS keeps Maxan Creek chinook's records as DFO wrote them", {
   )
 })
 
-test_that("a Latin-1 variant reads its accented names as UTF-8 text", {
+test_that("the single-byte variant reads its accented names as UTF-8 text", {
   x <- crt_ingest("dfo", "nuseds_all_areas", nuseds_fixture())
   nm <- x$local_name_1[x$species == "Sockeye"]
   expect_identical(nm, "FRANÇOIS LAKE")
@@ -67,4 +67,15 @@ test_that("a release with the Latin-1 variant's columns but written in UTF-8 is 
   ascii <- withr::local_tempfile(fileext = ".csv")
   writeLines(iconv(txt, from = "UTF-8", to = "ASCII", sub = "C"), ascii, useBytes = TRUE)
   expect_identical(nrow(crt_ingest("dfo", "nuseds_all_areas", ascii)), 51L)
+})
+
+test_that("a Windows apostrophe in a later release reads as itself, not a control character", {
+  f <- withr::local_tempfile(fileext = ".csv")
+  raw <- readBin(nuseds_fixture(), "raw", file.size(nuseds_fixture()))
+  at <- grepRaw("MAXAN CREEK", raw)
+  raw <- c(raw[seq_len(at - 1L)], charToRaw("MAXAN"), as.raw(0x92), charToRaw("S CREEK"),
+           raw[(at + nchar("MAXAN CREEK")):length(raw)])
+  writeBin(raw, f)
+  x <- crt_ingest("dfo", "nuseds_all_areas", f)
+  expect_true("MAXAN\u2019S CREEK" %in% x$waterbody)
 })

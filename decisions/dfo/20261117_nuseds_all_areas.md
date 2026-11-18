@@ -32,7 +32,10 @@ release without `FWA_WATERSHED_CDE` and `FULL_CU_IN`, then the 51-column `202606
 - **Dates as strings.** Dates are `DD-MON-YY`. A two-digit year needs the row's `analysis_yr` to resolve,
   and the spawn and arrival dates are read by month and day more often than as instants, so the reader
   decides.
-- **Encoding on the variant.** The `20260601` file is Latin-1 (`BARRIÈRE RIVER`, `FRANÇOIS LAKE`). A release
+- **Encoding on the variant.** The `20260601` file is single-byte (`BARRIÈRE RIVER`, `FRANÇOIS LAKE`; its only bytes
+  above 0x7F are 0xC7 and 0xC8), declared `windows-1252`. Latin-1 reads those two bytes the same, but reads 0x80 to
+  0x9F as invisible control characters where Windows tools write `’` and `–`, so a later release carrying one would
+  pass every check and read wrongly; windows-1252 reads them as written. A release
   could move to UTF-8, so the encoding belongs to the variant, not to the schema: `crt_ingest()` reads the
   header, picks the variant, then reads the file in the variant's encoding, and refuses bytes that are not
   UTF-8 where a variant declares none.
