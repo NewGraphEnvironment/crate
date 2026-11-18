@@ -58,3 +58,13 @@ test_that("bytes that are not UTF-8, read as UTF-8, are refused", {
   )
   expect_silent(crt_ingest_check_utf8(bad, "latin1", "dfo", "nuseds_all_areas", "v"))
 })
+
+test_that("a release with the Latin-1 variant's columns but written in UTF-8 is refused", {
+  utf8 <- withr::local_tempfile(fileext = ".csv")
+  txt <- iconv(readLines(nuseds_fixture(), encoding = "latin1"), from = "latin1", to = "UTF-8")
+  writeLines(txt, utf8, useBytes = TRUE)
+  expect_error(crt_ingest("dfo", "nuseds_all_areas", utf8), "file is UTF-8")
+  ascii <- withr::local_tempfile(fileext = ".csv")
+  writeLines(iconv(txt, from = "UTF-8", to = "ASCII", sub = "C"), ascii, useBytes = TRUE)
+  expect_identical(nrow(crt_ingest("dfo", "nuseds_all_areas", ascii)), 51L)
+})

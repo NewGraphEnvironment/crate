@@ -36,7 +36,8 @@ from its first rows (a count blank for thousands of rows, then \code{1e+05}) is
 typed by the schema instead. A \code{.zip} holding one CSV is read as that CSV.
 The header is read first to pick the variant, and the file is then read in
 the variant's \code{encoding} (UTF-8 where it declares none); bytes that are not
-UTF-8 in a file read as UTF-8 are refused.
+UTF-8 in a file read as UTF-8 are refused, and so is a file of UTF-8
+multibyte text where the variant declares another encoding.
 
 Validation and typing are not done here — the handler's output goes through
 \code{\link[=crt_schema_conform]{crt_schema_conform()}}, which is also the entry point for data crate did not

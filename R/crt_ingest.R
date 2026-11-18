@@ -25,7 +25,8 @@
 #' typed by the schema instead. A `.zip` holding one CSV is read as that CSV.
 #' The header is read first to pick the variant, and the file is then read in
 #' the variant's `encoding` (UTF-8 where it declares none); bytes that are not
-#' UTF-8 in a file read as UTF-8 are refused.
+#' UTF-8 in a file read as UTF-8 are refused, and so is a file of UTF-8
+#' multibyte text where the variant declares another encoding.
 #'
 #' Validation and typing are not done here — the handler's output goes through
 #' [crt_schema_conform()], which is also the entry point for data crate did not
@@ -142,6 +143,7 @@ crt_ingest <- function(source, file_name, path) {
     progress = FALSE
   )
   crt_ingest_check_utf8(raw, encoding, source, file_name, matched_variant$id)
+  crt_ingest_check_not_utf8(path, encoding, source, file_name, matched_variant$id)
 
   handler_fn_name <- matched$handler_fn[[1L]]
   handler <- get(
@@ -177,4 +179,23 @@ crt_ingest_check_utf8 <- function(raw, encoding, source, file_name, variant_id) 
     }
   }
   invisible(raw)
+}
+
+# The other direction: a variant that declares a single-byte encoding is picked by its header alone, so a release with
+# the same columns written in UTF-8 would be decoded as Latin-1 into mojibake ("FRAN\u00c3\u0087OIS"). Refuse a file
+# whose bytes are valid UTF-8 and hold a multibyte character where the variant declares another encoding: pure ASCII
+# reads the same either way and passes.
+crt_ingest_check_not_utf8 <- function(path, encoding, source, file_name, variant_id) {
+  if (toupper(encoding) %in% c("UTF-8", "UTF8")) {
+    return(invisible(TRUE))
+  }
+  bytes <- readr::read_file_raw(path)
+  if (any(bytes >= as.raw(0x80)) && validUTF8(rawToChar(bytes))) {
+    cli::cli_abort(c(
+      "({source}, {file_name}) variant {.val {variant_id}} declares {.val {encoding}}, but the file is UTF-8 \\
+       with multibyte characters.",
+      "i" = "Register the release as a variant of its own, declaring its encoding."
+    ))
+  }
+  invisible(TRUE)
 }
