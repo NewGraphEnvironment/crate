@@ -208,7 +208,7 @@ crt_ingest_check_bytes <- function(path, encoding, source, file_name, variant_id
   undefined <- high[is.na(vapply(high, function(b) iconv(rawToChar(b), from = encoding, to = "UTF-8"),
                                  character(1)))]
   if (length(undefined)) {
-    hex <- paste0("0x", toupper(as.character(undefined[order(as.integer(undefined))])))
+    hex <- paste0("0x", toupper(as.character(undefined[order(as.integer(undefined))]))) # nolint: object_usage_linter.
     cli::cli_abort(c(
       "({source}, {file_name}) variant {.val {variant_id}} declares {.val {encoding}}, but the file holds \\
        byte{?s} {.val {hex}} that {encoding} does not define.",
