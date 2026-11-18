@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.21.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.21.0" id="crate-0210-2026-11-18">crate 0.21.0 (2026-11-18)<a class="anchor" aria-label="anchor" href="#crate-0210-2026-11-18"></a></h2>
+<ul><li>
+<code>nge/photo_files</code> gains an optional <code>symlink</code> column (string): the target a symbolic link at <code>path</code> names, as the link holds it, not resolved; a missing value means the row is not known to be a link. Only a link at the last component of <code>path</code> is marked, and a row with <code>symlink</code> is not a copy; which rows are one file is not in the table. The reasoning is in <code>decisions/nge/20261118_photo_files_symlink.md</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/76" class="external-link">#76</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.20.0" id="crate-0200-2026-11-18">crate 0.20.0 (2026-11-18)<a class="anchor" aria-label="anchor" href="#crate-0200-2026-11-18"></a></h2>
 <ul><li>
