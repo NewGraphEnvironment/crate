@@ -16,3 +16,4 @@ nge,fish_data,file,crt_handler_nge_fish_data,schemas/nge/fish_data.yaml,"local_n
 nge,photo_files,schema_only,,schemas/nge/photo_files.yaml,"path,checksum,size"
 nge,photo_links,schema_only,,schemas/nge/photo_links.yaml,"checksum,project"
 nge,habitat/fwa/v1/segment,schema_only,,schemas/nge/habitat/fwa/v1/segment.yaml,"blue_line_key,downstream_route_measure,upstream_route_measure,watershed_group_code,accessible,spawning,rearing,access"
+dfo,nuseds_all_areas,file,crt_handler_dfo_nuseds_all_areas,schemas/dfo/nuseds_all_areas.yaml,"waterbody,analysis_yr,species,adult_presence,population,act_id,pop_id"

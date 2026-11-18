@@ -20,6 +20,15 @@
 #' the schema YAML and add a normalize handler, and the same `crt_ingest()`
 #' call continues returning canonical output.
 #'
+#' Every column is read as character, so a column readr would have guessed
+#' from its first rows (a count blank for thousands of rows, then `1e+05`) is
+#' typed by the schema instead. A `.zip` holding one CSV is read as that CSV.
+#' The header is read first to pick the variant, and the file is then read in
+#' the variant's `encoding` (UTF-8 where it declares none); bytes that are not
+#' UTF-8 in a file read as UTF-8 are refused. Where the variant declares
+#' another encoding, its bytes are checked before the read: a file of UTF-8
+#' multibyte text is refused, and so is a byte that encoding does not define.
+#'
 #' Validation and typing are not done here — the handler's output goes through
 #' [crt_schema_conform()], which is also the entry point for data crate did not
 #' read. One code path, so the two cannot drift.
@@ -96,8 +105,14 @@ crt_ingest <- function(source, file_name, path) {
 
   schema <- crt_schema_read(matched$schema_yaml[[1L]])
 
-  raw <- readr::read_csv(path, show_col_types = FALSE)
-  raw_cols <- names(raw)
+  # The header first, to pick the variant, then the file in that variant's
+  # encoding: a release that changes its encoding is a variant of its own.
+  raw_cols <- names(readr::read_csv(
+    path,
+    n_max = 0L,
+    col_types = readr::cols(.default = readr::col_character()),
+    progress = FALSE
+  ))
 
   matched_variant <- NULL
   for (variant in schema$upstream_variants) {
@@ -119,6 +134,20 @@ crt_ingest <- function(source, file_name, path) {
     ))
   }
 
+  # Every column as character (#41): the schema, not readr's guess, decides each
+  # type, and no number is reparsed with locale rules.
+  encoding <- matched_variant[["encoding"]] %||% "UTF-8"
+  # before readr reads a byte: a byte the declared encoding leaves undefined crashes readr's decoder (a segfault no
+  # tryCatch survives, readr 2.2.0), so the bytes are checked first
+  crt_ingest_check_bytes(path, encoding, source, file_name, matched_variant$id)
+  raw <- readr::read_csv(
+    path,
+    col_types = readr::cols(.default = readr::col_character()),
+    locale = readr::locale(encoding = encoding),
+    progress = FALSE
+  )
+  crt_ingest_check_utf8(raw, encoding, source, file_name, matched_variant$id)
+
   handler_fn_name <- matched$handler_fn[[1L]]
   handler <- get(
     handler_fn_name,
@@ -132,4 +161,59 @@ crt_ingest <- function(source, file_name, path) {
   # crt_schema_apply() here, so a caller arriving with their own data frame
   # gets exactly the treatment a file gets.
   crt_schema_conform(result, source, file_name)
+}
+
+# A file read as UTF-8 whose bytes are not UTF-8 comes back as strings R marks
+# invalid, which print as escapes and compare unequal to the names they spell.
+# Refuse it, naming the variant to give an `encoding`.
+crt_ingest_check_utf8 <- function(raw, encoding, source, file_name, variant_id) {
+  if (!toupper(encoding) %in% c("UTF-8", "UTF8")) {
+    return(invisible(raw))
+  }
+  for (col in names(raw)) {
+    x <- raw[[col]]
+    bad <- !is.na(x) & !validUTF8(x)
+    if (any(bad)) {
+      cli::cli_abort(c(
+        "({source}, {file_name}) variant {.val {variant_id}}: column {.field {col}} \
+         holds {sum(bad)} value{?s} that {?is/are} not UTF-8.",
+        "i" = "Declare the file's {.field encoding} on the variant in its schema YAML."
+      ))
+    }
+  }
+  invisible(raw)
+}
+
+# A single-byte variant is picked by its header alone, so its bytes are checked before the read, in two ways.
+# A release with the same columns written in UTF-8 would be decoded into mojibake ("FRAN\u00c3\u0087OIS"): a file
+# whose bytes are valid UTF-8 and hold a multibyte character is refused (pure ASCII reads the same either way and
+# passes). And a byte the declared encoding does not define (0x81, 0x8D, 0x8F, 0x90, 0x9D in windows-1252) is refused,
+# because readr's decoder crashes R on it rather than raising.
+crt_ingest_check_bytes <- function(path, encoding, source, file_name, variant_id) {
+  if (toupper(encoding) %in% c("UTF-8", "UTF8")) {
+    return(invisible(TRUE))
+  }
+  bytes <- readr::read_file_raw(path)
+  high <- unique(bytes[bytes >= as.raw(0x80)])
+  if (!length(high)) {
+    return(invisible(TRUE))
+  }
+  if (validUTF8(rawToChar(bytes))) {
+    cli::cli_abort(c(
+      "({source}, {file_name}) variant {.val {variant_id}} declares {.val {encoding}}, but the file is UTF-8 \\
+       with multibyte characters.",
+      "i" = "Register the release as a variant of its own, declaring its encoding."
+    ))
+  }
+  undefined <- high[is.na(vapply(high, function(b) iconv(rawToChar(b), from = encoding, to = "UTF-8"),
+                                 character(1)))]
+  if (length(undefined)) {
+    hex <- paste0("0x", toupper(as.character(undefined[order(as.integer(undefined))]))) # nolint: object_usage_linter.
+    cli::cli_abort(c(
+      "({source}, {file_name}) variant {.val {variant_id}} declares {.val {encoding}}, but the file holds \\
+       byte{?s} {.val {hex}} that {encoding} does not define.",
+      "i" = "The release is in another encoding: register it as a variant of its own."
+    ))
+  }
+  invisible(TRUE)
 }

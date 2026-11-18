@@ -1,0 +1,250 @@
+file: nuseds_all_areas
+description: >
+  Fisheries and Oceans Canada's NuSEDS (New Salmon Escapement Database System), the
+  All Areas file: one row per salmon population, species and year, with escapement counts,
+  presence, survey methods, estimate quality and spawn timing. Published by DFO under the
+  Open Government Licence - Canada at
+  https://open.canada.ca/data/en/dataset/c48669a3-045b-400d-b730-48aafe8c5ee6 as
+  All Areas NuSEDS_<YYYYMMDD>.zip, a zip of one CSV (crt_ingest() reads the zip). Its shape
+  moves between releases: copies of an earlier release that our reporting repos keep have 49
+  columns, without FWA_WATERSHED_CDE and FULL_CU_IN. Those copies had been renamed by our own
+  scripts (janitor::clean_names()), so that release is not registered as a variant until a copy
+  as received is in hand.
+
+canonical:
+  shape: long
+  cols:
+    - name: area
+      type: string
+      required: false
+      notes: "DFO statistical area (e.g. 29I); blank in one row of the 2026-06-01 release"
+    - name: waterbody
+      type: string
+      required: true
+    - name: gazetted_name
+      type: string
+      required: false
+    - name: local_name_1
+      type: string
+      required: false
+    - name: local_name_2
+      type: string
+      required: false
+    - name: analysis_yr
+      type: integer
+      required: true
+      notes: "Year of the estimate"
+    - name: species
+      type: string
+      required: true
+      notes: "Common name as written (Chinook, Coho, Sockeye, ...)"
+    - name: natural_adult_spawners
+      type: double
+      required: false
+      notes: "Count; integers, decimals and scientific notation (1e+05) all occur, hence double"
+    - name: natural_jack_spawners
+      type: double
+      required: false
+    - name: natural_spawners_total
+      type: double
+      required: false
+    - name: adult_broodstock_removals
+      type: double
+      required: false
+    - name: jack_broodstock_removals
+      type: double
+      required: false
+    - name: total_broodstock_removals
+      type: double
+      required: false
+    - name: other_removals
+      type: double
+      required: false
+    - name: total_return_to_river
+      type: double
+      required: false
+      notes: "Count; written as NATURAL_ADULT_SPAWNERS is"
+    - name: enumeration_methods
+      type: string
+      required: false
+      notes: "Survey methods, comma-separated (Stream Walk, Snorkel, ...); blank where none recorded"
+    - name: adult_presence
+      type: string
+      required: true
+      notes: "PRESENT, NONE OBSERVED, NOT INSPECTED, UNKNOWN"
+    - name: jack_presence
+      type: string
+      required: false
+    - name: start_dtt
+      type: string
+      required: false
+      notes: "DD-MON-YY as written; a two-digit year, resolved against analysis_yr by the reader"
+    - name: end_dtt
+      type: string
+      required: false
+    - name: natural_adult_females
+      type: double
+      required: false
+    - name: natural_adult_males
+      type: double
+      required: false
+    - name: effective_females
+      type: double
+      required: false
+    - name: weighted_pct_spawn
+      type: double
+      required: false
+    - name: watershed_cde
+      type: string
+      required: false
+    - name: fwa_watershed_cde
+      type: string
+      required: false
+      notes: "Freshwater Atlas watershed code; absent from the earlier 49-column release, so not required"
+    - name: waterbody_id
+      type: string
+      required: false
+      notes: "DFO waterbody id (e.g. 00000MORK)"
+    - name: population
+      type: string
+      required: true
+    - name: run_type
+      type: string
+      required: false
+    - name: stream_arrival_dt_from
+      type: string
+      required: false
+      notes: "DD-MON-YY as written (as START_DTT)"
+    - name: stream_arrival_dt_to
+      type: string
+      required: false
+    - name: start_spawn_dt_from
+      type: string
+      required: false
+      notes: "DD-MON-YY as written (as START_DTT)"
+    - name: start_spawn_dt_to
+      type: string
+      required: false
+    - name: peak_spawn_dt_from
+      type: string
+      required: false
+    - name: peak_spawn_dt_to
+      type: string
+      required: false
+    - name: end_spawn_dt_from
+      type: string
+      required: false
+    - name: end_spawn_dt_to
+      type: string
+      required: false
+    - name: accuracy
+      type: string
+      required: false
+    - name: precision
+      type: string
+      required: false
+    - name: index_yn
+      type: string
+      required: false
+    - name: reliability
+      type: string
+      required: false
+    - name: estimate_stage
+      type: string
+      required: false
+    - name: estimate_classification
+      type: string
+      required: false
+    - name: no_inspections_used
+      type: integer
+      required: false
+      notes: "Number of inspections the estimate used; blank where none recorded"
+    - name: estimate_method
+      type: string
+      required: false
+      notes: "How the estimate was made (Peak Live + Dead, Expert Opinion, ...)"
+    - name: created_dtt
+      type: string
+      required: false
+    - name: updated_dtt
+      type: string
+      required: false
+    - name: act_id
+      type: string
+      required: true
+      notes: "Row id of the estimate (key). A string: ids pass 2,146,000,000 in the 2026-06-01 release, at the edge of a 32-bit integer"
+    - name: pop_id
+      type: string
+      required: true
+      notes: "Population id; with gfe_id and analysis_yr, a key. A string, as act_id"
+    - name: gfe_id
+      type: string
+      required: false
+      notes: "Geographic feature (stream) id; with pop_id and analysis_yr, a key. A string: ids pass 2,049,000,000"
+    - name: full_cu_in
+      type: string
+      required: false
+      notes: "Conservation unit index (e.g. CK-12); absent from the earlier 49-column release, so not required"
+
+upstream_variants:
+  - id: "2026-06-01"
+    description: >
+      All Areas NuSEDS_20260601 as received: 51 upper-case column names, 421,001 rows, in a single-byte
+      encoding (BARRIÈRE RIVER, FRANÇOIS LAKE: its only bytes above 0x7F are 0xC7 and 0xC8). Declared
+      windows-1252, which reads those bytes as Latin-1 does and also reads 0x80-0x9F as the punctuation
+      Windows tools write there (’ –) rather than as invisible control characters. The handler
+      lower-cases the names.
+    encoding: windows-1252
+    cols:
+      - AREA
+      - WATERBODY
+      - GAZETTED_NAME
+      - LOCAL_NAME_1
+      - LOCAL_NAME_2
+      - ANALYSIS_YR
+      - SPECIES
+      - NATURAL_ADULT_SPAWNERS
+      - NATURAL_JACK_SPAWNERS
+      - NATURAL_SPAWNERS_TOTAL
+      - ADULT_BROODSTOCK_REMOVALS
+      - JACK_BROODSTOCK_REMOVALS
+      - TOTAL_BROODSTOCK_REMOVALS
+      - OTHER_REMOVALS
+      - TOTAL_RETURN_TO_RIVER
+      - ENUMERATION_METHODS
+      - ADULT_PRESENCE
+      - JACK_PRESENCE
+      - START_DTT
+      - END_DTT
+      - NATURAL_ADULT_FEMALES
+      - NATURAL_ADULT_MALES
+      - EFFECTIVE_FEMALES
+      - WEIGHTED_PCT_SPAWN
+      - WATERSHED_CDE
+      - FWA_WATERSHED_CDE
+      - WATERBODY_ID
+      - POPULATION
+      - RUN_TYPE
+      - STREAM_ARRIVAL_DT_FROM
+      - STREAM_ARRIVAL_DT_TO
+      - START_SPAWN_DT_FROM
+      - START_SPAWN_DT_TO
+      - PEAK_SPAWN_DT_FROM
+      - PEAK_SPAWN_DT_TO
+      - END_SPAWN_DT_FROM
+      - END_SPAWN_DT_TO
+      - ACCURACY
+      - PRECISION
+      - INDEX_YN
+      - RELIABILITY
+      - ESTIMATE_STAGE
+      - ESTIMATE_CLASSIFICATION
+      - NO_INSPECTIONS_USED
+      - ESTIMATE_METHOD
+      - CREATED_DTT
+      - UPDATED_DTT
+      - ACT_ID
+      - POP_ID
+      - GFE_ID
+      - FULL_CU_IN
+    normalize_fn: lower_names

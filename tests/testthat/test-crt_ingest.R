@@ -143,3 +143,23 @@ test_that("fish_data seasons bind, and a tag recaptured from a 2023 comment is f
   expect_identical(unique(recaptured$pit_tag_id), "3DD.003E190001")
   expect_identical(sort(recaptured$length_mm), c(157, 201))
 })
+
+test_that("crt_ingest() reads every column as character, so readr reparses no number (#41)", {
+  # readr's guess reads a column holding "0" and "1,208" as a number and drops the
+  # grouping mark, so 1,208 m becomes 1208 before the schema sees it. Read as
+  # character, the value reaches crt_schema_apply() as written; what the schema
+  # does with a value that does not fit its type is #41's second half.
+  path <- withr::local_tempfile(fileext = ".csv")
+  writeLines(c(
+    paste0(
+      "blue_line_key,downstream_route_measure,upstream_route_measure,watershed_group_code,",
+      "species_code,spawning,rearing,reviewer_name,review_date,source,notes"
+    ),
+    "356385867,0,208,ELKR,BT,,1,KO,2021-01-01,fixture,",
+    "356385867,\"1,208\",1500,ELKR,BT,1,,KO,2021-01-01,fixture,"
+  ), path)
+  out <- crt_ingest("bcfp", "user_habitat_classification", path)
+  expect_identical(out$downstream_route_measure[[1]], 0)
+  expect_false(isTRUE(out$downstream_route_measure[[2]] == 1208))
+  expect_identical(out$spawning, c(NA, 1L))
+})
