@@ -31,6 +31,13 @@ callers from the change: register the new shape as an \code{upstream_variant} in
 the schema YAML and add a normalize handler, and the same \code{crt_ingest()}
 call continues returning canonical output.
 
+Every column is read as character, so a column readr would have guessed
+from its first rows (a count blank for thousands of rows, then \code{1e+05}) is
+typed by the schema instead. A \code{.zip} holding one CSV is read as that CSV.
+The header is read first to pick the variant, and the file is then read in
+the variant's \code{encoding} (UTF-8 where it declares none); bytes that are not
+UTF-8 in a file read as UTF-8 are refused.
+
 Validation and typing are not done here — the handler's output goes through
 \code{\link[=crt_schema_conform]{crt_schema_conform()}}, which is also the entry point for data crate did not
 read. One code path, so the two cannot drift.
