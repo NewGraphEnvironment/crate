@@ -41,6 +41,16 @@ shields callers from the change: register the new shape as an
 `upstream_variant` in the schema YAML and add a normalize handler, and
 the same `crt_ingest()` call continues returning canonical output.
 
+Every column is read as character, so a column readr would have guessed
+from its first rows (a count blank for thousands of rows, then `1e+05`)
+is typed by the schema instead. A `.zip` holding one CSV is read as that
+CSV. The header is read first to pick the variant, and the file is then
+read in the variant's `encoding` (UTF-8 where it declares none); bytes
+that are not UTF-8 in a file read as UTF-8 are refused. Where the
+variant declares another encoding, its bytes are checked before the
+read: a file of UTF-8 multibyte text is refused, and so is a byte that
+encoding does not define.
+
 Validation and typing are not done here — the handler's output goes
 through
 [`crt_schema_conform()`](https://newgraphenvironment.github.io/crate/reference/crt_schema_conform.md),

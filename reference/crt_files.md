@@ -35,7 +35,7 @@ to actually ingest a registered file.
 ``` r
 # All registered (source, file_name) entries
 crt_files()
-#> # A tibble: 17 × 6
+#> # A tibble: 18 × 6
 #>    source file_name                  kind  handler_fn schema_yaml canonical_cols
 #>    <chr>  <chr>                      <chr> <chr>      <chr>       <chr>         
 #>  1 bcfp   user_habitat_classificati… file  crt_handl… schemas/bc… blue_line_key…
@@ -55,6 +55,7 @@ crt_files()
 #> 15 nge    photo_files                sche… NA         schemas/ng… path,checksum…
 #> 16 nge    photo_links                sche… NA         schemas/ng… checksum,proj…
 #> 17 nge    habitat/fwa/v1/segment     sche… NA         schemas/ng… blue_line_key…
+#> 18 dfo    nuseds_all_areas           file  crt_handl… schemas/df… waterbody,ana…
 
 # Filter to bcfp-sourced entries
 crt_files(source = "bcfp")
