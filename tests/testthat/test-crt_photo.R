@@ -82,6 +82,19 @@ test_that("a resized copy sharing its original's name is a second row naming it"
   expect_identical(out$derived_from[2], out$checksum[1])
 })
 
+test_that("a symbolic link is a second path to the same bytes, and says where it leads", {
+  x <- photos()[c(1, 1), ]
+  x$path[2] <- "photos/site_2/linked.jpg"
+  x$symlink <- c(NA, "../site_1/IMG_0001.JPG")
+  out <- crt_schema_conform(x, "nge", "photo_files")
+  expect_type(out$symlink, "character")
+  expect_identical(out$symlink, c(NA, "../site_1/IMG_0001.JPG"))
+  expect_identical(out$checksum[1], out$checksum[2])
+  # A producer that recorded no link at all writes a missing column of no type.
+  x$symlink <- NA
+  expect_type(crt_schema_conform(x, "nge", "photo_files")$symlink, "character")
+})
+
 test_that("only path, checksum and size are required on photo_files", {
   x <- photos()[c("path", "checksum", "size")]
   out <- crt_schema_conform(x, "nge", "photo_files")
