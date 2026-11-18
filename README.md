@@ -83,4 +83,4 @@ citation("crate")
 
 ## License
 
-MIT (see [`LICENSE.md`](https://github.com/NewGraphEnvironment/crate/blob/main/LICENSE.md)).
+MIT (see [`LICENSE.md`](https://github.com/NewGraphEnvironment/crate/blob/main/LICENSE.md)). Test fixtures drawn from other sources keep their own terms, listed in [`inst/NOTICE.md`](https://github.com/NewGraphEnvironment/crate/blob/main/inst/NOTICE.md).
