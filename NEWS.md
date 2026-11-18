@@ -1,3 +1,7 @@
+# crate 0.21.0 (2026-11-18)
+
+- `nge/photo_files` gains an optional `symlink` column (string): the target a symbolic link at `path` names, as the link holds it, not resolved; a missing value means the row is not known to be a link. Only a link at the last component of `path` is marked, and a row with `symlink` is not a copy; which rows are one file is not in the table. The reasoning is in `decisions/nge/20261118_photo_files_symlink.md` ([#76](https://github.com/NewGraphEnvironment/crate/issues/76)).
+
 # crate 0.20.0 (2026-11-18)
 
 - `dfo/nuseds_all_areas`, a `file` entry for Fisheries and Oceans Canada's NuSEDS All Areas escapement file, with its `2026-06-01` variant as received: 51 columns in lower snake case, one row per estimate (`act_id`; population, stream and year is the key), counts as `double` because filled cells hold decimals and `1e+05`, the ids as `string` because `act_id` reaches 2,146,955,744, and the `DD-MON-YY` dates as written. The fixture is 51 rows of the release, whose terms are listed in a new `inst/NOTICE.md` (Open Government Licence – Canada); the reasoning is in `decisions/dfo/20261117_nuseds_all_areas.md` ([#74](https://github.com/NewGraphEnvironment/crate/issues/74)).
