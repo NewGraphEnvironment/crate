@@ -8,7 +8,10 @@ description: >
   copy usually keeps its original's file name, so a match by name cannot tell
   the two apart; their checksums differ, and the copy's `derived_from` names the
   original. The key is `(checksum, path)`: one file's bytes can sit at two
-  paths, and both rows are kept.
+  paths, and both rows are kept. A symbolic link to a file is a second path
+  with no bytes of its own, and a producer that looks for links records it in
+  `symlink`. A folder that is a link is never marked, so rows that share a
+  checksum can be one file whether or not any of them is marked.
 
   Where a photo is stored is not here. A store defines its own key, keeps its
   own listing, and joins to this table on `checksum`.
@@ -130,6 +133,20 @@ canonical:
         that changed the bytes (resized, recompressed, cropped).
       'null': >
         An original, or a copy whose origin is not known.
+    - name: symlink
+      type: string
+      required: false
+      relative_to: the folder holding the link at `path`, when relative
+      notes: >
+        Where the symbolic link at `path` leads, as the link holds it, not
+        resolved, so a relative target is relative to the link's folder. A
+        link holds no bytes of its own: its `checksum`, `size` and metadata
+        are its target's, so a row with `symlink` is not a copy. Only a link
+        at the last component of `path` is marked, and the target text need
+        not name another row. Which rows are one file is not in this table;
+        telling them apart takes the disk.
+      'null': >
+        Not known to be a link.
 
 grades:
   - name: identified
@@ -137,3 +154,4 @@ grades:
 
 decisions:
   - decisions/nge/20261116_photo_tables.md
+  - decisions/nge/20261118_photo_files_symlink.md
