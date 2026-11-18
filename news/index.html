@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,14 @@
       <small>Source: <a href="https://github.com/NewGraphEnvironment/crate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.20.0" id="crate-0200-2026-11-18">crate 0.20.0 (2026-11-18)<a class="anchor" aria-label="anchor" href="#crate-0200-2026-11-18"></a></h2>
+<ul><li>
+<code>dfo/nuseds_all_areas</code>, a <code>file</code> entry for Fisheries and Oceans Canada’s NuSEDS All Areas escapement file, with its <code>2026-06-01</code> variant as received: 51 columns in lower snake case, one row per estimate (<code>act_id</code>; population, stream and year is the key), counts as <code>double</code> because filled cells hold decimals and <code>1e+05</code>, the ids as <code>string</code> because <code>act_id</code> reaches 2,146,955,744, and the <code>DD-MON-YY</code> dates as written. The fixture is 51 rows of the release, whose terms are listed in a new <code>inst/NOTICE.md</code> (Open Government Licence – Canada); the reasoning is in <code>decisions/dfo/20261117_nuseds_all_areas.md</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/74" class="external-link">#74</a>).</li>
+<li>
+<code><a href="../reference/crt_ingest.html">crt_ingest()</a></code> reads every column as character, so the schema, not readr’s guess, decides each type and no number is reparsed with locale rules (<code>1,208</code> no longer becomes 1208; the first half of <a href="https://github.com/NewGraphEnvironment/crate/issues/41" class="external-link">#41</a>).</li>
+<li>An upstream variant can declare its <code>encoding</code>. <code><a href="../reference/crt_ingest.html">crt_ingest()</a></code> reads the header, picks the variant, and reads the file in that encoding, UTF-8 where it declares none. A file read as UTF-8 whose bytes are not UTF-8 is refused. Under a single-byte variant the bytes are checked before the read: UTF-8 multibyte text, or a byte the encoding does not define, is refused, because readr 2.2.0 crashes R on an undefined byte rather than raising. The NuSEDS variant declares <code>windows-1252</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.19.0" id="crate-0190-2026-11-17">crate 0.19.0 (2026-11-17)<a class="anchor" aria-label="anchor" href="#crate-0190-2026-11-17"></a></h2>
 <ul><li>

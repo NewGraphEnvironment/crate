@@ -1,5 +1,33 @@
 # Changelog
 
+## crate 0.20.0 (2026-11-18)
+
+- `dfo/nuseds_all_areas`, a `file` entry for Fisheries and Oceans
+  Canada’s NuSEDS All Areas escapement file, with its `2026-06-01`
+  variant as received: 51 columns in lower snake case, one row per
+  estimate (`act_id`; population, stream and year is the key), counts as
+  `double` because filled cells hold decimals and `1e+05`, the ids as
+  `string` because `act_id` reaches 2,146,955,744, and the `DD-MON-YY`
+  dates as written. The fixture is 51 rows of the release, whose terms
+  are listed in a new `inst/NOTICE.md` (Open Government Licence –
+  Canada); the reasoning is in
+  `decisions/dfo/20261117_nuseds_all_areas.md`
+  ([\#74](https://github.com/NewGraphEnvironment/crate/issues/74)).
+- [`crt_ingest()`](https://newgraphenvironment.github.io/crate/reference/crt_ingest.md)
+  reads every column as character, so the schema, not readr’s guess,
+  decides each type and no number is reparsed with locale rules (`1,208`
+  no longer becomes 1208; the first half of
+  [\#41](https://github.com/NewGraphEnvironment/crate/issues/41)).
+- An upstream variant can declare its `encoding`.
+  [`crt_ingest()`](https://newgraphenvironment.github.io/crate/reference/crt_ingest.md)
+  reads the header, picks the variant, and reads the file in that
+  encoding, UTF-8 where it declares none. A file read as UTF-8 whose
+  bytes are not UTF-8 is refused. Under a single-byte variant the bytes
+  are checked before the read: UTF-8 multibyte text, or a byte the
+  encoding does not define, is refused, because readr 2.2.0 crashes R on
+  an undefined byte rather than raising. The NuSEDS variant declares
+  `windows-1252`.
+
 ## crate 0.19.0 (2026-11-17)
 
 - `nge/habitat/fwa/v1/segment`, a `schema_only` entry for link’s habitat
