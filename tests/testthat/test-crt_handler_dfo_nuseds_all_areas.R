@@ -79,3 +79,19 @@ test_that("a Windows apostrophe in a later release reads as itself, not a contro
   x <- crt_ingest("dfo", "nuseds_all_areas", f)
   expect_true("MAXAN\u2019S CREEK" %in% x$waterbody)
 })
+
+test_that("a byte windows-1252 leaves undefined, or UTF-8 text with one in it, is refused before the read", {
+  # readr's decoder crashes R on these bytes, so the refusal must come first: a crash here ends the test run
+  raw <- readBin(nuseds_fixture(), "raw", file.size(nuseds_fixture()))
+  at <- grepRaw("MAXAN CREEK", raw)
+  put <- function(b) {
+    f <- withr::local_tempfile(fileext = ".csv", .local_envir = parent.frame())
+    writeBin(c(raw[seq_len(at + 4L)], b, raw[(at + 6L):length(raw)]), f)
+    f
+  }
+  expect_error(crt_ingest("dfo", "nuseds_all_areas", put(as.raw(0x81))), "does not define")
+  utf8 <- withr::local_tempfile(fileext = ".csv")
+  txt <- iconv(readLines(nuseds_fixture(), encoding = "latin1"), from = "latin1", to = "UTF-8")
+  writeLines(sub("MAXAN CREEK", "MAXAN \u00c1 CREEK", txt), utf8, useBytes = TRUE)
+  expect_error(crt_ingest("dfo", "nuseds_all_areas", utf8), "file is UTF-8")
+})
