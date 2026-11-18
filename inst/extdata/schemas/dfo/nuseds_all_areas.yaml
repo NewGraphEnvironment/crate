@@ -170,16 +170,17 @@ canonical:
       type: string
       required: false
     - name: act_id
-      type: integer
+      type: string
       required: true
-      notes: "Row id of the estimate (key)"
+      notes: "Row id of the estimate (key). A string: ids pass 2,146,000,000 in the 2026-06-01 release, at the edge of a 32-bit integer"
     - name: pop_id
-      type: integer
+      type: string
       required: true
-      notes: "Population id (key with analysis_yr)"
+      notes: "Population id; with gfe_id and analysis_yr, a key. A string, as act_id"
     - name: gfe_id
-      type: integer
+      type: string
       required: false
+      notes: "Geographic feature (stream) id; with pop_id and analysis_yr, a key. A string: ids pass 2,049,000,000"
     - name: full_cu_in
       type: string
       required: false

@@ -7,8 +7,9 @@
 ## Decision
 
 The canonical shape for `dfo/nuseds_all_areas` is the NuSEDS All Areas file's own 51 columns, one row per
-population, species and year, with the names in lower case. Counts are `double`; the year, the inspections
-used and the three ids are `integer`; every date stays a `string`, as DFO wrote it.
+estimate (`act_id`; a population on one stream, `pop_id` and `gfe_id`, in one year), with the names in lower case.
+Counts are `double`; the year and the inspections used are `integer`; the three ids and every date stay `string`,
+as DFO wrote them.
 
 ## Trigger
 
@@ -23,6 +24,11 @@ release without `FWA_WATERSHED_CDE` and `FULL_CU_IN`, then the 51-column `202606
   a second vocabulary for DFO's.
 - **Counts as double.** Filled count cells hold integers, decimals (`77.8333333333333`, an estimate) and
   scientific notation (`1e+05`). `integer` would truncate the decimals.
+- **Ids as strings.** In the `20260601` release `act_id` reaches 2,146,955,744 and `gfe_id` 2,049,268,617, at
+  the edge of a 32-bit integer (2,147,483,647). An `integer` id would read as `NA` the release after it passes.
+- **One row per estimate, not per population and year.** A population can be counted on several streams in one
+  year (pop 2178, chinook, on the Seton River and Portage Creek): 518 rows share a population, species and year,
+  none a population, stream (`gfe_id`) and year.
 - **Dates as strings.** Dates are `DD-MON-YY`. A two-digit year needs the row's `analysis_yr` to resolve,
   and the spawn and arrival dates are read by month and day more often than as instants, so the reader
   decides.
