@@ -20,6 +20,18 @@
 #'   auto-parsing for columns the schema declares as text)
 #' - `logical` -> [as.logical()]
 #' - `datetime` -> `POSIXct` rendered in UTC, see below
+#' - `date` -> `Date`, a calendar day with no time and no zone, see below
+#'
+#' @section A date is a calendar day:
+#'
+#' A `date` column holds days, not instants: a day stated in a local time (a
+#' daily mean over a local day) is the same day wherever it is read. A `Date`
+#' passes through (a subclass such as data.table's `IDate` is rebuilt as a
+#' plain `Date`), a character value must be `YYYY-MM-DD` once surrounding
+#' whitespace is trimmed (an empty string is `NA`), and an all-`NA` column
+#' becomes an all-`NA` `Date`. A `POSIXct` is refused, because
+#' which day an instant falls on depends on a zone the column does not carry,
+#' and so is a number, whose origin is not stated.
 #'
 #' @section datetime is stamped, never converted:
 #'
@@ -68,6 +80,7 @@ crt_schema_apply <- function(df, schema) {
       "string"  = if (is.character(x)) x else as.character(x),
       "logical" = if (is.logical(x)) x else as.logical(x),
       "datetime" = crt_datetime_utc(x, col_name),
+      "date" = crt_date_day(x, col_name),
       cli::cli_abort(c(
         "Unknown canonical type {.val {col_type}} declared for column {.field {col_name}}.",
         "i" = "Supported types: {paste(crt_schema_types(), collapse = ', ')}."
@@ -114,6 +127,50 @@ crt_datetime_utc <- function(x, col_name) {
     "Cannot read {.field {col_name}} as a {.val datetime}.",
     "x" = "Got {.cls {class(x)}}.",
     "i" = "Supported: POSIXct, Date, numeric epoch seconds, ISO 8601 character."
+  ))
+}
+
+#' Coerce a column to Date, refusing what has no single calendar day
+#'
+#' See the `A date is a calendar day` section of [crt_schema_apply()].
+#'
+#' @param x A vector.
+#' @param col_name Column name, for the error message.
+#' @return A Date vector.
+#' @keywords internal
+#' @noRd
+crt_date_day <- function(x, col_name) {
+  if (inherits(x, "Date")) {
+    if (!is.double(x) && !is.integer(x) && !all(is.na(x))) {
+      cli::cli_abort("Cannot read {.field {col_name}} as a {.val date}: its storage is not a day count.")
+    }
+    return(structure(as.double(unclass(x)), class = "Date"))
+  }
+  if (is.character(x)) {
+    trimmed <- trimws(x)
+    absent <- is.na(trimmed) | !nzchar(trimmed)
+    shaped <- grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", trimmed)
+    out <- rep(NA_real_, length(x))
+    out[shaped] <- as.numeric(as.Date(trimmed[shaped], format = "%Y-%m-%d"))
+    bad <- !absent & (!shaped | is.na(out))
+    if (any(bad)) {
+      first <- trimmed[which(bad)[[1L]]] # nolint: object_usage_linter.
+      cli::cli_abort(c(
+        "{.field {col_name}} is not a {.val date}.",
+        "x" = "First unreadable value: {.val {first}}.",
+        "i" = "Accepted: YYYY-MM-DD, a real calendar day."
+      ))
+    }
+    return(structure(out, class = "Date"))
+  }
+  if (!inherits(x, "POSIXt") && all(is.na(x))) {
+    return(structure(rep(NA_real_, length(x)), class = "Date"))
+  }
+  cli::cli_abort(c(
+    "Cannot read {.field {col_name}} as a {.val date}.",
+    "x" = "Got {.cls {class(x)}}.",
+    "i" = paste("Supported: Date, or YYYY-MM-DD character. A POSIXct falls on a day only in a zone,",
+                "and a number has no stated origin: convert either to Date first.")
   ))
 }
 
@@ -211,5 +268,5 @@ crt_datetime_parse_iso <- function(x, col_name) {
 #' @keywords internal
 #' @noRd
 crt_schema_types <- function() {
-  c("integer", "double", "string", "logical", "datetime")
+  c("integer", "double", "string", "logical", "datetime", "date")
 }

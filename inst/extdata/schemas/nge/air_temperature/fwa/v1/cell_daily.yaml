@@ -1,0 +1,50 @@
+file: air_temperature/fwa/v1/cell_daily
+description: >
+  Daily air temperature for each ERA5-Land cell a BC Freshwater Atlas segment
+  reads, published by wet (NewGraphEnvironment/wet#216) as Hive-partitioned
+  parquet at s3://fresh-bc/air_temperature/fwa/v1/cell_daily/, beside
+  segment_cell, which gives every segment its cell_id. The file_name is the
+  dataset ID; the S3 prefix derives from it.
+
+  One row per cell and day, for every cell some segment's cell_id names and no
+  other. Each part file holds one calendar year (part-<YYYY>.parquet), so a
+  read of a span of years opens one file per year. The Hive keys `scenario`,
+  `forcing` and `source` are in the path
+  (scenario=historical/forcing=ERA5-Land/source=cd_daily).
+
+  The values are cd's daily cube (cd_extract_daily()), the ERA5-Land
+  reanalysis aggregated to days by cd, read at each cell's centre and copied
+  unchanged: no downscaling, no lapse-rate correction. The day is the local
+  standard day of BC, UTC-8 (Pacific Standard Time, no daylight saving), as cd defines it. Values are stored as 4-byte
+  floats, the cube's own type, so none is rounded; they read back as double.
+
+  Keyed by grid cell rather than by stream segment; the reasons it sits under
+  the fwa network are in decisions/nge/20261127_air_temperature_fwa.md.
+
+canonical:
+  shape: long
+  cols:
+    - name: cell_id
+      type: integer
+      required: true
+      notes: The cell, as segment_cell's cell_id (key, with date).
+    - name: date
+      type: date
+      required: true
+      notes: The local day, UTC-8 (key, with cell_id).
+    - name: tmean_c
+      type: double
+      required: true
+      notes: Daily mean 2 m air temperature over the local day, degrees C, as cd's daily cube holds it.
+    - name: tmax_c
+      type: double
+      required: true
+      notes: Daily maximum 2 m air temperature over the local day, degrees C, as cd's daily cube holds it.
+    - name: tmin_c
+      type: double
+      required: true
+      notes: Daily minimum 2 m air temperature over the local day, degrees C, as cd's daily cube holds it.
+
+decisions:
+  - decisions/nge/20261012_dataset_id_keys.md
+  - decisions/nge/20261127_air_temperature_fwa.md

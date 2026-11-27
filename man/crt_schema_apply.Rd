@@ -36,8 +36,22 @@ Supported \code{type} values:
 auto-parsing for columns the schema declares as text)
 \item \code{logical} -> \code{\link[=as.logical]{as.logical()}}
 \item \code{datetime} -> \code{POSIXct} rendered in UTC, see below
+\item \code{date} -> \code{Date}, a calendar day with no time and no zone, see below
 }
 }
+\section{A date is a calendar day}{
+
+
+A \code{date} column holds days, not instants: a day stated in a local time (a
+daily mean over a local day) is the same day wherever it is read. A \code{Date}
+passes through (a subclass such as data.table's \code{IDate} is rebuilt as a
+plain \code{Date}), a character value must be \code{YYYY-MM-DD} once surrounding
+whitespace is trimmed (an empty string is \code{NA}), and an all-\code{NA} column
+becomes an all-\code{NA} \code{Date}. A \code{POSIXct} is refused, because
+which day an instant falls on depends on a zone the column does not carry,
+and so is a number, whose origin is not stated.
+}
+
 \section{datetime is stamped, never converted}{
 
 
