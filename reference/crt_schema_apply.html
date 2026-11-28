@@ -81,7 +81,22 @@ column exists).</p>
 auto-parsing for columns the schema declares as text)</p></li>
 <li><p><code>logical</code> -&gt; <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical()</a></code></p></li>
 <li><p><code>datetime</code> -&gt; <code>POSIXct</code> rendered in UTC, see below</p></li>
+<li><p><code>date</code> -&gt; <code>Date</code>, a calendar day with no time and no zone, see below</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="a-date-is-a-calendar-day">A date is a calendar day<a class="anchor" aria-label="anchor" href="#a-date-is-a-calendar-day"></a></h2>
+
+
+
+<p>A <code>date</code> column holds days, not instants: a day stated in a local time (a
+daily mean over a local day) is the same day wherever it is read. A <code>Date</code>
+passes through (a subclass such as data.table's <code>IDate</code> is rebuilt as a
+plain <code>Date</code>), a character value must be <code>YYYY-MM-DD</code> once surrounding
+whitespace is trimmed (an empty string is <code>NA</code>), and an all-<code>NA</code> column
+becomes an all-<code>NA</code> <code>Date</code>. A <code>POSIXct</code> is refused, because
+which day an instant falls on depends on a zone the column does not carry,
+and so is a number, whose origin is not stated.</p>
+    </div>
     <div class="section level2">
     <h2 id="datetime-is-stamped-never-converted">datetime is stamped, never converted<a class="anchor" aria-label="anchor" href="#datetime-is-stamped-never-converted"></a></h2>
 

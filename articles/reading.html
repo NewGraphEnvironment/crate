@@ -72,7 +72,7 @@ does not read, which you hold to that shape yourself with
 <code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/crt_files.html">crt_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 18 × 6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 20 × 6</span></span></span>
 <span><span class="co">#&gt;    source file_name                  kind  handler_fn schema_yaml canonical_cols</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> bcfp   user_habitat_classificati… file  crt_handl… schemas/bc… blue_line_key…</span></span>
@@ -83,16 +83,18 @@ does not read, which you hold to that shape yourself with
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> nge    discharge/fwa/v1/segment_… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… linear_featur…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> nge    discharge/fwa/v1/segment_… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… linear_featur…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> nge    discharge/fwa/v1/watershe… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… watershed_fea…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> nge    form_pscis                 sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> nge    form_fiss_site             sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> nge    form_monitoring_fish_pass… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> nge    form_monitoring_general    sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> nge    form_monitoring            sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> nge    fish_data                  file  crt_handl… schemas/ng… local_name,sp…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> nge    photo_files                sche… <span style="color: #BB0000;">NA</span>         schemas/ng… path,checksum…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> nge    photo_links                sche… <span style="color: #BB0000;">NA</span>         schemas/ng… checksum,proj…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> nge    habitat/fwa/v1/segment     sche… <span style="color: #BB0000;">NA</span>         schemas/ng… blue_line_key…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> dfo    nuseds_all_areas           file  crt_handl… schemas/df… waterbody,ana…</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> nge    air_temperature/fwa/v1/se… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… linear_featur…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> nge    air_temperature/fwa/v1/ce… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… cell_id,date,…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> nge    form_pscis                 sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> nge    form_fiss_site             sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> nge    form_monitoring_fish_pass… sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> nge    form_monitoring_general    sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> nge    form_monitoring            sche… <span style="color: #BB0000;">NA</span>         schemas/ng… project,form,…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> nge    fish_data                  file  crt_handl… schemas/ng… local_name,sp…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> nge    photo_files                sche… <span style="color: #BB0000;">NA</span>         schemas/ng… path,checksum…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> nge    photo_links                sche… <span style="color: #BB0000;">NA</span>         schemas/ng… checksum,proj…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> nge    habitat/fwa/v1/segment     sche… <span style="color: #BB0000;">NA</span>         schemas/ng… blue_line_key…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> dfo    nuseds_all_areas           file  crt_handl… schemas/df… waterbody,ana…</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="one-call-either-shape">One call, either shape<a class="anchor" aria-label="anchor" href="#one-call-either-shape"></a>
@@ -171,10 +173,10 @@ is present, and fails listing all that are missing.</li>
 <strong>Type enforcement</strong> (<code><a href="../reference/crt_schema_apply.html">crt_schema_apply()</a></code>)
 coerces each declared column the data has to its schema type
 (<code>integer</code>, <code>double</code>, <code>string</code>,
-<code>logical</code> or <code>datetime</code>). Whatever types a handler
-returns, the schema’s are the ones that come out, and readr’s guesses (a
-double for an integer column, a <code>Date</code> for a declared string)
-do not leak through.</li>
+<code>logical</code>, <code>datetime</code> or <code>date</code>).
+Whatever types a handler returns, the schema’s are the ones that come
+out, and readr’s guesses (a double for an integer column, a
+<code>Date</code> for a declared string) do not leak through.</li>
 </ol>
 <p>Steps 4 and 5 are <code><a href="../reference/crt_schema_conform.html">crt_schema_conform()</a></code>, which
 <code><a href="../reference/crt_ingest.html">crt_ingest()</a></code> calls rather than repeats, so a file crate

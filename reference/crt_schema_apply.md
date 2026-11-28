@@ -50,6 +50,19 @@ Supported `type` values:
 
 - `datetime` -\> `POSIXct` rendered in UTC, see below
 
+- `date` -\> `Date`, a calendar day with no time and no zone, see below
+
+## A date is a calendar day
+
+A `date` column holds days, not instants: a day stated in a local time
+(a daily mean over a local day) is the same day wherever it is read. A
+`Date` passes through (a subclass such as data.table's `IDate` is
+rebuilt as a plain `Date`), a character value must be `YYYY-MM-DD` once
+surrounding whitespace is trimmed (an empty string is `NA`), and an
+all-`NA` column becomes an all-`NA` `Date`. A `POSIXct` is refused,
+because which day an instant falls on depends on a zone the column does
+not carry, and so is a number, whose origin is not stated.
+
 ## datetime is stamped, never converted
 
 A `datetime` column means **an instant**, and this function never
