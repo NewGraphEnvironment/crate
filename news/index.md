@@ -1,6 +1,6 @@
 # Changelog
 
-## crate (development version)
+## crate 0.22.0 (2026-11-28)
 
 - Two `schema_only` entries for the per-segment air temperature wet
   publishes (NewGraphEnvironment/wet#216):

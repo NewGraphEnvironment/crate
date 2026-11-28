@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.21.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.22.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="crate-development-version">crate (development version)<a class="anchor" aria-label="anchor" href="#crate-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.22.0" id="crate-0220-2026-11-28">crate 0.22.0 (2026-11-28)<a class="anchor" aria-label="anchor" href="#crate-0220-2026-11-28"></a></h2>
 <ul><li>Two <code>schema_only</code> entries for the per-segment air temperature wet publishes (NewGraphEnvironment/wet#216): <code>nge/air_temperature/fwa/v1/segment_cell</code>, one row per Freshwater Atlas segment giving the ERA5-Land cell whose series it reads (<code>cell_id</code>, numbered on the regular 0.1° grid ERA5-Land is distributed on, so a larger cube renumbers nothing), the cell’s status (<code>own</code>, <code>moved</code>, <code>no_data</code>, <code>outside</code>) and the segment midpoint and elevation that took it; and <code>nge/air_temperature/fwa/v1/cell_daily</code>, one row per used cell and local day with <code>tmean_c</code>, <code>tmax_c</code> and <code>tmin_c</code>. What the two bend in the dataset-ID rule, and why, is in <code>decisions/nge/20261127_air_temperature_fwa.md</code> (<a href="https://github.com/NewGraphEnvironment/crate/issues/81" class="external-link">#81</a>).</li>
 <li>A <code>date</code> schema type, for a calendar day with no time or zone: <code><a href="../reference/crt_schema_apply.html">crt_schema_apply()</a></code> keeps a <code>Date</code>, reads <code>YYYY-MM-DD</code> (surrounding whitespace trimmed, an empty string as missing), and refuses a <code>POSIXct</code> or a number, which fall on a day only given a zone or an origin (<a href="https://github.com/NewGraphEnvironment/crate/issues/81" class="external-link">#81</a>).</li>
 </ul></div>
