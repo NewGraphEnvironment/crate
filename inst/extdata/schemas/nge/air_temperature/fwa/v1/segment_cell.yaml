@@ -1,0 +1,85 @@
+file: air_temperature/fwa/v1/segment_cell
+description: >
+  The ERA5-Land cell whose daily air temperature series each BC Freshwater
+  Atlas (FWA) stream segment reads, published by wet
+  (NewGraphEnvironment/wet#216) as Hive-partitioned parquet at
+  s3://fresh-bc/air_temperature/fwa/v1/segment_cell/, beside cell_daily, which
+  holds each cell's series once. The file_name is the dataset ID; the S3 prefix
+  derives from it.
+
+  One row per segment of whse_basemapping.fwa_stream_networks_sp, every segment
+  listed, including those with no cell. Each part file holds one FWA watershed
+  group (part-<GROUP>.parquet). The Hive keys `scenario`, `forcing` and
+  `source` are in the path (scenario=historical/forcing=ERA5-Land/source=cd_daily),
+  as in the discharge datasets.
+
+  The point that takes the cell is the segment's midpoint along its line
+  (half its length in BC Albers). Its cell is the one cd's
+  cd_extract_daily() gives that point on cd's daily cube: the cell containing
+  it, or, where that cell holds no data (coast, large lakes), the nearest of
+  the eight around it that does (geodesic distance to the cell centre, ties to
+  the lower cell number). Which cells hold data is read from one pinned day of
+  the cube, which the published manifest names.
+
+  This dataset has no time step: it is a lookup, and its unit_timebase name
+  says the feature a row describes and the thing it maps to. The reasons it
+  sits under the fwa network beside cell_daily are in
+  decisions/nge/20261127_air_temperature_fwa.md.
+
+canonical:
+  shape: long
+  cols:
+    - name: linear_feature_id
+      type: integer
+      required: true
+      notes: FWA stream segment (key).
+    - name: watershed_group_code
+      type: string
+      required: true
+      notes: The segment's FWA watershed group, four letters (e.g. BULK).
+    - name: cell_id
+      type: integer
+      required: true
+      notes: >
+        The cell on the regular 0.1-degree latitude-longitude grid ERA5-Land
+        is distributed on (the Copernicus Climate Data Store's regridding of
+        its native reduced Gaussian grid), numbered from the cell centre: round((90 - cell_y) * 10) * 3600 +
+        round(((cell_x + 360) mod 360) * 10), so row 0 is 90 N and column 0 is
+        0 E. It does not depend on the box of cd's cube, so a cube on a larger
+        box adds cells and renumbers none. The key into cell_daily. NA where
+        cell_status is no_data or outside.
+    - name: cell_x
+      type: double
+      required: true
+      notes: Longitude of the cell centre, decimal degrees (WGS 84). NA with cell_id.
+    - name: cell_y
+      type: double
+      required: true
+      notes: Latitude of the cell centre, decimal degrees (WGS 84). NA with cell_id.
+    - name: cell_status
+      type: string
+      required: true
+      notes: >
+        own (the point's cell holds data), moved (it does not, and the cell is
+        the nearest of the eight around it that does), no_data (none of the
+        nine holds data; no cell) or outside (the point is outside the cube's
+        box; no cell).
+    - name: point_x
+      type: double
+      required: true
+      notes: Longitude of the segment's midpoint, decimal degrees (WGS 84).
+    - name: point_y
+      type: double
+      required: true
+      notes: Latitude of the segment's midpoint, decimal degrees (WGS 84).
+    - name: segment_elev_m
+      type: double
+      required: true
+      notes: >
+        Elevation of the segment's midpoint, m, interpolated from the FWA
+        line's own vertex elevations. The cell's elevation is not given
+        (NewGraphEnvironment/cd#161); no adjustment for the difference is made.
+
+decisions:
+  - decisions/nge/20261012_dataset_id_keys.md
+  - decisions/nge/20261127_air_temperature_fwa.md

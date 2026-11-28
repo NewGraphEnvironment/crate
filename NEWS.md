@@ -1,3 +1,8 @@
+# crate (development version)
+
+- Two `schema_only` entries for the per-segment air temperature wet publishes (NewGraphEnvironment/wet#216): `nge/air_temperature/fwa/v1/segment_cell`, one row per Freshwater Atlas segment giving the ERA5-Land cell whose series it reads (`cell_id`, numbered on the regular 0.1° grid ERA5-Land is distributed on, so a larger cube renumbers nothing), the cell's status (`own`, `moved`, `no_data`, `outside`) and the segment midpoint and elevation that took it; and `nge/air_temperature/fwa/v1/cell_daily`, one row per used cell and local day with `tmean_c`, `tmax_c` and `tmin_c`. What the two bend in the dataset-ID rule, and why, is in `decisions/nge/20261127_air_temperature_fwa.md` ([#81](https://github.com/NewGraphEnvironment/crate/issues/81)).
+- A `date` schema type, for a calendar day with no time or zone: `crt_schema_apply()` keeps a `Date`, reads `YYYY-MM-DD` (surrounding whitespace trimmed, an empty string as missing), and refuses a `POSIXct` or a number, which fall on a day only given a zone or an origin ([#81](https://github.com/NewGraphEnvironment/crate/issues/81)).
+
 # crate 0.21.0 (2026-11-18)
 
 - `nge/photo_files` gains an optional `symlink` column (string): the target a symbolic link at `path` names, as the link holds it, not resolved; a missing value means the row is not known to be a link. Only a link at the last component of `path` is marked, and a row with `symlink` is not a copy; which rows are one file is not in the table. The reasoning is in `decisions/nge/20261118_photo_files_symlink.md` ([#76](https://github.com/NewGraphEnvironment/crate/issues/76)).

@@ -77,7 +77,7 @@ together:
 4. **Validation** (`crt_schema_validate()`) checks that every column the schema declares
    `required: true` is present, and fails listing all that are missing.
 5. **Type enforcement** (`crt_schema_apply()`) coerces each declared column the data has to its
-   schema type (`integer`, `double`, `string`, `logical` or `datetime`). Whatever types a handler
+   schema type (`integer`, `double`, `string`, `logical`, `datetime` or `date`). Whatever types a handler
    returns, the schema's are the ones that come out, and readr's guesses (a double for an
    integer column, a `Date` for a declared string) do not leak through.
 
